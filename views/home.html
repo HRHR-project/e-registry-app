@@ -1,0 +1,155 @@
+<script>
+    $(".search-dropdown-button").on('click', function () {
+        $("#searchDropDown").width($("#searchDropDownParent").width());
+    });
+    $('#searchDropDown').on('click', "[data-stop-propagation]", function (e) {
+        e.stopPropagation();
+    });
+
+    //stop date picker's event bubling
+    $(document).on('click.dropdown touchstart.dropdown.data-api', '#ui-datepicker-div', function (e) {
+        e.stopPropagation();
+    });
+
+    $(window).resize(function () {
+        $("#searchDropDown").width($("#searchDropDownParent").width());
+    });
+</script>
+
+<span id="showLeftBar" class="hideInPrint">
+    <a href="javascript:dhis2.leftBar.showAnimated()" title="$i18n.getString('show_menu' )"><i class="fa fa-arrow-right leftBarIcon"></i></a>
+</span>
+
+<div id="leftBar">
+    
+    <d2-left-bar></d2-left-bar>
+    
+    <div id="orgUnitTree">
+        <ul>
+        </ul>
+    </div>
+    
+    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
+    
+    <div class="small-horizonal-spacing" ng-if="!treeLoaded">
+        {{'loading_tree'| translate}}
+    </div>
+    
+</div>
+
+<div class="page" id="mainPage">
+
+    <div ng-if="treeLoaded && !selectedOrgUnit">
+        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
+        {{'loading_metadata'| translate}}
+    </div> 
+
+    <div ng-show="selectedOrgUnit">
+        
+        <!-- top bar begins -->
+        <div class="row top-bar">     
+            <h2>{{trackerCaptureLabel}} </h2>                
+        </div>
+        <!-- top bar ends -->
+
+        <!--- selected org unit begins -->
+        <input type="text" selected-org-unit ng-model="selectedOrgUnit.displayName" ng-hide=true>
+        <!--- selected org unit ends  -->
+
+        <!-- search and registration menu begins -->
+        <!-- removed ng-if="selectedOrgUnit.displayName" from div below to make the program selecter load on start -->
+        <div class="row" ng-cloak>
+            <!-- Was commented out -->
+            <div class="col-md-4 small-vertical-spacing hideInPrint">
+                <label>Selected program:</label>
+                <ui-select ng-model="model.selectedProgram" 
+                        theme="select2" 
+                        on-select="getProgramAttributes(model.selectedProgram)"
+                        style="width:100%;">
+                    <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{programs.length > 0 ? 'please_select_a_program' : 'no_program_exists'| translate}}">{{$select.selected.displayName  || $select.selected}}</ui-select-match>
+                    <ui-select-choices  repeat="program in programs | orderBy: 'name' | filter: $select.search | limitTo:maxOptionSize">
+                        <span ng-bind-html="program.displayName | highlight: $select.search"></span>
+                    </ui-select-choices>
+                </ui-select>
+            </div>            
+
+            <!-- This is the inputfield next to the program selecter.
+            <div id="searchDropDownParent" class="input-group col-md-4 hideInPrint" ng-if="contentView!=='FIND'">
+                <input type="text" placeholder="{{searchCriteriaLabel}}" ng-model="searchText" class="form-control expanded" d2-enter="search(searchMode.freeText)" ng-class="{true: 'invalid - input'} [!searchText && emptySearchText]" ng-focus="showHideSearch()" ng-disabled="showRegistrationDiv" d2-set-focus={{doSearch}}>
+                <div class="input-group-btn">
+                    <button class="btn btn-default search-dropdown-button trim" type="button" title="{{advancedSearchLabel}}" data-toggle="dropdown" ng-disabled="showRegistrationDiv"><i class="fa fa-caret-down"></i></button>
+                    <button class="btn btn-primary trim" type="button" title="{{searchLabel}}" ng-disabled="showRegistrationDiv" ng-click="search(searchMode.freeText)"><i class="fa fa-search"></i></button>
+                    <div id="searchDropDown" class="dropdown-menu dropdown-menu-right">
+                        <form name="searchForm">
+                            <div ng-include="'views/advanced-search.html'"></div>
+                        </form>
+                    </div>
+                </div>                
+            </div>-->
+            <!-- Register button
+            <div class="col-md-4 trim hideInPrint">            
+                <button type="button" 
+                        class="btn btn-success"
+                        ng-if="selectedProgram && selectedProgram.displayFrontPageList"
+                        ng-disabled="showRegistrationDiv"
+                        ng-click="search(searchMode.listAll)">
+                    {{listAllLabel}}
+                </button>
+                <button type="button" 
+                        class="btn btn-primary"
+                        ng-click="showRegistration()">                    
+                    {{registerLabel}}
+                </button>
+                <button type="button"
+                        class="btn btn-info"
+                        ng-if="teiCount > 0"
+                        onclick="javascript:window.print()">
+                    {{printLabel}}
+                </button>
+            </div>-->
+        </div>
+            
+        <div class="vertical-spacing" ng-if="emptySearchAttribute || !searchText && emptySearchText">
+            <div class="alert alert-warning">{{'search_input_required'| translate}}</div>
+        </div>
+        <!-- END Was commented out -->
+            
+        <!--registration form begins -->
+            <div class="col-sm-8 bordered-div" ng-if="showRegistrationDiv" ng-include="'components/registration/registration.html'"></div>
+        <!-- registration form ends -->        
+
+        <!-- entity grid begins -->
+            <div class="row vertical-spacing" ng-if="model.selectedProgram">
+                <div class="col-sm-12">
+                    <span ng-if='!showRegistrationDiv'>
+                        <span class="btn-group">
+                            <label ng-repeat="cw in contentViews | orderBy: 'index'" class="btn btn-default" title="{{cw.title}}" ng-model="selectedContentView.view" btn-radio="cw.view" ng-click="setContentView(cw)">
+                                <i class="fa {{cw.icon}} mouse-pointer"></i>
+                            </label>
+                        </span>
+                        <span class="btn-group horizonal-spacing" ng-if="links">
+                            <!--This is where the buttons for search, upcoming event and missed events are generated.-->
+                            <label ng-repeat="link in links | orderBy: 'index'" class="btn btn-default" title="{{link.title}}" ng-model="selectedLink" btn-radio="link.title" ng-click="goToLink(link)">
+                                <i class="fa {{link.icon}} mouse-pointer"></i>
+                            </label>
+                        </span>
+                        <span ng-if="teiFetched && pager.total">
+                            {{'total'| translate}}:  {{pager.total}}
+                        </span>
+                    </span>
+                    <!-- Not used in palestine
+                    <div class="pull-right hideInPrint" ng-if="trackedEntityList.length > 0 && !showRegistrationDiv">
+                        <button class="btn btn-info"
+                                type="button"
+                                ng-click="showHideColumns()">
+                            {{showHideLabel}}
+                        </button>                    
+                    </div>
+                    -->
+                </div>
+            </div>
+            <div>
+            <ng-include ng-if="selectedContentView && !showRegistrationDiv" src="selectedContentView.template"></ng-include>
+        </div>
+    </div>
+</div>           

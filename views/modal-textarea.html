@@ -1,0 +1,18 @@
+<div class="modal-header">
+    <h3>{{modalOptions.headerText | translate}}</h3>
+</div>
+<div class="modal-body">
+    <p>{{modalOptions.bodyText | translate}}</p>
+    <div class="row">
+        <form name="form" novalidate>
+          <div class="input-group col-md-12">
+                <textarea class="form-control" name="textarea" rows="4" ng-model="textareaValue" placeholder="{{modalOptions.textAreaPlaceholder | translate}}" ng-required="modalOptions.textAreaRequired"></textarea>
+                <span class="required" ng-show="form.$submitted && form.textarea.$invalid">{{'required' | translate}}</span>
+          </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText | translate}}</button>
+    <button class="btn btn-primary" data-ng-click="modalOptions.ok(textareaValue);">{{modalOptions.actionButtonText | translate}}</button>
+</div>

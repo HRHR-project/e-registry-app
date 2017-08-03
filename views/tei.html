@@ -1,0 +1,140 @@
+<!-- Replaced the spinner with a more descriptive alert
+<i ng-if="!teiFetched" class="fa fa-spinner fa-spin fa-2x vertical-spacing"></i>
+-->
+<div class="alert alert-warning vertical-spacing" ng-if="!teiFetched">
+        No Program Selected
+</div>
+    
+<div ng-if="teiFetched">
+    <div class="alert alert-warning vertical-spacing" ng-if="trackedEntityList.length === 0 || !trackedEntityList.length">
+        {{'no'| translate}} {{selectedProgram.trackedEntity.displayName|| 'records' | translate}} {{'found'| translate}}
+    </div>
+    <div class="vertical-spacing" ng-if="trackedEntityList.length > 0">
+        <table class="table table-striped dhis2-table-hover table-bordered">               
+            <thead>                        
+                <tr>
+                    <th></th>
+                    <th ng-if="showProgramStageInEventsToday">{{'service_type' | translate}}</th>
+                    <th ng-repeat="gridColumn in gridColumns| filter:{show: true}" class='mouse-pointer' ng-click="sortGrid(gridColumn)">                            
+                        <!-- sort icon begins -->                                
+                        <span ng-hide="gridColumn.showFilter" class="bold pointer" title="{{'sort'| translate}}">
+                            <span ng-class="{true: 'red'} [sortColumn.id === gridColumn.id]"><i class="fa fa-sort"></i></span>
+                            {{gridColumn.displayName}}
+                        </span>
+                        <!-- sort icon ends -->                            
+                    </th>                              
+                </tr>                        
+            </thead>
+            <tbody id="list">
+                <tr ng-if="!addingTeiAssociate"
+                    ng-repeat="trackedEntity in trackedEntityList.rows.own| orderBy:d2Sort:reverse" 
+                    ng-click="mainTei.trackedEntityInstance ? assignRelationship(trackedEntity) : showDashboard(trackedEntity)"
+                    ng-class="{true: 'inactive - tei'} [trackedEntity.inactive]"
+                    title="{{mainTei.trackedEntityInstance ? 'select' : 'go_to_dashboard'| translate}}">
+                    <td><i ng-if="trackedEntity.followUp" class="fa fa-exclamation-triangle red" title="High risk pregnancy"></i></td>
+                    <td ng-if="showProgramStageInEventsToday">
+                        <ul class="list-unstyled">
+                            <li class="list-item-border-bottom" ng-repeat="stage in trackedEntity.programStages">
+                                {{stage}}
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-repeat="gridColumn in gridColumns| filter:{show: true}">
+                        <span ng-switch="gridColumn.valueType">
+                            <span ng-switch-when="bool">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'">{{'yes'| translate}}</span>
+                                <span ng-if="trackedEntity[gridColumn.id] === 'false'">{{ 'no' | translate}}</span>
+                            </span>
+                            <span ng-switch-when="trueOnly">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'"><i class="fa fa-check"></i></span>
+                            </span>
+                            <span ng-switch-default>{{trackedEntity[gridColumn.id]}}</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr ng-if="!addingTeiAssociate"
+                    ng-repeat="trackedEntity in trackedEntityList.rows.other| orderBy:d2Sort:reverse" 
+                    ng-click="mainTei.trackedEntityInstance ? assignRelationship(trackedEntity) : showDashboard(trackedEntity)"
+                    ng-class="{true: 'inactive - tei'} [trackedEntity.inactive]"
+                    title="{{mainTei.trackedEntityInstance ? 'select' : 'go_to_dashboard'| translate}}">
+                    <td><i ng-if="trackedEntity.followUp" class="fa fa-exclamation-triangle red" title="High risk pregnancy"></i></td>
+                    <td ng-if="showProgramStageInEventsToday">
+                        <ul class="list-unstyled">
+                            <li class="list-item-border-bottom" ng-repeat="stage in trackedEntity.programStages">
+                                {{stage}}
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-repeat="gridColumn in gridColumns| filter:{show: true}">
+                        <span ng-switch="gridColumn.valueType">
+                            <span ng-switch-when="bool">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'">{{'yes'| translate}}</span>
+                                <span ng-if="trackedEntity[gridColumn.id] === 'false'">{{ 'no' | translate}}</span>
+                            </span>
+                            <span ng-switch-when="trueOnly">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'"><i class="fa fa-check"></i></span>
+                            </span>
+                            <span ng-switch-default>{{trackedEntity[gridColumn.id]}}</span>
+                        </span>
+                    </td>
+                </tr>
+
+                <tr ng-if="addingTeiAssociate"
+                    ng-repeat="trackedEntity in trackedEntityList.rows.own| orderBy:d2Sort:reverse" 
+                    ng-click="assignRelationship(trackedEntity)"
+                    ng-class="{true: 'inactive - tei'} [trackedEntity.inactive]"
+                    title="{{'select'| translate}}">
+                    <td><i ng-if="trackedEntity.followUp" class="fa fa-exclamation-triangle red" title="High risk pregnancy"></i></td>
+                    <td ng-if="showProgramStageInEventsToday">
+                        <ul class="list-unstyled">
+                            <li class="list-item-border-bottom" ng-repeat="stage in trackedEntity.programStages">
+                                {{stage}}
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-repeat="gridColumn in gridColumns| filter:{show: true}">
+                        <span ng-switch="gridColumn.valueType">
+                            <span ng-switch-when="bool">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'">{{'yes'| translate}}</span>
+                                <span ng-if="trackedEntity[gridColumn.id] === 'false'">{{ 'no' | translate}}</span>
+                            </span>
+                            <span ng-switch-when="trueOnly">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'"><i class="fa fa-check"></i></span>
+                            </span>
+                            <span ng-switch-default>{{trackedEntity[gridColumn.id]}}</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr ng-if="addingTeiAssociate"
+                    ng-repeat="trackedEntity in trackedEntityList.rows.other| orderBy:d2Sort:reverse" 
+                    ng-click="assignRelationship(trackedEntity)"
+                    ng-class="{true: 'inactive - tei'} [trackedEntity.inactive]"
+                    title="{{'select'| translate}}">
+                    <td><i ng-if="trackedEntity.followUp" class="fa fa-exclamation-triangle red" title="High risk pregnancy"></i></td>
+                    <td ng-if="showProgramStageInEventsToday">
+                        <ul  class="list-unstyled">
+                            <li class="list-item-border-bottom" ng-repeat="stage in trackedEntity.programStages">
+                                {{stage}}
+                            </li>
+                        </ul>
+                    </td>
+                    <td ng-repeat="gridColumn in gridColumns| filter:{show: true}">
+                        <span ng-switch="gridColumn.valueType">
+                            <span ng-switch-when="bool">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'">{{'yes'| translate}}</span>
+                                <span ng-if="trackedEntity[gridColumn.id] === 'false'">{{ 'no' | translate}}</span>
+                            </span>
+                            <span ng-switch-when="trueOnly">
+                                <span ng-if="trackedEntity[gridColumn.id] === 'true'"><i class="fa fa-check"></i></span>
+                            </span>
+                            <span ng-switch-default>{{trackedEntity[gridColumn.id]}}</span>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>        
+        </table>
+        <div ng-if="selectedContentView.type==='enrollment'">
+         <serverside-paginator></serverside-paginator>           
+        </div>
+    </div>
+</div>

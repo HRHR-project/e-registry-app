@@ -1,0 +1,45 @@
+<div>
+    <div ng-if="teiFound">
+        <h3>Find result</h3>
+        <div ng-include="'views/tei.html'" ng-if="teiFound"></div>
+    </div>
+    <h3>{{'search_register_patient'| translate}}</h3>
+    <div class="row">
+        <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+            <form>
+                <div class="form-group" ng-repeat="attribute in findAttributes | filter:{show:true}">
+                    <label for="attribute.id">{{attribute.displayName}}</label>
+                    <div ng-if="!attribute.optionSetValue" ng-switch="attribute.valueType">
+                        <div ng-switch-when="NUMBER">                                           
+                                <input type="number" class="form-control" ng-model="attribute.exactValue"/>                                  
+                        </div>
+                        <div ng-switch-when="DATE">
+                                <input type="text" ng-if="attribute.id === 'gHGyrwKPzej'" class="form-control" d2-date max-date="0" min-date="" ng-model="attribute.exactValue"/>
+                                <input type="text" ng-if="attribute.id !== 'gHGyrwKPzej'" class="form-control" d2-date ng-model="attribute.exactValue"/>       
+                        </div>
+                        
+                        <div ng-switch-when="BOOLEAN">
+                            <select ui-select2 multiple ng-model="attribute.value" data-placeholder="{{'please_select'| translate}}" style="width:100%;">
+                                <option ng-repeat="option in boolOperators" value="{{option}}">{{option| translate}}</option>
+                            </select>
+                        </div> 
+                        <div ng-switch-default>
+                            <input type="text" class="form-control" ng-model="attribute.value" /> 
+                        </div>
+                    </div>
+                </div>
+            </form>           
+        </div>
+        <div class="col-lg-8 col-md-6 col-sm-12 col-xs-12">
+            <div class="row findview-padding">
+                <div class="col-md-12 vertical-spacing">
+                     <button type="button" class="btn btn-primary" ng-click="findTei()">{{'search_register' | translate }}</button>
+                </div>
+                <div class="col-md-12 vertical-spacing" ng-if="findWarning">
+                    <div class="alert alert-warning"><span>{{'multiple_records_warning'| translate}}</span></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

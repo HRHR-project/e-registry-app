@@ -1,0 +1,40 @@
+<!-- data entry/event buttons begins -->                
+<div class="form-group hideInPrint" ng-if="displayCustomForm !== 'TABLE'">
+    <div class='row'><hr></div>
+    <a href ng-click="completeIncompleteEvent(null, outerForm)" 
+       class="btn btn-warning" 
+       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || currentEvent.orgUnit !== selectedOrgUnit.id"
+       ng-if="currentEvent.eventDate && (currentEvent.status === 'SCHEDULE' || currentEvent.status === 'ACTIVE' || currentEvent.status === 'VISITED')">{{'complete'| translate}}</a>
+    <a href ng-click="completeIncompleteEvent(null, outerForm)" 
+       class="btn btn-warning"
+       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed && currentEvent.status !== 'COMPLETED' || currentEvent.orgUnit !== selectedOrgUnit.id"
+       ng-if="currentEvent.eventDate && currentEvent.status === 'COMPLETED'">{{'incomplete'| translate}}</a>    
+    <a href ng-click="skipUnskipEvent()" 
+       class="btn btn-warning" 
+       ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || currentEvent.orgUnit !== selectedOrgUnit.id"
+       ng-if="!currentEvent.eventDate">{{currentEvent.status === 'SKIPPED' ? 'unskip' : 'skip'| translate}}</a>
+    <a href ng-click="deleteEvent()" 
+       ng-disabled="selectedEnrollment.status === 'COMPLETED' || currentEvent.editingNotAllowed || currentEvent.orgUnit !== selectedOrgUnit.id"
+       class="btn btn-danger">{{'delete'| translate}}</a>
+    
+    <!-- custom code for folkehelsa -->
+    <a href ng-click="showCreateEvent(null, eventCreationActions.add, currentStage)" 
+       ng-if="stageNeedsEvent(currentStage) && selectedEnrollment.status === 'ACTIVE' && currentStage.id !== 'uUHQw5KrZAL' && currentStage.id !== 'BjNpOxjvEj5' && currentStage.id !== 'FRSZV43y35y'"
+       class="btn btn-primary">{{'add_new_visit'| translate}}</a>    
+    <a href ng-click="showCreateEvent(currentStage, eventCreationActions.add)" 
+       ng-if="stageNeedsEvent(currentStage, true) && selectedEnrollment.status === 'ACTIVE' && (currentStage.id === 'uUHQw5KrZAL' || currentStage.id === 'BjNpOxjvEj5' || currentStage.id === 'FRSZV43y35y')"
+       class="btn btn-primary">
+        <span ng-if="currentStage.id === 'uUHQw5KrZAL'">
+            {{'add_new_ultrasound'| translate}}
+        </span>
+        <span ng-if="currentStage.id === 'BjNpOxjvEj5'">
+            {{'add_new_lab_result'| translate}}
+        </span>
+        <span ng-if="currentStage.id === 'FRSZV43y35y'">
+            {{'add_new_nbc_visit'| translate}}
+        </span>
+    </a>
+    <!-------------------------------->
+       
+    <a href class="btn btn-info" ng-click="print('print-div');">{{'print_form'| translate}}</a>
+</div>

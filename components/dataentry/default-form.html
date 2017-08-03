@@ -1,0 +1,142 @@
+<form name="outerForm" novalidate>
+    <table class="dhis2-list-table-striped default-form-table dhis2-table-hover" ng-if='currentEvent && !currentStage.programStageSections.length'>
+        <thead>
+        <tr>
+            <th ng-bind="dataElementLabel">
+            </th>
+            <th class="" ng-bind="valueLabel">
+            </th>
+
+            <th class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]" ng-bind="providedElsewhereLabel">
+            </th>
+        </tr>
+        </thead>
+        <tr class="col-md-12" ng-repeat="prStDe in currentStage.programStageDataElements" ng-if="!isHidden(prStDe.dataElement.id, currentEvent) || printMode === true">
+            <td>
+                <span ng-bind="prStDe.dataElement.formName ? prStDe.dataElement.formName : prStDe.dataElement.displayName"></span>
+                <span ng-if="prStDe.compulsory" class="required">*</span>
+                <span class="hideInPrint">
+                    <a ng-if="prStDe.dataElement.description" Title="{{prStDe.dataElement.description}}" ng-init="showHelpText[prStDe.dataElement.id] = false;" ng-click="showHelpText[prStDe.dataElement.id] = !showHelpText[prStDe.dataElement.id]">
+                        <span class="glyphicon glyphicon-info-sign" ></span>
+                        <span ng-show="showHelpText[prStDe.dataElement.id]" ><br>{{prStDe.dataElement.description}}</span>
+                    </a>
+                    <span ng-if="otherValuesLists[prStDe.dataElement.id]" ng-repeat="altValue in otherValuesLists[prStDe.dataElement.id] track by $index">
+                        <span class="label label-default">{{altValue | translate}}</span>
+                   </span>
+                </span>
+            </td>
+            <td dhis2-compiled-include="components/dataentry/inner-form.html">                
+            </td>
+            <td class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]">
+                <div ng-show="prStDe.allowProvidedElsewhere">
+                    <span>
+                        <input type="checkbox"
+                           class="form-control-checkbox"
+                           ng-model="currentEvent.providedElsewhere[prStDe.dataElement.id]"
+                           ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed"
+                           ng-change="saveDatavalueLocation(prStDe)"/>
+                    </span>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div ng-if='currentEvent && currentStage.programStageSections.length'>
+        <accordion close-others='false'>
+            <!-- The inline style was needed to override overflow:hidden in the css. Can possibly be replaced with a CSS update. -->
+            <accordion-group is-open="section.open" ng-repeat='section in currentStage.programStageSections' ng-if="!hiddenSections[currentEvent.event][section.id] || printMode === true" style="overflow:visible">
+                <accordion-heading>
+                    {{section.displayName}}
+                    <a ng-if="section.description" Title="{{section.description}}" ng-init="showHelpText.sections[section.id] = false;" ng-click="showHelpText.sections[section.id] = !showHelpText.sections[section.id];section.open =!section.open;">
+                        <span class="glyphicon glyphicon-info-sign" ></span>
+                        <span ng-show="showHelpText.sections[section.id]" ><br>{{section.description}}</span>
+                    </a>
+                </accordion-heading>
+                
+                <div ng-if="currentStage.id ==='edqlbukwRfQ' && section.id!=='rBOWhA2FB9r'">
+                    <strong>Previous values</strong>
+                    <table class="dhis2-table-striped-border">
+                        <thead>
+                            <tr>
+                                <td>
+                                    {{currentEvent.excecutionDateLabel}}
+                                </td>
+                                <td>Gest.Age at visit</td>
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="de.dataElement.id !== 'OsaG5OsIJw9' && de.dataElement.id !== 'Kb2LvjqXHfi'">
+                                    <span ng-bind="prStDes[de.dataElement.id].dataElement.formName ? prStDes[de.dataElement.id].dataElement.formName : prStDes[de.dataElement.id].dataElement.displayName"></span>                                
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{previousEvents.first.eventDate}}</td>
+                                <td>{{previousEvents.first['Kb2LvjqXHfi']}}</td>
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="de.dataElement.id !== 'OsaG5OsIJw9' && de.dataElement.id !== 'Kb2LvjqXHfi'">
+                                    <span ng-if="previousEvents.first[de.dataElement.id] === 'true'">{{'yes' | translate}}</span>
+                                    <span ng-if="previousEvents.first[de.dataElement.id] === 'false'">{{'no' | translate}}</span>
+                                    <span ng-if="previousEvents.first[de.dataElement.id]!== 'true' && previousEvents.first[de.dataElement.id]!== 'false'">{{previousEvents.first[de.dataElement.id]}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="prevEvent in previousEvents.other">
+                                <td>{{prevEvent.eventDate}}</td>
+                                <td>{{prevEvent['Kb2LvjqXHfi']}}</td>
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="de.dataElement.id !== 'OsaG5OsIJw9' && de.dataElement.id !== 'Kb2LvjqXHfi'">
+                                    <span ng-if="prevEvent[de.dataElement.id] === 'true'">{{'yes' | translate}}</span>
+                                    <span ng-if="prevEvent[de.dataElement.id] === 'false'">{{'no' | translate}}</span>
+                                    <span ng-if="prevEvent[de.dataElement.id]!== 'true' && prevEvent[de.dataElement.id]!== 'false'">{{prevEvent[de.dataElement.id]}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                </div>
+                <div class="vertical-spacing" ng-if="!section.programStageDataElements || section.programStageDataElements.length === 0">
+                    <div class="alert alert-warning">{{'section'| translate}} {{section.displayName}} {{'has_no_dataelements'| translate}}</div>
+                </div>
+
+                <table class="dhis2-list-table-striped default-form-table dhis2-table-hover" ng-if="section.programStageDataElements && section.programStageDataElements.length > 0">                    
+                    <thead>
+                    <tr>
+                        <th ng-bind="dataElementLabel">
+                        </th>
+                        <th ng-bind="valueLabel">
+                        </th>
+                        <th class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]" ng-bind="providedElsewhereLabel">
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="list">       
+                        <tr ng-repeat="de in section.programStageDataElements" ng-if="!isHidden(de.dataElement.id) || printMode === true">
+                            <td>
+                                <span>{{de.dataElement.id.id}}</span>
+                                <span>{{prStDes[de.dataElement.id].formName}}</span>
+                                <span ng-bind="prStDes[de.dataElement.id].dataElement.formName ? prStDes[de.dataElement.id].dataElement.formName : prStDes[de.dataElement.id].dataElement.displayName"></span>       
+                                <span ng-if="prStDes[de.dataElement.id].compulsory" class="required">*</span>
+                                <span class="hideInPrint">
+                                    <a ng-if="prStDes[de.dataElement.id].dataElement.description" Title="{{prStDes[de.dataElement.id].dataElement.description}}" ng-init="showHelpText[de.dataElement.id] = false;" ng-click="showHelpText[de.dataElement.id] = !showHelpText[de.dataElement.id]">
+                                        <span class="glyphicon glyphicon-info-sign" ></span>
+                                        <span ng-show="showHelpText[de.dataElement.id]" ><br>{{prStDes[de.dataElement.id].dataElement.description}}</span>
+                                    </a>   
+                                    <span ng-if="otherValuesLists[de.dataElement.id] && showOtherValuesLists" ng-repeat="altValue in otherValuesLists[de.dataElement.id]">
+                                        <span class="label label-default">{{altValue | translate}}</span>
+                                    </span>
+                                </span>
+                            </td>
+                            <td dhis2-compiled-include="components/dataentry/section-inner-form.html">                            
+                            </td>
+                            <td class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]">
+                                <div ng-show="prStDes[de.dataElement.id].allowProvidedElsewhere">
+                                    <input type="checkbox"
+                                           class="form-control-checkbox"
+                                           ng-model="currentEvent.providedElsewhere[prStDes[de.dataElement.id].dataElement.id]"
+                                           ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed"
+                                           ng-change="saveDatavalueLocation(prStDes[de.dataElement.id])"/>
+                                </div>
+                            </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </accordion-group> 
+        </accordion>
+    </div>
+    
+</form>

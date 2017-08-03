@@ -1,0 +1,235 @@
+<div class="row">
+    <div ng-class="getTopLineColumnStyle(1)">
+        <div ng-if="!useMainMenu || (useMainMenu && !hideTopLineEventsForFormTypes[displayCustomForm])" ng-repeat="dhis2Event in getTopLineEventsPage()">            
+            <div class="event-container" ng-click="getEventPage('BACKWARD')" ng-if="$index === 0 && eventPagingStart > 0">
+                &nbsp;<br/>
+                {{'previous'| translate}}
+            </div>
+            <div style="float: left">
+                <div class="event-container" title="[{{'org_unit' | translate}}: {{dhis2Event.orgUnitName}}, {{'program_stage' | translate}}: {{dhis2Event.displayName}}]" ng-class="getEventStyle(dhis2Event)" ng-click="showDataEntry(dhis2Event, false)">                
+                    <div class="event-container-item">
+                        {{dhis2Event.sortingDate}}
+                        <!--for folkehelsa----->
+                        {{getGestAgeForANCEventContainer(dhis2Event)}}
+                        <!--------------------->
+                        <br/>
+                    {{dhis2Event.orgUnitName.length > 15 ? dhis2Event.orgUnitName.substring(0,15).concat('...') : dhis2Event.orgUnitName}}<br/>
+                    {{dhis2Event.displayName.length > 15 ? dhis2Event.displayName.substring(0,15).concat('...') : dhis2Event.displayName}}
+                    </div>
+                    <div class="event-container-footer">{{getEventStyleLabel(dhis2Event)}}</div>
+                </div>
+                <div style="float: right" class="arrow-container" ng-if="$index + 1 < eventPageSize && $index + 1 + eventPagingStart < topLineEvents.length">
+                    <i class="fa fa-arrow-right"></i>
+                </div>
+            </div>            
+            <div class="event-container" ng-click="getEventPage('FORWARD')" ng-if="$index + 1 === eventPageSize && eventPagingEnd < topLineEvents.length">
+                &nbsp;<br/>
+                {{'next'| translate}}
+            </div>
+        </div>
+        <div ng-if="(topLineEvents.length < 1 || (useMainMenu && hideTopLineEventsForFormTypes[displayCustomForm])) && eventsLoaded">
+            <div ng-if="!useMainMenu">
+                <div class="alert alert-warning">{{'no_events_exist'| translate}}</div>
+            </div>
+            <div ng-if="useMainMenu" class="container-fluid">
+                <div class="row">
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-6" style="text-align: center">
+                        <div class="badge-container" style='display:inline-block'>
+                            <a href class="disable-link-effects" ng-click="useMainMenu ? showCreateEventIfStageNeedsEvent(selectedMainMenuStage, eventCreationActions.add, false, true) : showCreateEvent(null, eventCreationActions.add)" title="{{'add_new'| translate}}">
+                                <span class="stage-tasks-badge-big" ng-class="{'stage-tasks-badge-disabled': !stageNeedsEventOfType(selectedMainMenuStage, eventCreationActions.add)}">                                     
+                                    <span><i class="fa fa-plus vertical-center"></i></span>                
+                                </span>
+                            </a>                
+                        </div>
+                        <div class="badge-container" style='display:inline-block'>
+                            <a href class="disable-link-effects" ng-click="useMainMenu ? showCreateEventIfStageNeedsEvent(selectedMainMenuStage, eventCreationActions.schedule, false, true) : showCreateEvent(null, eventCreationActions.schedule)" title="{{'schedule_new'| translate}}">
+                                <span class="stage-tasks-badge-big" ng-class="{'stage-tasks-badge-disabled': !stageNeedsEventOfType(selectedMainMenuStage, eventCreationActions.schedule)}">                                     
+                                    <span><i class="fa fa-calendar vertical-center"></i></span>                
+                                </span>
+                            </a>                
+                        </div>            
+                        <div class="badge-container" style='display:inline-block'>
+                            <a href class="disable-link-effects" ng-click="useMainMenu ? showCreateEventIfStageNeedsEvent(selectedMainMenuStage, eventCreationActions.referral, false, true) : showCreateEvent(null, eventCreationActions.referral)" title="{{'make_referral' | translate}}">
+                                <span class="stage-tasks-badge-big" ng-class="{'stage-tasks-badge-disabled': !stageNeedsEventOfType(selectedMainMenuStage, eventCreationActions.referral)}">                                     
+                                            <span><i class="fa fa-share vertical-center"></i></span>                
+                                </span>
+                            </a>                
+                        </div>
+                    </div>  
+                    <div class="col-md-3" style="text-align: center">
+                        <!----for folkehelsa---->            
+                        <div ng-if="!useBottomLine && fetusMenu && fetusMenu.display === true && currentStage.id === 'uUHQw5KrZAL' && currentEvent.status === EVENTSTATUSCOMPLETELABEL">  
+                            <div>
+                                <div ng-bind="prStDes['gpKuJcONaoW'].dataElement.shortname ? prStDes['gpKuJcONaoW'].dataElement.shortname : prStDes['gpKuJcONaoW'].dataElement.displayName" class="bold"></div>
+                                <div>                                    
+                                    <ui-select ng-model="fetusMenu.selected" 
+                                        theme="select2"                                                                 
+                                        name="fetusMenu" 
+                                        on-select="changeEventBasedOnFetusFilter()"
+                                        style='width: 100%'>
+                                        <ui-select-match allow-clear="{{fetusMenu.allowClear}}" class="form-control-ui-select"  placeholder="{{'no_designation' | translate}}">{{$select.selected}}</ui-select-match>
+                                        <ui-select-choices repeat="option in fetusMenu.fetusOptions">
+                                            <span ng-bind-html="option | highlight: $select.search"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>                            
+                        </div>
+                        <div ng-if="!useBottomLine && fetusMenu && fetusMenu.display === true && currentStage.id === 'FRSZV43y35y' && currentEvent.status === EVENTSTATUSCOMPLETELABEL">  
+                            <div>
+                                <div ng-bind="prStDes['yakmemTH1Vz'].dataElement.shortname ? prStDes['yakmemTH1Vz'].dataElement.shortname : prStDes['yakmemTH1Vz'].dataElement.displayName" class="bold"></div>
+                                <div>                                    
+                                    <ui-select ng-model="fetusMenu.selected" 
+                                        theme="select2"                                                                 
+                                        name="fetusMenu" 
+                                        on-select="changeEventBasedOnFetusFilter()"
+                                        style='width: 100%'>
+                                        <ui-select-match allow-clear="{{fetusMenu.allowClear}}" class="form-control-ui-select"  placeholder="{{'no_designation' | translate}}">{{$select.selected}}</ui-select-match>
+                                        <ui-select-choices repeat="option in fetusMenu.fetusOptions">
+                                            <span ng-bind-html="option | highlight: $select.search"></span>
+                                        </ui-select-choices>
+                                    </ui-select>
+                                </div>
+                            </div>                            
+                        </div>
+                    <!--end for folkehelsa-->
+                    </div> 
+                </div>
+            </div>
+        </div>
+    </div>
+    <div ng-class="getTopLineColumnStyle(2)">
+        <div ng-if="showStageTasks && eventsLoaded" class="panel panel-info">
+            <div class="panel-heading">{{'new_visit' | translate}}
+                <span class="pull-right">
+                    <a class="small-horizonal-spacing" href ng-click="toggleShowStageTasks()">
+                    <span><i class="fa fa-chevron-right vertical-center" title="{{'hide_menu' | translate}}"></i></span>                    
+                    </a>
+                </span>
+            </div>
+            <div class="panel-body">
+                <div class="container-fluid">
+                    <div class="row row-alternate" style="font-size: 12px" ng-repeat="stage in creatableStages = (programStages | filter:displayStageTasksInTopLine)" ng-if="selectedEnrollment.status === 'ACTIVE'">
+                        <div class="col-sm-12">{{stage.displayName}}</div>
+                        <div class="col-sm-12">
+
+                            <span>
+                                <a href title="{{'add_new'| translate}}" ng-click="showCreateEvent(stage,eventCreationActions.add)" style="vertical-align:middle">
+                                    {{'add'|translate}}
+                                </a>
+
+                                <span ng-if="!stage.hideDueDate">
+                                    |
+                                    <a href title="{{'schedule_new'| translate}}" ng-click="showCreateEvent(stage,eventCreationActions.schedule)" style="vertical-align:middle">
+                                        {{'schedule'|translate}}
+                                    </a>
+                                </span>
+                                <span ng-if="showReferral && !stage.hideDueDate">
+                                    |
+                                    <a href title="{{'make_referral' | translate}}" ng-click="showCreateEvent(stage, eventCreationActions.referral)" style="vertical-align: middle">
+                                        {{'referral'|translate}}
+                                    </a>
+                                </span>
+                            </span>
+
+                        </div>
+                    </div>
+                </div>
+                <div ng-if="!creatableStagesExist(creatableStages)" class="alert alert-warning">{{'no_stages_available'| translate}}</div> 
+            </div>
+        </div>       
+        <div ng-if="!showStageTasks" class="pull-right">
+            <div ng-if="!useMainMenu">
+                <a href ng-click="toggleShowStageTasks()" title="{{'show_new_event_menu' | translate}}">
+                    <span class="stage-tasks-badge stage-tasks-badge-back">                                     
+                        <span><i class="fa fa-chevron-left vertical-center"></i></span>                
+                    </span>
+                </a>
+            </div> 
+            <div ng-if="!useMainMenu || (useMainMenu && topLineEvents.length > 0 && !hideTopLineEventsForFormTypes[displayCustomForm])">
+                <div>
+                    <a href class="disable-link-effects" ng-click="useMainMenu ? showCreateEventIfStageNeedsEvent(selectedMainMenuStage, eventCreationActions.add, false, true) : showCreateEvent(null, eventCreationActions.add)" title="{{'add_new'| translate}}">
+                        <span class="stage-tasks-badge" ng-class="useMainMenu ? {'stage-tasks-badge-disabled': !stageNeedsEventOfType(selectedMainMenuStage, eventCreationActions.add)} : ''">                                     
+                            <span><i class="fa fa-plus vertical-center"></i></span>                
+                        </span>
+                    </a>                
+                </div>
+                <div>
+                    <a href class="disable-link-effects" ng-click="useMainMenu ? showCreateEventIfStageNeedsEvent(selectedMainMenuStage, eventCreationActions.schedule, false, true) : showCreateEvent(null, eventCreationActions.schedule)" title="{{'schedule_new'| translate}}">
+                        <span class="stage-tasks-badge" ng-class="useMainMenu ? {'stage-tasks-badge-disabled': !stageNeedsEventOfType(selectedMainMenuStage, eventCreationActions.schedule)} : ''">                                     
+                            <span><i class="fa fa-calendar vertical-center"></i></span>                
+                        </span>
+                    </a>                
+                </div>            
+                <div>
+                    <a href class="disable-link-effects" ng-click="useMainMenu ? showCreateEventIfStageNeedsEvent(selectedMainMenuStage, eventCreationActions.referral, false, true) : showCreateEvent(null, eventCreationActions.referral)" title="{{'make_referral' | translate}}">
+                        <span class="stage-tasks-badge" ng-class="useMainMenu ? {'stage-tasks-badge-disabled': !stageNeedsEventOfType(selectedMainMenuStage, eventCreationActions.referral)} : ''">                                     
+                                    <span><i class="fa fa-share vertical-center"></i></span>                
+                        </span>
+                    </a>                
+                </div>
+            </div>
+        </div>
+    </div>    
+</div>
+
+
+<div class="container-fluid" style="margin-top: 10px; margin-bottom: 10px" ng-if='useBottomLine'>
+    <div class="row">
+        <div class="col-xs-4" ng-repeat="stage in programStages | filter:displayEventInBottomLine">      
+            <div class="event-layout-stage-panel" ng-class="getStageStyle(stage)" ng-click="openStageFormFromEventLayout(stage)">
+                
+                <div class="event-layout-stage-panel-heading">                    
+                    <span>
+                        {{stage.displayName}}
+                    </span>                       
+                </div>
+                
+                <div class="event-layout-stage-panel-body" collapse="(stageOpenInEventLayout !== stage.id && currentStage.id !== stage.id) || selectedEnrollment.status !== 'ACTIVE'" ng-click="$event.stopPropagation();">
+                    <div>
+                            <a href title="{{'add_new'| translate}}" ng-click="showCreateEventIfStageNeedsEvent(stage,eventCreationActions.add, true)" style="vertical-align:middle">
+                                {{'add'|translate}}
+                            </a>
+                            <span ng-if="stage.id !== 'PUZaKR0Jh2k' && stage.id !== 'bO5aSsPeB4A' && stage.id !== 'uOGkguF3MCs'">
+                                |
+                                <a href title="{{'schedule_new'| translate}}" ng-click="showCreateEventIfStageNeedsEvent(stage,eventCreationActions.schedule, true)" style="vertical-align:middle">
+                                    {{'schedule'|translate}}
+                                </a>
+                                |
+                                <a href title="{{'make_referral'| translate}}" ng-click="showCreateEventIfStageNeedsEvent(stage,eventCreationActions.referral, true)" style="vertical-align: middle" ng-if="showReferral">
+                                    {{'referral'| translate}}
+                                </a>
+                            </span>
+                    </div>
+                    
+                    <!----for folkehelsa---->
+                    <div ng-if="fetusMenu && fetusMenu.display === true && currentStage.id === 'uUHQw5KrZAL' && currentEvent.status === EVENTSTATUSCOMPLETELABEL">                            
+                            <br/>
+                            <span ng-bind="prStDes['gpKuJcONaoW'].dataElement.shortname ? prStDes['gpKuJcONaoW'].dataElement.shortname : prStDes['gpKuJcONaoW'].dataElement.displayName"></span>
+                            <span>
+                                <ui-select ng-model="fetusMenu.selected" 
+                                    theme="select2"                                                                 
+                                    name="fetusMenu" 
+                                    on-select="changeEventBasedOnFetusFilter()"
+                                    style='width: 100%'>
+                                    <ui-select-match allow-clear="{{fetusMenu.allowClear}}" class="form-control-ui-select"  placeholder="{{'no_designation' | translate}}">{{$select.selected}}</ui-select-match>
+                                    <ui-select-choices repeat="option in fetusMenu.fetusOptions">
+                                      <span ng-bind-html="option | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </span>
+                    </div>
+                    <!--end for folkehelsa-->
+                    
+                    <div ng-if="stageErrorInEventLayout[stage.id] && stageErrorInEventLayout[stage.id] !== ''" style="margin-top:10px">
+                        <alert type="danger" close="stageErrorInEventLayout[stage.id] = ''">                            
+                            {{getStageErrorMessageInEventLayout(stage)}}
+                        </alert>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
