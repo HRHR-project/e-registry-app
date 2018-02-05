@@ -1,0 +1,4 @@
+<select ui-select2 ng-model="d2Model" data-placeholder="{{'please_select'| translate}}" style="width:100%;">
+    <option value="">{{'please_select'| translate}}</option>
+    <option ng-repeat="user in allUsers" value="{{user.username}}">{{user.name}}</option>
+</select>

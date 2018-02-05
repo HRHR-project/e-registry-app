@@ -1,0 +1,211 @@
+<form name="outerForm" novalidate>
+    <table class="dhis2-list-table-striped default-form-table dhis2-table-hover" ng-if='currentEvent && !currentStage.programStageSections.length'>
+        <thead>
+        <tr>
+            <th ng-bind="dataElementLabel">
+            </th>
+            <th class="" ng-bind="valueLabel">
+            </th>
+
+            <th class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]" ng-bind="providedElsewhereLabel">
+            </th>
+        </tr>
+        </thead>
+        <tr class="col-md-12" ng-repeat="prStDe in currentStage.programStageDataElements" ng-if="!isHidden(prStDe.dataElement.id, currentEvent, prStDe.dataElement.valueType, currentStage.multiSelectGroups[prStDe.dataElement.id].dataElements) || printMode === true">
+            <td>
+                <span ng-bind="prStDe.dataElement.displayFormName ? prStDe.dataElement.displayFormName : prStDe.dataElement.displayName"></span>
+                <span ng-if="prStDe.compulsory" class="required">*</span>
+                <span class="hideInPrint">
+                    <a ng-if="prStDe.dataElement.description || prStDe.dataElement.displayDescription" Title="{{prStDe.dataElement.displayDescription ? prStDe.dataElement.displayDescription : prStDe.dataElement.description}}" ng-init="showHelpText[prStDe.dataElement.id] = false;" ng-click="showHelpText[prStDe.dataElement.id] = !showHelpText[prStDe.dataElement.id]">
+                        <span class="glyphicon glyphicon-info-sign" ></span>
+                        <span ng-show="showHelpText[prStDe.dataElement.id]" ><br>{{prStDe.dataElement.displayDescription ? prStDe.dataElement.displayDescription : prStDe.dataElement.description}}</span>
+                    </a>
+                    <span ng-if="otherValuesLists[prStDe.dataElement.id]" ng-repeat="altValue in otherValuesLists[prStDe.dataElement.id] track by $index">
+                        <span class="label label-default">{{altValue | translate}}</span>
+                   </span>
+                </span>
+            </td>
+            <td dhis2-compiled-include="components/dataentry/inner-form.html">                
+            </td>
+            <td class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]">
+                <div ng-show="prStDe.allowProvidedElsewhere">
+                    <span>
+                        <input type="checkbox"
+                           class="form-control-checkbox"
+                           ng-model="currentEvent.providedElsewhere[prStDe.dataElement.id]"
+                           ng-disabled="!eventEditable()"
+                           ng-change="saveDatavalueLocation(prStDe)"/>
+                    </span>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div ng-if='currentEvent && currentStage.programStageSections.length'>
+        <accordion close-others='false'>
+            <!-- The inline style was needed to override overflow:hidden in the css. Can possibly be replaced with a CSS update. -->
+            <accordion-group is-open="section.open" ng-repeat='section in currentStage.programStageSections' ng-if="!hiddenSections[currentEvent.event][section.id] || printMode === true" style="overflow:visible">
+                <accordion-heading>
+                    {{section.displayName}}
+                    <a ng-if="section.description" Title="{{section.description}}" ng-init="showHelpText.sections[section.id] = false;" ng-click="showHelpText.sections[section.id] = !showHelpText.sections[section.id];section.open =!section.open;">
+                        <span class="glyphicon glyphicon-info-sign" ></span>
+                        <span ng-show="showHelpText.sections[section.id]" ><br>{{section.description}}</span>
+                    </a>
+                </accordion-heading>
+                
+                <!-- Previous values for ANC -->
+                <div ng-if="currentStage.id ==='edqlbukwRfQ' && section.id!=='rBOWhA2FB9r' && section.id!=='Q4vbMKk6flQ'">
+                    <strong>Previous values</strong>
+                    <table class="dhis2-table-striped-border table-text">
+                        <thead>
+                            <tr>
+                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                    <span>{{currentEvent.excecutionDateLabel}}</span>
+                                </td>
+                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                    <span>Gest.Age at visit</span>
+                                </td>
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
+                                    <span ng-bind="prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>                                
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                    <span>{{previousEvents.first.eventDate}}</span>
+                                </td>
+                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                    <span>{{previousEvents.first['Kb2LvjqXHfi']}}</span>
+                                </td>
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
+                                    <div ng-if="previousEvents.first[de.dataElement.id].selections">
+                                        <span ng-repeat="selection in previousEvents.first[de.dataElement.id].selections">{{selection.displayFormName || selection.displayName || selection.name}}</span>
+                                    </div>
+                                    <span ng-if="previousEvents.first[de.dataElement.id] === 'true'">{{'yes' | translate}}</span>
+                                    <span ng-if="previousEvents.first[de.dataElement.id] === 'false'">{{'no' | translate}}</span>
+                                    <span ng-if="previousEvents.first[de.dataElement.id]!== 'true' && previousEvents.first[de.dataElement.id]!== 'false' && !previousEvents.first[de.dataElement.id].selections">{{previousEvents.first[de.dataElement.id]}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="prevEvent in previousEvents.other">
+                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                    <span>{{prevEvent.eventDate}}</span>
+                                </td>
+                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                    <span>{{prevEvent['Kb2LvjqXHfi']}}</span>
+                                </td>
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
+                                    <div ng-if="prevEvent[de.dataElement.id].selections">
+                                        <span ng-repeat="selection in prevEvent[de.dataElement.id].selections">{{selection.displayFormName || selection.displayName || selection.name}}</span>
+                                    </div>
+                                    <span ng-if="prevEvent[de.dataElement.id] === 'true'">{{'yes' | translate}}</span>
+                                    <span ng-if="prevEvent[de.dataElement.id] === 'false'">{{'no' | translate}}</span>
+                                    <span ng-if="prevEvent[de.dataElement.id]!== 'true' && prevEvent[de.dataElement.id]!== 'false' && !prevEvent[de.dataElement.id].selections">{{prevEvent[de.dataElement.id]}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                </div>
+
+                <!-- Previous values for PNC -->
+                <div ng-if="currentStage.id ==='dqF3sxJKBls' && section.id!=='oVhtrAy6kqv'">
+                    <strong>Previous values</strong>
+                    <table class="dhis2-table-striped-border table-text">
+                        <thead>
+                            <tr>
+                                <td ng-if="section.id === 'BE6IiCknU0A'">
+                                    <span>{{currentEvent.excecutionDateLabel}}</span>
+                                </td>
+                                <!--This is where the labels for the previous values are displayed.-->
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
+                                    <span ng-bind="prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>    
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td ng-if="section.id === 'BE6IiCknU0A'">
+                                    <span>{{previousEvents.first.eventDate}}</span>
+                                </td>
+                                <!--This is where the first event previous values are displayed.-->
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
+                                    <div ng-if="previousEvents.first[de.dataElement.id].selections">
+                                        <span ng-repeat="selection in previousEvents.first[de.dataElement.id].selections">{{selection.displayFormName || selection.displayName || selection.name}}</span>
+                                    </div>
+                                    <span ng-if="previousEvents.first[de.dataElement.id] === 'true'">{{'yes' | translate}}</span>
+                                    <span ng-if="previousEvents.first[de.dataElement.id] === 'false'">{{'no' | translate}}</span>
+                                    <span ng-if="previousEvents.first[de.dataElement.id]!== 'true' && previousEvents.first[de.dataElement.id]!== 'false' && !previousEvents.first[de.dataElement.id].selections">{{previousEvents.first[de.dataElement.id]}}</span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="prevEvent in previousEvents.other">
+                                <td ng-if="section.id === 'BE6IiCknU0A'">
+                                    <span>{{prevEvent.eventDate}}</span>
+                                </td>
+                                <!--This is where the rest of the event previous values are displayed.-->
+                                <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
+                                    <div ng-if="prevEvent[de.dataElement.id].selections">
+                                        <span ng-repeat="selection in prevEvent[de.dataElement.id].selections">{{selection.displayFormName || selection.displayName || selection.name}}</span>
+                                    </div>
+                                    <span ng-if="prevEvent[de.dataElement.id] === 'true'">{{'yes' | translate}}</span>
+                                    <span ng-if="prevEvent[de.dataElement.id] === 'false'">{{'no' | translate}}</span>
+                                    <span ng-if="prevEvent[de.dataElement.id]!== 'true' && prevEvent[de.dataElement.id]!== 'false' && !prevEvent[de.dataElement.id].selections">{{prevEvent[de.dataElement.id]}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                </div>
+
+                <div class="vertical-spacing" ng-if="!section.programStageDataElements || section.programStageDataElements.length === 0">
+                    <div class="alert alert-warning">{{'section'| translate}} {{section.displayName}} {{'has_no_dataelements'| translate}}</div>
+                </div>
+
+                <table class="dhis2-list-table-striped default-form-table dhis2-table-hover" ng-if="section.programStageDataElements && section.programStageDataElements.length > 0" ng-init="setColSize()">                    
+                    <thead>
+                    <tr>
+                        <th ng-bind="dataElementLabel" ng-if="!isBangladesh">
+                        </th>
+                        <th ng-bind="dataElementLabel" ng-if="isBangladesh" class="col-md-7">
+                        </th>
+                        <th ng-bind="valueLabel">
+                        </th>
+                        <th class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]" ng-bind="providedElsewhereLabel">
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="list">       
+                        <tr ng-repeat="de in section.programStageDataElements" ng-if="!isHidden(de.dataElement.id, null, de.dataElement.valueType, currentStage.multiSelectGroups[de.dataElement.id].dataElements) || printMode === true">
+                            <td>
+                                <span>{{de.dataElement.id.id}}</span>
+                                <span>{{prStDes[de.dataElement.id].displayFormName}}</span>
+                                <span ng-bind="prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>       
+                                <span ng-if="prStDes[de.dataElement.id].compulsory" class="required">*</span>
+                                <span class="hideInPrint">
+                                    <a ng-if="prStDes[de.dataElement.id].dataElement.displayDescription || prStDes[de.dataElement.id].dataElement.description" Title="{{prStDes[de.dataElement.id].dataElement.displayDescription ? prStDes[de.dataElement.id].dataElement.displayDescription : prStDes[de.dataElement.id].dataElement.description}}" ng-init="showHelpText[de.dataElement.id] = false;" ng-click="showHelpText[de.dataElement.id] = !showHelpText[de.dataElement.id]">
+                                        <span class="glyphicon glyphicon-info-sign" ></span>
+                                        <span ng-show="showHelpText[de.dataElement.id]" ><br>{{prStDes[de.dataElement.id].dataElement.displayDescription ? prStDes[de.dataElement.id].dataElement.displayDescription : prStDes[de.dataElement.id].dataElement.description}}</span>
+                                    </a>   
+                                    <span ng-if="otherValuesLists[de.dataElement.id] && showOtherValuesLists" ng-repeat="altValue in otherValuesLists[de.dataElement.id]">
+                                        <span class="label label-default">{{altValue | translate}}</span>
+                                    </span>
+                                </span>
+                            </td>
+                            <td dhis2-compiled-include="components/dataentry/section-inner-form.html">                            
+                            </td>
+                            <td class="form-narrow-column" ng-if="allowProvidedElsewhereExists[currentStage.id]">
+                                <div ng-show="prStDes[de.dataElement.id].allowProvidedElsewhere">
+                                    <input type="checkbox"
+                                           class="form-control-checkbox"
+                                           ng-model="currentEvent.providedElsewhere[prStDes[de.dataElement.id].dataElement.id]"
+                                           ng-disabled="!eventEditable()"
+                                           ng-change="saveDatavalueLocation(prStDes[de.dataElement.id])"/>
+                                </div>
+                            </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </accordion-group> 
+        </accordion>
+    </div>
+    
+</form>

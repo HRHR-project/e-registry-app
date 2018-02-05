@@ -1,0 +1,48 @@
+<div class="panel panel-info" ng-controller="ManagementController">
+    <div class="panel-heading handle bold">
+        Actions/Management<!--{{widgetTitleLabel}}-->
+        <span class="pull-right">
+            <a class="small-horizonal-spacing" href ng-click="expandCollapse(this.widget)">
+                <span ng-show="this.widget.expand"><i class="fa fa-chevron-up" title="{{collapseLabel}}"></i></span>
+                <span ng-show="!this.widget.expand"><i class="fa fa-chevron-down" title="{{expandLabel}}"></i></span>
+            </a>
+            <a class="small-horizonal-spacing" href ng-click="removeWidget(this.widget)" title="{{removeLabel}}" ng-if="this.widget.showHideAllowed"><i class="fa fa-times-circle"></i></a>            
+        </span>        
+    </div>        
+    <div ng-show="this.widget.expand" class="panel-body dashboard-widget-container">        
+        <table class="table table-bordered">
+            <tbody>
+                <tr>
+                    <td>
+                        13.02.2015
+                    </td>
+                    <td>
+                        Referred for Breech Presentation
+                    </td>
+                    <td>
+                        Yes
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        14.02.2015
+                    </td>
+                    <td>
+                        Referred for severe anemia
+                    </td>
+                    <td>
+                        <select>
+                            <option>Please select...</option>
+                            <option>Yes</option>
+                            <option>No</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+            
+                    
+        </table>
+        <a href ng-click="showReferral()" 
+                       class="btn btn-info">Make referral</a>
+    </div>
+</div>

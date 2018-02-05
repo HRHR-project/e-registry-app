@@ -1,0 +1,34 @@
+<div class="modal-header">
+    <h3>{{modalOptions.headerText | translate}}</h3>
+</div>
+<div class="modal-body">
+    <p>{{modalOptions.bodyText | translate}}</p>
+    <div class="row">
+            <form name="form">
+                <div class="input-group col-md-12">
+                    <ui-select ng-model="modalOptions.selectedReason" 
+                            theme="select2"
+                            ng-required="true"
+                            ng-change="form.$submitted=false"
+                            name="reasonSelect"
+                            id="reasonSelect"
+                            style="width:100%">
+                        <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_reason' | translate}}">{{$select.selected.displayName  || $select.selected}}</ui-select-match>
+                        <ui-select-choices  repeat="reason in modalOptions.reasons">
+                            <span ng-bind-html="reason.displayName"></span>
+                        </ui-select-choices>
+                    </ui-select>  
+                    <div class="error-text" ng-show="form.$submitted && form.reasonSelect.$invalid">{{'required'| translate}}</div>
+                </div>
+                <br/>
+                <div class="input-group col-md-12">
+                    <textarea ng-if="modalOptions.selectedReason.id===modalOptions.textAreaReasonID" id="reasonSpecify" name="reasonSpecify" class="form-control" ng-required="true" rows="4" ng-model="modalOptions.specifiedReason"></textarea>
+                    <div class="error-text" ng-show="form.$submitted && form.reasonSpecify.$invalid">{{'required'| translate}}</div>
+                </div>         
+            </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText | translate}}</button>
+    <button class="btn btn-primary" data-ng-click="modalOptions.ok(modalOptions.selectedReason, modalOptions.specifiedReason)">{{modalOptions.actionButtonText | translate}}</button>
+</div>
