@@ -11,7 +11,7 @@
         </ul>
     </div>
     
-    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
+    <img id="ouwt_loader" ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
     
     <div class="small-horizonal-spacing" ng-if="!treeLoaded">
         {{'loading_tree'| translate}}
@@ -28,7 +28,7 @@
     <form name="outerForm" novalidate>               
         <div ng-include="'components/report/reportForm.html'"></div>
     </form>    
-    <img src="../images/ajax-loader-bar.gif" ng-if="!dataReady && reportStarted"/>
+    <img ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" ng-if="!dataReady && reportStarted"/>
     <div ng-if="dataReady">
         <div class="row col-sm-12">
             <div class="col-sm-6 align-center">

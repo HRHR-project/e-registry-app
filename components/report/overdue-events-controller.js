@@ -1,6 +1,6 @@
-/* global angular, trackerCapture */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('OverdueEventsController',
+/* global angular, eRegistry */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('OverdueEventsController',
          function($scope,
                 $modal,
                 $location,
@@ -61,7 +61,7 @@ trackerCapture.controller('OverdueEventsController',
     //load programs associated with the selected org unit.
     $scope.loadPrograms = function(orgUnit) {
         if (angular.isObject($scope.selectedOrgUnit)) {   
-            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit, $scope.model.selectedProgram).then(function(response){
+            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit,true, $scope.model.selectedProgram).then(function(response){
                 $scope.programs = response.programs;
                 $scope.model.selectedProgram = response.selectedProgram;
             });

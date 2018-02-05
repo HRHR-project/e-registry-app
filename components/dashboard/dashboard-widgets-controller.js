@@ -1,6 +1,6 @@
 //Controller for the dashboard widgets
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('DashboardWidgetsController', 
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('DashboardWidgetsController', 
     function($scope, 
             $modalInstance){
     

@@ -1,71 +1,42 @@
 /* Pagination service */
 /* global angular, dhis2, moment */
 
-var existing = angular.module('d2Services')
-
-    /* Factory for loading translation strings */
-    .factory('i18nLoader', function ($q, $http, SessionStorageService) {
-
-        var getTranslationStrings = function (locale) {
-            var defaultUrl = 'i18n/i18n_app.properties';
-            var url = '';
-            if (locale === 'en' || !locale) {
-                url = defaultUrl;
-            }
-            else {
-                url = 'i18n/i18n_app_' + locale + '.properties';
-            }
-
-            var tx = {locale: locale};
-
-            var promise = $http.get(url).then(function (response) {
-                tx = {locale: locale, keys: dhis2.util.parseJavaProperties(response.data)};
-                return tx;
-            }, function () {
-
-                var p = $http.get(defaultUrl).then(function (response) {
-                    tx = {locale: locale, keys: dhis2.util.parseJavaProperties(response.data)};
-                    return tx;
-                });
-                return p;
-            });
-            return promise;
-        };
-
-        var getLocale = function () {
-            var locale = 'en';
-
-            var promise = $http.get('../api/me/profile.json').then(function (response) {
-                SessionStorageService.set('USER_PROFILE', response.data);
-                if (response.data && response.data.settings && response.data.settings.keyUiLocale) {
-                    locale = response.data.settings.keyUiLocale;
+var d2Services = angular.module('d2Services');
+    
+    d2Services.service('NotificationService', function (DialogService, $timeout) {
+        this.showNotifcationDialog = function(errorMsgheader, errorMsgBody, errorResponse){
+            var dialogOptions = {
+                headerText: errorMsgheader,
+                bodyText: errorMsgBody
+            };
+            var summaries = null;
+            if (errorResponse && errorResponse.data) {
+                if(errorResponse.data.message && (errorResponse.data.status === 'ERROR' || errorResponse.data.status === 'WARNING')) {
+                    dialogOptions.bodyText += "<br/>"+errorResponse.data.message+"<br/>";
                 }
-                return locale;
-            }, function () {
-                return locale;
-            });
-
-            return promise;
+                if( errorResponse.data.response && errorResponse.data.response.importSummaries && errorResponse.data.response.importSummaries.length > 0 ){
+                    summaries = JSON.stringify(errorResponse.data.response.importSummaries);
+                }
+            }
+            DialogService.showDialog({}, dialogOptions, summaries);
         };
-        return function () {
-            var deferred = $q.defer(), translations;
-            var userProfile = SessionStorageService.get('USER_PROFILE');
-            if (userProfile && userProfile.settings && userProfile.settings.keyUiLocale) {
-                getTranslationStrings(userProfile.settings.keyUiLocale).then(function (response) {
-                    translations = response.keys;
-                    deferred.resolve(translations);
-                });
-                return deferred.promise;
-            }
-            else {
-                getLocale().then(function (locale) {
-                    getTranslationStrings(locale).then(function (response) {
-                        translations = response.keys;
-                        deferred.resolve(translations);
-                    });
-                });
-                return deferred.promise;
-            }
+
+        this.showNotifcationWithOptions = function(dialogDefaults, dialogOptions){
+            DialogService.showDialog(dialogDefaults, dialogOptions);
+        };
+
+        this.displayDelayedHeaderMessage = function( message ){
+            setHeaderDelayMessage( message );
+        };
+
+        this.displayHeaderMessage = function( message ){
+            $timeout(function(){
+                setHeaderMessage( message );
+            }, 1000);
+        };
+
+        this.removeHeaderMessage = function(){
+            hideHeaderMessage();
         };
     })
 
@@ -370,7 +341,7 @@ var existing = angular.module('d2Services')
     })
 
     /* service for dealing with custom form */
-    .service('CustomFormService', function ($translate, DialogService) {
+    .service('CustomFormService', function ($translate, DialogService, DHIS2BASEURL) {
 
         return {
             getForProgramStage: function (programStage, programStageDataElements) {
@@ -560,7 +531,7 @@ var existing = angular.module('d2Services')
                                 
                                 
                             }
-                            newInputField = newInputField + ' <span ng-messages="outerForm.' + fieldId + '.$error" class="required" ng-if="interacted(outerForm.' + fieldId + ')" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>';
+                            newInputField = newInputField + ' <span ng-messages="outerForm.' + fieldId + '.$error" class="required" ng-if="interacted(outerForm.' + fieldId + ')" ng-messages-include="'+DHIS2BASEURL+'/dhis-web-commons/angular-forms/error-messages.html"></span>';
 
                             htmlCode = htmlCode.replace(inputField, newInputField);
                         }
@@ -767,7 +738,7 @@ var existing = angular.module('d2Services')
                             }
                         }
 
-                        newInputField = newInputField + ' <span ng-messages="outerForm.' + fieldName + '.$error" class="required" ng-if="interacted(outerForm.' + fieldName + ')" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></span>';
+                        newInputField = newInputField + ' <span ng-messages="outerForm.' + fieldName + '.$error" class="required" ng-if="interacted(outerForm.' + fieldName + ')" ng-messages-include="'+DHIS2BASEURL+'/dhis-web-commons/angular-forms/error-messages.html"></span>';
 
                         htmlCode = htmlCode.replace(inputField, newInputField);
                     }
@@ -1055,17 +1026,17 @@ var existing = angular.module('d2Services')
     })
 
     /* Service for uploading/downloading file */
-    .service('FileService', function ($http) {
+    .service('FileService', function ($http, DHIS2URL) {
 
         return {
             get: function (uid) {
-                var promise = $http.get('../api/fileResources/' + uid).then(function (response) {
+                var promise = $http.get(DHIS2URL+'/fileResources/' + uid).then(function (response) {
                     return response.data;
                 });
                 return promise;
             },
             delete: function (uid) {
-                var promise = $http.get('../api/fileResources/' + uid).then(function (response) {
+                var promise = $http.get(DHIS2URL+'/fileResources/' + uid).then(function (response) {
                     return response.data;
                 });
                 return promise;
@@ -1080,13 +1051,14 @@ var existing = angular.module('d2Services')
                 var formData = new FormData();
                 formData.append('file', file);
                 var headers = {transformRequest: angular.identity, headers: {'Content-Type': undefined}};
-                var promise = $http.post('../api/fileResources', formData, headers).then(function(response){
+                var promise = $http.post(DHIS2URL+'/fileResources', formData, headers).then(function(response){
                     return response.data;
                 });
                 return promise;
             }
         };
     })
+
     /* Returns a function for getting rules for a specific program */
     .factory('RulesFactory', function($q,MetaDataFactory,$filter){
         var staticReplacements = 
@@ -1151,7 +1123,8 @@ var existing = angular.module('d2Services')
                                             displayName:variableName,
                                             programRuleVariableSourceType:'DATAELEMENT_CURRENT_EVENT',
                                             dataElement:variableNameParts[1],
-                                            program:programUid
+                                            program:programUid,
+                                            useCodeForOptionSet:true
                                         };
                                     }
                                     else if(variableNameParts.length === 1)
@@ -1161,9 +1134,11 @@ var existing = angular.module('d2Services')
                                             displayName:variableName,
                                             programRuleVariableSourceType:'TEI_ATTRIBUTE',
                                             trackedEntityAttribute:variableNameParts[0],
-                                            program:programUid
+                                            program:programUid,
+                                            useCodeForOptionSet:true
                                         };
                                     }
+                                    
                                     variables.push(newVariableObject);
 
                                     return newVariableObject;
@@ -1186,15 +1161,15 @@ var existing = angular.module('d2Services')
                                 if(valueCountPresent) {
                                     var valueCountText;
                                     angular.forEach(variableObjectsCurrentExpression, function(variableCurrentRule) {
-                                       if(valueCountText) {
-                                           //This is not the first value in the value count part of the expression. 
-                                           valueCountText +=  ' + d2:count(\'' + variableCurrentRule.displayName + '\')';
-                                       }
-                                       else
-                                       {
-                                           //This is the first part value in the value count expression:
-                                           valueCountText = '(d2:count(\'' + variableCurrentRule.displayName + '\')';
-                                       }
+                                    if(valueCountText) {
+                                        //This is not the first value in the value count part of the expression. 
+                                        valueCountText +=  ' + d2:count(\'' + variableCurrentRule.displayName + '\')';
+                                    }
+                                    else
+                                    {
+                                        //This is the first part value in the value count expression:
+                                        valueCountText = '(d2:count(\'' + variableCurrentRule.displayName + '\')';
+                                    }
                                     });
                                     //To finish the value count expression we need to close the paranthesis:
                                     valueCountText += ')';
@@ -1206,15 +1181,15 @@ var existing = angular.module('d2Services')
                                 if(positiveValueCountPresent) {
                                     var zeroPosValueCountText;
                                     angular.forEach(variableObjectsCurrentExpression, function(variableCurrentRule) {
-                                       if(zeroPosValueCountText) {
-                                           //This is not the first value in the value count part of the expression. 
-                                           zeroPosValueCountText +=  '+ d2:countifzeropos(\'' + variableCurrentRule.displayName + '\')';
-                                       }
-                                       else
-                                       {
-                                           //This is the first part value in the value count expression:
-                                           zeroPosValueCountText = '(d2:countifzeropos(\'' + variableCurrentRule.displayName + '\')';
-                                       }
+                                    if(zeroPosValueCountText) {
+                                        //This is not the first value in the value count part of the expression. 
+                                        zeroPosValueCountText +=  '+ d2:countifzeropos(\'' + variableCurrentRule.displayName + '\')';
+                                    }
+                                    else
+                                    {
+                                        //This is the first part value in the value count expression:
+                                        zeroPosValueCountText = '(d2:countifzeropos(\'' + variableCurrentRule.displayName + '\')';
+                                    }
                                     });
                                     //To finish the value count expression we need to close the paranthesis:
                                     zeroPosValueCountText += ')';
@@ -1230,34 +1205,35 @@ var existing = angular.module('d2Services')
                         });
 
                         var programIndicators = {rules:programRules, variables:variables};
-
-                        MetaDataFactory.getByProgram('programValidations',programUid).then(function(programValidations){                    
-                            MetaDataFactory.getByProgram('programRuleVariables',programUid).then(function(programVariables){                    
-                                MetaDataFactory.getByProgram('programRules',programUid).then(function(prs){
-                                    var programRules = [];
-                                    angular.forEach(prs, function(rule){
-                                        rule.actions = [];
-                                        rule.programStageId = rule.programStage && rule.programStage.id ? rule.programStage.id : null;
-                                        programRules.push(rule);
-                                    });                                
-                                    def.resolve({constants: constants, programIndicators: programIndicators, programValidations: programValidations, programVariables: programVariables, programRules: programRules});
-                                });
+                        
+                        MetaDataFactory.getByProgram('programRuleVariables',programUid).then(function(programVariables){                    
+                            MetaDataFactory.getByProgram('programRules',programUid).then(function(prs){
+                                var programRules = [];
+                                angular.forEach(prs, function(rule){
+                                    rule.actions = [];
+                                    rule.programStageId = rule.programStage && rule.programStage.id ? rule.programStage.id : null;
+                                    programRules.push(rule);
+                                });                                
+                                def.resolve({constants: constants, programIndicators: programIndicators, programVariables: programVariables, programRules: programRules});
                             });
                         });
+                        
                     }); 
                 });                        
                 return def.promise;
             }
         };  
     })
+
     /* service for building variables based on the data in users fields */
-    .service('VariableService', function(DateUtils,$filter,$log){
+    .service('VariableService', function(DateUtils,OptionSetService,OrgUnitFactory,$filter,$log,$q){
         var processSingleValue = function(processedValue,valueType){
             //First clean away single or double quotation marks at the start and end of the variable name.
             processedValue = $filter('trimquotes')(processedValue);
 
             //Append single quotation marks in case the variable is of text or date type:
-            if(valueType === 'LONG_TEXT' || valueType === 'TEXT' || valueType === 'DATE' || valueType === 'OPTION_SET' || valueType === 'PHONE_NUMBER') {
+            if(valueType === 'LONG_TEXT' || valueType === 'TEXT' || valueType === 'DATE' || valueType === 'OPTION_SET' ||
+                valueType === 'URL' || valueType === 'DATETIME' || valueType === 'TIME' || valueType === 'PHONE_NUMBER' || valueType === 'ORGANISATION_UNIT') {
                 if(processedValue) {
                     processedValue = "'" + processedValue + "'";
                 } else {
@@ -1265,14 +1241,22 @@ var existing = angular.module('d2Services')
                 }
             }
             else if(valueType === 'BOOLEAN' || valueType === 'TRUE_ONLY') {
-                if(processedValue && eval(processedValue)) {
+                if(processedValue === "Yes") {
+                processedValue = true;
+                }
+                else if(processedValue === "No") {
+                    processedValue = false;
+                }
+                else if(processedValue && eval(processedValue)) {
                     processedValue = true;
                 }
                 else {
                     processedValue = false;
                 }
             }
-            else if(valueType === "INTEGER" || valueType === "NUMBER" || valueType === "INTEGER_POSITIVE" || valueType === "INTEGER_NEGATIVE" || valueType === "INTEGER_ZERO_OR_POSITIVE" || valueType === "PERCENTAGE") {
+            else if( valueType === "INTEGER" || valueType === "NUMBER" || valueType === "INTEGER_POSITIVE"
+                ||  valueType === "INTEGER_NEGATIVE" || valueType === "INTEGER_ZERO_OR_POSITIVE" ||
+                    valueType === "PERCENTAGE") {
                 if(processedValue) {
                     processedValue = Number(processedValue);
                 } else {
@@ -1286,7 +1270,7 @@ var existing = angular.module('d2Services')
             return processedValue;
         };
 
-        var pushVariable = function(variables, variablename, varValue, allValues, varType, variablefound, variablePrefix, variableEventDate) {
+        var pushVariable = function(variables, variablename, varValue, allValues, varType, variablefound, variablePrefix, variableEventDate, useCodeForOptionSet) {
 
             var processedValues = [];
 
@@ -1296,6 +1280,7 @@ var existing = angular.module('d2Services')
 
             variables[variablename] = {
                 variableValue:processSingleValue(varValue, varType),
+                useCodeForOptionSet:useCodeForOptionSet,
                 variableType:varType,
                 hasValue:variablefound,
                 variableEventDate:variableEventDate,
@@ -1304,6 +1289,19 @@ var existing = angular.module('d2Services')
             };
             return variables;
         };
+        
+        var getDataElementValueOrCodeForValueInternal = function(useCodeForOptionSet, value, dataElementId, allDes, optionSets) {
+            return useCodeForOptionSet && allDes && allDes[dataElementId].dataElement.optionSet ? 
+                                                OptionSetService.getCode(optionSets[allDes[dataElementId].dataElement.optionSet.id].options, value)
+                                                : value;
+        };
+        
+        var geTrackedEntityAttributeValueOrCodeForValueInternal = function(useCodeForOptionSet, value, trackedEntityAttributeId, allTeis, optionSets) {
+            return useCodeForOptionSet && allTeis && allTeis[trackedEntityAttributeId].optionSet ? 
+                                                OptionSetService.getCode(optionSets[allTeis[trackedEntityAttributeId].optionSet.id].options, value)
+                                                : value;
+        };
+        
         //Folkehelsa:
         var getHighRiskPregnancy = function(evs){
             var highRisk = false;
@@ -1354,7 +1352,8 @@ var existing = angular.module('d2Services')
             var PregnanciesCount = 0;
             var prevPregStageId = "PUZaKR0Jh2k";
             var currentPregStageId = "bO5aSsPeB4A";
-            var prevPregEvents = evs.byStage[prevPregStageId].concat(evs.byStage[currentPregStageId]);
+            
+            var prevPregEvents = (evs.byStage[prevPregStageId] ? evs.byStage[prevPregStageId] : []).concat((evs.byStage[currentPregStageId] ? evs.byStage[currentPregStageId] : []));
             var connectedEventIds = [];
             var elementRequirements = [];
 
@@ -1455,9 +1454,19 @@ var existing = angular.module('d2Services')
             return CSectionsCount;        
         };
 
+
         return {
             processValue: function(value, type) {
                 return processSingleValue(value,type);
+            },
+            getDataElementValueOrCode: function(useCodeForOptionSet, event, dataElementId, allDes, optionSets) {
+                return getDataElementValueOrCodeForValueInternal(useCodeForOptionSet, event[dataElementId], dataElementId, allDes, optionSets);
+            },
+            getDataElementValueOrCodeForValue: function(useCodeForOptionSet, value, dataElementId, allDes, optionSets) {
+                return getDataElementValueOrCodeForValueInternal(useCodeForOptionSet, value, dataElementId, allDes, optionSets);
+            },
+            getTrackedEntityValueOrCodeForValue: function(useCodeForOptionSet, value, trackedEntityAttributeId, allTeis, optionSets) {
+                return geTrackedEntityAttributeValueOrCodeForValueInternal(useCodeForOptionSet, value, trackedEntityAttributeId, allTeis, optionSets);
             },
             getHighRiskPregnancy: function(evs) {
                 return getHighRiskPregnancy(evs);
@@ -1465,12 +1474,14 @@ var existing = angular.module('d2Services')
             getUnManagedReferral: function(evs) {
                 return getUnManagedReferral(evs);
             },
-            getVariables: function(allProgramRules, executingEvent, evs, allDes, selectedEntity, selectedEnrollment) {
-            
+            getVariables: function(allProgramRules, executingEvent, evs, allDes, allTeis, selectedEntity, selectedEnrollment, optionSets) {
+
+                var deferred = $q.defer();
+                
                 var variables = {};
-            
-                var programVariables = allProgramRules.programVariables;            
-                            
+
+                var programVariables = allProgramRules.programVariables;
+
                 programVariables = programVariables.concat(allProgramRules.programIndicators.variables);
 
                 angular.forEach(programVariables, function(programVariable) {
@@ -1491,16 +1502,18 @@ var existing = angular.module('d2Services')
 
                     var valueFound = false;
                     //If variable evs is not defined, it means the rules is run before any events is registered, skip the types that require an event
-                    if(programVariable.programRuleVariableSourceType === "DATAELEMENT_NEWEST_EVENT_PROGRAM_STAGE" && evs){
+                    if(programVariable.programRuleVariableSourceType === "DATAELEMENT_NEWEST_EVENT_PROGRAM_STAGE" && evs && evs.byStage){
                         if(programStageId) {
                             var allValues = [];
                             angular.forEach(evs.byStage[programStageId], function(event) {
                                 if(event[dataElementId] !== null) {
                                     if(angular.isDefined(event[dataElementId])
                                             && event[dataElementId] !== ""){
-                                        allValues.push(event[dataElementId]);
+                                        var value = getDataElementValueOrCodeForValueInternal(programVariable.useCodeForOptionSet, event[dataElementId], dataElementId, allDes, optionSets);
+                                                
+                                        allValues.push(value);
                                         valueFound = true;
-                                        variables = pushVariable(variables, programVariable.displayName, event[dataElementId],allValues, allDes[dataElementId].dataElement.valueType, valueFound, '#', event.eventDate);
+                                        variables = pushVariable(variables, programVariable.displayName, value, allValues, allDes[dataElementId].dataElement.valueType, valueFound, '#', event.eventDate, programVariable.useCodeForOptionSet);
                                     }
                                 }
                             });
@@ -1516,9 +1529,11 @@ var existing = angular.module('d2Services')
                             if(angular.isDefined(event[dataElementId])
                                 && event[dataElementId] !== null 
                                 && event[dataElementId] !== ""){
-                                allValues.push(event[dataElementId]);
+                                var value = getDataElementValueOrCodeForValueInternal(programVariable.useCodeForOptionSet, event[dataElementId], dataElementId, allDes, optionSets);
+                                        
+                                allValues.push(value);
                                 valueFound = true;
-                                variables = pushVariable(variables, programVariable.displayName, event[dataElementId], allValues, allDes[dataElementId].dataElement.valueType, valueFound, '#', event.eventDate);
+                                variables = pushVariable(variables, programVariable.displayName, value, allValues, allDes[dataElementId].dataElement.valueType, valueFound, '#', event.eventDate, programVariable.useCodeForOptionSet);
                             }
                         });
                     }
@@ -1526,8 +1541,10 @@ var existing = angular.module('d2Services')
                         if(angular.isDefined(executingEvent[dataElementId])
                             && executingEvent[dataElementId] !== null 
                             && executingEvent[dataElementId] !== ""){
+                            var value = getDataElementValueOrCodeForValueInternal(programVariable.useCodeForOptionSet, executingEvent[dataElementId], dataElementId, allDes, optionSets);
+                                
                             valueFound = true;
-                            variables = pushVariable(variables, programVariable.displayName, executingEvent[dataElementId], null, allDes[dataElementId].dataElement.valueType, valueFound, '#', executingEvent.eventDate );
+                            variables = pushVariable(variables, programVariable.displayName, value, null, allDes[dataElementId].dataElement.valueType, valueFound, '#', executingEvent.eventDate, programVariable.useCodeForOptionSet );
                         }
                     }
                     else if(programVariable.programRuleVariableSourceType === "DATAELEMENT_PREVIOUS_EVENT" && evs){
@@ -1543,15 +1560,15 @@ var existing = angular.module('d2Services')
                                 if(!currentEventPassed && evs.all[i] !== executingEvent &&
                                     angular.isDefined(evs.all[i][dataElementId])
                                     && evs.all[i][dataElementId] !== "") {
-                                    previousvalue = evs.all[i][dataElementId];
+                                    previousvalue = getDataElementValueOrCodeForValueInternal(programVariable.useCodeForOptionSet, evs.all[i][dataElementId], dataElementId, allDes, optionSets);
                                     previousEventDate = evs.all[i].eventDate;
-                                    allValues.push(previousvalue);
+                                    allValues.push(value);
                                     valueFound = true;
                                 }
                                 else if(evs.all[i] === executingEvent) {
                                     //We have iterated to the newest event - store the last collected variable value - if any is found:
                                     if(valueFound) {
-                                        variables = pushVariable(variables, programVariable.displayName, previousvalue, allValues, allDes[dataElementId].dataElement.valueType, valueFound, '#', previousEventDate);
+                                        variables = pushVariable(variables, programVariable.displayName, previousvalue, allValues, allDes[dataElementId].dataElement.valueType, valueFound, '#', previousEventDate, programVariable.useCodeForOptionSet);
                                     }
                                     //Set currentEventPassed, ending the iteration:
                                     currentEventPassed = true;
@@ -1569,7 +1586,14 @@ var existing = angular.module('d2Services')
                                     valueFound = true;
                                     //In registration, the attribute type is found in .type, while in data entry the same data is found in .valueType.
                                     //Handling here, but planning refactor in registration so it will always be .valueType
-                                    variables = pushVariable(variables, programVariable.displayName, attribute.value, null, attribute.type ? attribute.type : attribute.valueType, valueFound, 'A', '' );
+                                    variables = pushVariable(variables, 
+                                        programVariable.displayName, 
+                                        geTrackedEntityAttributeValueOrCodeForValueInternal(programVariable.useCodeForOptionSet,attribute.value, trackedEntityAttributeId, allTeis, optionSets),
+                                        null, 
+                                        attribute.type ? attribute.type : attribute.valueType, valueFound, 
+                                        'A', 
+                                        '',
+                                        programVariable.useCodeForOptionSet);
                                 }
                             }
                         });
@@ -1592,42 +1616,41 @@ var existing = angular.module('d2Services')
                         if(dataElementId && allDes) {
                             var dataElement = allDes[dataElementId];
                             if( dataElement ) {
-                                variables = pushVariable(variables, programVariable.displayName, "", null, dataElement.dataElement.valueType, false, '#', '' );
+                                variables = pushVariable(variables, programVariable.displayName, "", null, dataElement.dataElement.valueType, false, '#', '', programVariable.useCodeForOptionSet );
                             }
                             else {
-                                $log.warn("Variable #{" + programVariable.displayName + "} is linked to a dataelement that is not part of the program");
-                                variables = pushVariable(variables, programVariable.displayName, "", null, "TEXT",false, '#', '' );
+                                variables = pushVariable(variables, programVariable.displayName, "", null, "TEXT",false, '#', '', programVariable.useCodeForOptionSet );
                             }
                         }
                         else if (programVariable.trackedEntityAttribute) {
                             //The variable is an attribute, set correct prefix and a blank value
-                            variables = pushVariable(variables, programVariable.displayName, "", null, "TEXT",false, 'A', '' );
+                            variables = pushVariable(variables, programVariable.displayName, "", null, "TEXT",false, 'A', '', programVariable.useCodeForOptionSet );
                         }
                         else {
                             //Fallback for calculated(assigned) values:
-                            variables = pushVariable(variables, programVariable.displayName, "", null, "TEXT",false, '#', '' );
+                            variables = pushVariable(variables, programVariable.displayName, "", null, "TEXT",false, '#', '', programVariable.useCodeForOptionSet );
                         }
                     }
                 });
 
                 //add context variables:
                 //last parameter "valuefound" is always true for event date
-                variables = pushVariable(variables, 'current_date', DateUtils.getToday(), null, 'DATE', true, 'V', '' );
+                variables = pushVariable(variables, 'current_date', DateUtils.getToday(), null, 'DATE', true, 'V', '', false );
 
-                variables = pushVariable(variables, 'event_date', executingEvent.eventDate, null, 'DATE', true, 'V', '' );
+                variables = pushVariable(variables, 'event_date', executingEvent.eventDate, null, 'DATE', true, 'V', '', false );
                 variables = pushVariable(variables, 'due_date', executingEvent.dueDate, null, 'DATE', true, 'V', '' );
-                variables = pushVariable(variables, 'event_count', evs ? evs.all.length : 0, null, 'INTEGER', true, 'V', '' );
+                variables = pushVariable(variables, 'event_count', evs ? evs.all.length : 0, null, 'INTEGER', true, 'V', '', false );
 
-                variables = pushVariable(variables, 'enrollment_date', selectedEnrollment ? selectedEnrollment.enrollmentDate : '', null, 'DATE', selectedEnrollment ? true : false, 'V', '' );
-                variables = pushVariable(variables, 'enrollment_id', selectedEnrollment ? selectedEnrollment.enrollment : '', null, 'TEXT',  selectedEnrollment ? true : false, 'V', '');
-                variables = pushVariable(variables, 'event_id', executingEvent ? executingEvent.event : '', null, 'TEXT',  executingEvent ? true : false, 'V', executingEvent ? executingEvent.eventDate : false);
+                variables = pushVariable(variables, 'enrollment_date', selectedEnrollment ? selectedEnrollment.enrollmentDate : '', null, 'DATE', selectedEnrollment ? true : false, 'V', '', false );
+                variables = pushVariable(variables, 'enrollment_id', selectedEnrollment ? selectedEnrollment.enrollment : '', null, 'TEXT',  selectedEnrollment ? true : false, 'V', '', false );
+                variables = pushVariable(variables, 'event_id', executingEvent ? executingEvent.event : '', null, 'TEXT',  executingEvent ? true : false, 'V', executingEvent ? executingEvent.eventDate : false, false);
 
-                variables = pushVariable(variables, 'incident_date', selectedEnrollment ? selectedEnrollment.incidentDate : '', null, 'DATE',  selectedEnrollment ? true : false, 'V', '');
-                variables = pushVariable(variables, 'enrollment_count', selectedEnrollment ? 1 : 0, null, 'INTEGER', true, 'V', '');
-                variables = pushVariable(variables, 'tei_count', selectedEnrollment ? 1 : 0, null, 'INTEGER', true, 'V', '');
-
+                variables = pushVariable(variables, 'incident_date', selectedEnrollment ? selectedEnrollment.incidentDate : '', null, 'DATE',  selectedEnrollment ? true : false, 'V', '', false);
+                variables = pushVariable(variables, 'enrollment_count', selectedEnrollment ? 1 : 0, null, 'INTEGER', true, 'V', '', false);
+                variables = pushVariable(variables, 'tei_count', selectedEnrollment ? 1 : 0, null, 'INTEGER', true, 'V', '', false);
+                
                 //folkehelsa:
-                if(selectedEnrollment && selectedEnrollment.program === "WSGAb5XwJ3Y") {
+                if(selectedEnrollment) {
                     variables = pushVariable(variables, 'pp_count', getPreviousPregnanciesCount(evs, programVariables), null, 'INTEGER', true, 'V', '');
                     variables = pushVariable(variables, 'cs_count', getPreviousPregnancyData(evs, [{id:"mrVkW9h2Rdp",value:"Alive"},{id:"W4zW3aPyS0G",value:"C-Section"}]), null, 'INTEGER', true, 'V', '');
                     variables = pushVariable(variables, 'highRiskPregnancy', getHighRiskPregnancy(evs), null, 'BOOLEAN', true, 'V', '');
@@ -1636,16 +1659,23 @@ var existing = angular.module('d2Services')
                 
                 //Push all constant values:
                 angular.forEach(allProgramRules.constants, function(constant){
-                    variables = pushVariable(variables, constant.id, constant.value, null, 'INTEGER', true, 'C', '');
+                    variables = pushVariable(variables, constant.id, constant.value, null, 'INTEGER', true, 'C', '', false);
                 });
 
-                return variables;
+                //var orgUnitUid = selectedEnrollment ? selectedEnrollment.orgUnit : executingEvent.orgUnit;
+                //var orgUnitCode = '';
+                //return OrgUnitFactory.getFromStoreOrServer( orgUnitUid ).then(function (response) {
+                //    orgUnitCode = response.code;
+                //    variables = pushVariable(variables, 'orgunit_code', orgUnitCode, null, 'TEXT', orgUnitCode ? true : false, 'V', '', false);
+                deferred.resolve(variables);
+                //});
+                return deferred.promise;
             }
         };
     })
 
     /* service for executing tracker rules and broadcasting results */
-    .service('TrackerRulesExecutionService', function(VariableService, DateUtils, DialogService, DHIS2EventFactory, RulesFactory, CalendarService, $rootScope, $q, $log, $filter, orderByFilter){
+    .service('TrackerRulesExecutionService', function($translate, VariableService, DateUtils, NotificationService, DHIS2EventFactory, RulesFactory, CalendarService, OptionSetService, $rootScope, $q, $log, $filter, orderByFilter){
         var NUMBER_OF_EVENTS_IN_SCOPE = 10;
 
         //Variables for storing scope and rules in memory from rules execution to rules execution:
@@ -1662,7 +1692,7 @@ var existing = angular.module('d2Services')
             //Check if the expression contains program rule variables at all(any curly braces):
             if(expression.indexOf('{') !== -1) {
                 //Find every variable name in the expression;
-                var variablespresent = expression.match(/[A#CV]{\w+.?\w*}/g);
+                var variablespresent = expression.match(/[A#CV]\{[\w -_.]+}/g);
                 //Replace each matched variable:
                 angular.forEach(variablespresent, function(variablepresent) {
                     //First strip away any prefix and postfix signs from the variable name:
@@ -1670,11 +1700,11 @@ var existing = angular.module('d2Services')
 
                     if(angular.isDefined(variablesHash[variablepresent])) {
                         //Replace all occurrences of the variable name(hence using regex replacement):
-                        expression = expression.replace(new RegExp( variablesHash[variablepresent].variablePrefix + "{" + variablepresent + "}", 'g'),
+                        expression = expression.replace(new RegExp( variablesHash[variablepresent].variablePrefix + "\\{" + variablepresent + "\\}", 'g'),
                             variablesHash[variablepresent].variableValue);
                     }
                     else {
-                        $log.warn("Expression " + expression + " conains variable " + variablepresent
+                        $log.warn("Expression " + expression + " contains variable " + variablepresent
                             + " - but this variable is not defined." );
                     }
                 });
@@ -1825,8 +1855,8 @@ var existing = angular.module('d2Services')
                             else if(dhisFunction.name === "d2:daysBetween") {
                                 var firstdate = $filter('trimquotes')(parameters[0]);
                                 var seconddate = $filter('trimquotes')(parameters[1]);
-                                firstdate = moment(firstdate);
-                                seconddate = moment(seconddate);
+                                firstdate = moment(firstdate, CalendarService.getSetting().momentFormat);
+                                seconddate = moment(seconddate, CalendarService.getSetting().momentFormat);
                                 //Replace the end evaluation of the dhis function:
                                 expression = expression.replace(callToThisFunction, seconddate.diff(firstdate,'days'));
                                 expressionUpdated = true;
@@ -1834,8 +1864,8 @@ var existing = angular.module('d2Services')
                             else if(dhisFunction.name === "d2:weeksBetween") {
                                 var firstdate = $filter('trimquotes')(parameters[0]);
                                 var seconddate = $filter('trimquotes')(parameters[1]);
-                                firstdate = moment(firstdate);
-                                seconddate = moment(seconddate);
+                                firstdate = moment(firstdate, CalendarService.getSetting().momentFormat);
+                                seconddate = moment(seconddate, CalendarService.getSetting().momentFormat);
                                 //Replace the end evaluation of the dhis function:
                                 expression = expression.replace(callToThisFunction, seconddate.diff(firstdate,'weeks'));
                                 expressionUpdated = true;
@@ -1843,8 +1873,8 @@ var existing = angular.module('d2Services')
                             else if(dhisFunction.name === "d2:monthsBetween") {
                                 var firstdate = $filter('trimquotes')(parameters[0]);
                                 var seconddate = $filter('trimquotes')(parameters[1]);
-                                firstdate = moment(firstdate);
-                                seconddate = moment(seconddate);
+                                firstdate = moment(firstdate, CalendarService.getSetting().momentFormat);
+                                seconddate = moment(seconddate, CalendarService.getSetting().momentFormat);
                                 //Replace the end evaluation of the dhis function:
                                 expression = expression.replace(callToThisFunction, seconddate.diff(firstdate,'months'));
                                 expressionUpdated = true;
@@ -1852,8 +1882,8 @@ var existing = angular.module('d2Services')
                             else if(dhisFunction.name === "d2:yearsBetween") {
                                 var firstdate = $filter('trimquotes')(parameters[0]);
                                 var seconddate = $filter('trimquotes')(parameters[1]);
-                                firstdate = moment(firstdate);
-                                seconddate = moment(seconddate);
+                                firstdate = moment(firstdate, CalendarService.getSetting().momentFormat);
+                                seconddate = moment(seconddate, CalendarService.getSetting().momentFormat);
                                 //Replace the end evaluation of the dhis function:
                                 expression = expression.replace(callToThisFunction, seconddate.diff(firstdate,'years'));
                                 expressionUpdated = true;
@@ -1935,6 +1965,13 @@ var existing = angular.module('d2Services')
 
                                 //Replace the end evaluation of the dhis function:
                                 expression = expression.replace(callToThisFunction, count);
+                                expressionUpdated = true;
+                            }
+                            else if(dhisFunction.name === "d2:validatePalestineID"){
+                                var id = parameters[0];
+                                var valid = dhis2.validation.isValidPalestineID(id);
+
+                                expression = expression.replace(callToThisFunction, valid);
                                 expressionUpdated = true;
                             }
                             else if(dhisFunction.name === "d2:countIfZeroPos") {
@@ -2076,13 +2113,6 @@ var existing = angular.module('d2Services')
                                 expression = expression.replace(callToThisFunction, matchFound);
                                 expressionUpdated = true;
                             }
-                            else if(dhisFunction.name === "d2:validatePalestineID"){
-                                var id = parameters[0];
-                                var valid = dhis2.validation.isValidPalestineID(id);
-
-                                expression = expression.replace(callToThisFunction, valid);
-                                expressionUpdated = true;
-                            }
                             else if(dhisFunction.name === "d2:addControlDigits") {
 
                                 var baseNumber = parameters[0];
@@ -2214,7 +2244,7 @@ var existing = angular.module('d2Services')
             //determine if expression is true, and actions should be effectuated
             //If DEBUG mode, use try catch and report errors. If not, omit the heavy try-catch loop.:
             var answer = false;
-            if(flag.debug) {
+            if(flag && flag.debug) {
                 try{
 
                     var dhisfunctionsevaluated = runDhisFunctions(expression, variablesHash, flag);
@@ -2363,13 +2393,21 @@ var existing = angular.module('d2Services')
                 $log.warn("Cannot create event with empty content.");
             }
         };
-        
-        var internalExecuteRules = function(allProgramRules, executingEvent, evs, allDataElements, selectedEntity, selectedEnrollment, flag, stagesById) {
+        /**
+         * 
+         * @param {*} allProgramRules all program rules for the program
+         * @param {*} executingEvent the event context for the program
+         * @param {*} evs all events in the enrollment
+         * @param {*} allDataElements all data elements(metadata)
+         * @param {*} allTrackedEntityAttributes all tracked entity attributes(metadata)
+         * @param {*} selectedEntity the selected tracked entity instance
+         * @param {*} selectedEnrollment the selected enrollment
+         * @param {*} optionSets all optionsets(matedata)
+         * @param {*} flag execution flags
+         */
+        var internalExecuteRules = function(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flag) {
             if(allProgramRules) {
                 var variablesHash = {};
-                
-                //replace null with empty object to avoid null-problems
-                executingEvent = executingEvent === null ? {} : executingEvent;
 
                 //Concatenate rules produced by indicator definitions into the other rules:
                 var rules = $filter('filter')(allProgramRules.programRules, {programStageId: null});
@@ -2386,214 +2424,188 @@ var existing = angular.module('d2Services')
                 rules = rules.concat(allProgramRules.programIndicators.rules);
 
                 //Run rules in priority - lowest number first(priority null is last)
-                rules = orderByFilter(rules, 'priority');                
-                
-                variablesHash = VariableService.getVariables(allProgramRules, executingEvent, evs, allDataElements, selectedEntity, selectedEnrollment);
+                rules = orderByFilter(rules, 'priority');
 
-                if(angular.isObject(rules) && angular.isArray(rules)){
-                    //The program has rules, and we want to run them.
-                    //Prepare repository unless it is already prepared:
-                    if(angular.isUndefined( $rootScope.ruleeffects ) ) {
-                        $rootScope.ruleeffects = {};
-                    }
-                    
-                    var ruleEffectKey = getRuleEffectKey(executingEvent);
-                    if(angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey] )){
-                        $rootScope.ruleeffects[ruleEffectKey] = {};
-                    }
-
-                    var updatedEffectsExits = false;
-                    var eventsCreated = 0;
-
-                    angular.forEach(rules, function(rule) {
-                        var ruleEffective = false;
-
-                        var expression = rule.condition;
-                        //Go through and populate variables with actual values, but only if there actually is any replacements to be made(one or more "$" is present)
-                        if(expression) {
-                            if(expression.indexOf('{') !== -1) {
-                                expression = replaceVariables(expression, variablesHash);
-                            }
-                            //run expression:
-                            ruleEffective = runExpression(expression, rule.condition, "rule:" + rule.id, flag, variablesHash);
-                        } else {
-                            $log.warn("Rule id:'" + rule.id + "'' and name:'" + rule.name + "' had no condition specified. Please check rule configuration.");
+                return VariableService.getVariables(allProgramRules, executingEvent, evs, allDataElements,
+                    allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets).then( function(variablesHash) {
+                    if(angular.isObject(rules) && angular.isArray(rules)){
+                        //The program has rules, and we want to run them.
+                        //Prepare repository unless it is already prepared:
+                        if(angular.isUndefined( $rootScope.ruleeffects ) ) {
+                            $rootScope.ruleeffects = {};
                         }
 
-                        angular.forEach(rule.programRuleActions, function(action){
-                            //In case the effect-hash is not populated, add entries
-                            if(angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey][action.id] )){
-                                $rootScope.ruleeffects[ruleEffectKey][action.id] =  {
-                                    id:action.id,
-                                    location:action.location,
-                                    action:action.programRuleActionType,
-                                    dataElement:action.dataElement,
-                                    trackedEntityAttribute:action.trackedEntityAttribute,
-                                    programStage: action.programStage,
-                                    programIndicator: action.programIndicator,
-                                    programStageSection: action.programStageSection && action.programStageSection.id ? action.programStageSection.id : null,
-                                    content:action.content,
-                                    data:action.data,
-                                    ineffect:undefined
-                                };
+                        var ruleEffectKey = executingEvent.event ? executingEvent.event : executingEvent;
+                        if( executingEvent.event && angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey] )){
+                            $rootScope.ruleeffects[ruleEffectKey] = {};
+                        }
+
+                        if(!angular.isObject(executingEvent) && angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey] )){
+                            $rootScope.ruleeffects[ruleEffectKey] = {};
+                        }
+
+                        var updatedEffectsExits = false;
+                        var eventsCreated = 0;
+
+                        angular.forEach(rules, function(rule) {
+                            var ruleEffective = false;
+
+                            var expression = rule.condition;
+                            //Go through and populate variables with actual values, but only if there actually is any replacements to be made(one or more "$" is present)
+                            if(expression) {
+                                if(expression.indexOf('{') !== -1) {
+                                    expression = replaceVariables(expression, variablesHash);
+                                }
+
+                                //run expression:
+                                if( runExpression(expression, rule.condition, "rule:" + rule.id, flag, variablesHash) ){
+                                    ruleEffective = true;
+                                }
+                            } else {
+                                $log.warn("Rule id:'" + rule.id + "'' and name:'" + rule.name + "' had no condition specified. Please check rule configuration.");
                             }
 
-                            //In case the rule is effective and contains specific data,
-                            //the effect be refreshed from the variables list.
-                            //If the rule is not effective we can skip this step
-                            if(ruleEffective && action.data)
-                            {
-                                //Preserve old data for comparison:
-                                var oldData = $rootScope.ruleeffects[ruleEffectKey][action.id].data;
-
-                                //The key data might be containing a dollar sign denoting that the key data is a variable.
-                                //To make a lookup in variables hash, we must make a lookup without the dollar sign in the variable name
-                                //The first strategy is to make a direct lookup. In case the "data" expression is more complex, we have to do more replacement and evaluation.
-
-                                var nameWithoutBrackets = action.data.replace('#{','').replace('}','');
-                                if(angular.isDefined(variablesHash[nameWithoutBrackets]))
-                                {
-                                    //The variable exists, and is replaced with its corresponding value
-                                    $rootScope.ruleeffects[ruleEffectKey][action.id].data =
-                                        variablesHash[nameWithoutBrackets].variableValue;
-                                }
-                                else if(action.data.indexOf('{') !== -1 || action.data.indexOf('d2:') !== -1)
-                                {
-                                    //Since the value couldnt be looked up directly, and contains a curly brace or a dhis function call,
-                                    //the expression was more complex than replacing a single variable value.
-                                    //Now we will have to make a thorough replacement and separate evaluation to find the correct value:
-                                    $rootScope.ruleeffects[ruleEffectKey][action.id].data = replaceVariables(action.data, variablesHash);
-                                    //In a scenario where the data contains a complex expression, evaluate the expression to compile(calculate) the result:
-                                    $rootScope.ruleeffects[ruleEffectKey][action.id].data = runExpression($rootScope.ruleeffects[ruleEffectKey][action.id].data, action.data, "action:" + action.id, flag, variablesHash);
-                                }
-
-                                if(oldData !== $rootScope.ruleeffects[ruleEffectKey][action.id].data) {
-                                    updatedEffectsExits = true;
-                                }
-                            }
-
-                            //Update the rule effectiveness if it changed in this evaluation;
-                            if($rootScope.ruleeffects[ruleEffectKey][action.id].ineffect !== ruleEffective)
-                            {
-                                //There is a change in the rule outcome, we need to update the effect object.
-                                updatedEffectsExits = true;
-                                $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect = ruleEffective;
-                            }
-
-                            //In case the rule is of type CREATEEVENT, run event creation:
-                            if($rootScope.ruleeffects[ruleEffectKey][action.id].action === "CREATEEVENT" && $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect){
-                                if(evs && evs.byStage){
-                                    if($rootScope.ruleeffects[ruleEffectKey][action.id].programStage) {
-                                        var stage = stagesById && stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id]? stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id] : null;
-                                        var createdNow = performCreateEventAction($rootScope.ruleeffects[ruleEffectKey][action.id], selectedEntity, selectedEnrollment, evs.byStage[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id],executingEvent.event, stage);
-                                        eventsCreated += createdNow;
-                                        //Folkehelsa special code - keep the env vars up to date: 
-                                        if(createdNow > 0) {
-                                            variablesHash['highRiskPregnancy'].variableValue = VariableService.getHighRiskPregnancy(evs);
-                                            variablesHash['unManagedReferral'].variableValue = VariableService.getUnManagedReferral(evs);
-                                        }
-                                        //End folkehelsa special code
-                                    } else {
-                                        $log.warn("No programstage defined for CREATEEVENT action: " + action.id);
-                                    }
-                                } else {
-                                    $log.warn("Events to evaluate for CREATEEVENT action: " + action.id + ". Could it have been triggered at the wrong time or during registration?");
-                                }
-                            }
-                            //In case the rule is of type "assign variable" and the rule is effective,
-                            //the variable data result needs to be applied to the correct variable:
-                            else if($rootScope.ruleeffects[ruleEffectKey][action.id].action === "ASSIGN" && $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect){
-                                //from earlier evaluation, the data portion of the ruleeffect now contains the value of the variable to be assign.
-                                //the content portion of the ruleeffect defines the name for the variable, when dollar is removed:
-                                var variabletoassign = $rootScope.ruleeffects[ruleEffectKey][action.id].content ?
-                                    $rootScope.ruleeffects[ruleEffectKey][action.id].content.replace("#{","").replace("}","") : null;
-
-                                if((!variabletoassign || !angular.isDefined(variablesHash[variabletoassign])) && !$rootScope.ruleeffects[ruleEffectKey][action.id].dataElement){
-                                    $log.warn("Variable " + variabletoassign + " was not defined.");
-                                }
-
-                                var updatedValue = $rootScope.ruleeffects[ruleEffectKey][action.id].data;
-
-                                //Even if the variable is not defined: we assign it:
-                                if(variablesHash[variabletoassign] &&
-                                    variablesHash[variabletoassign].variableValue !== updatedValue){
-                                    //If the variable was actually updated, we assume that there is an updated ruleeffect somewhere:
-                                    updatedEffectsExits = true;
-                                    //Then we assign the new value:
-                                    var valueType = determineValueType(updatedValue);
-
-                                    var processedValue = VariableService.processValue(updatedValue, valueType);
-
-                                    variablesHash[variabletoassign] = {
-                                        variableValue:processedValue,
-                                        variableType:valueType,
-                                        hasValue:true,
-                                        variableEventDate:'',
-                                        variablePrefix:'#',
-                                        allValues:[processedValue]
+                            angular.forEach(rule.programRuleActions, function(action){
+                                //In case the effect-hash is not populated, add entries
+                                if(angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey][action.id] )){
+                                    $rootScope.ruleeffects[ruleEffectKey][action.id] =  {
+                                        id:action.id,
+                                        location:action.location,
+                                        action:action.programRuleActionType,
+                                        dataElement:action.dataElement,
+                                        trackedEntityAttribute:action.trackedEntityAttribute,
+                                        programStage: action.programStage,
+                                        programIndicator: action.programIndicator,
+                                        programStageSection: action.programStageSection && action.programStageSection.id ? action.programStageSection.id : null,
+                                        content:action.content,
+                                        data:action.data,
+                                        ineffect:undefined
                                     };
                                 }
-                            }
+
+                                //In case the rule is effective and contains specific data,
+                                //the effect be refreshed from the variables list.
+                                //If the rule is not effective we can skip this step
+                                if(ruleEffective && action.data)
+                                {
+                                    //Preserve old data for comparison:
+                                    var oldData = $rootScope.ruleeffects[ruleEffectKey][action.id].data;
+
+                                    //The key data might be containing a dollar sign denoting that the key data is a variable.
+                                    //To make a lookup in variables hash, we must make a lookup without the dollar sign in the variable name
+                                    //The first strategy is to make a direct lookup. In case the "data" expression is more complex, we have to do more replacement and evaluation.
+
+                                    var nameWithoutBrackets = action.data.replace('#{','').replace('}','');
+                                    if(angular.isDefined(variablesHash[nameWithoutBrackets]))
+                                    {
+                                        //The variable exists, and is replaced with its corresponding value
+                                        $rootScope.ruleeffects[ruleEffectKey][action.id].data =
+                                            variablesHash[nameWithoutBrackets].variableValue;
+                                    }
+                                    else if(action.data.indexOf('{') !== -1 || action.data.indexOf('d2:') !== -1)
+                                    {
+                                        //Since the value couldnt be looked up directly, and contains a curly brace or a dhis function call,
+                                        //the expression was more complex than replacing a single variable value.
+                                        //Now we will have to make a thorough replacement and separate evaluation to find the correct value:
+                                        $rootScope.ruleeffects[ruleEffectKey][action.id].data = replaceVariables(action.data, variablesHash);
+                                        //In a scenario where the data contains a complex expression, evaluate the expression to compile(calculate) the result:
+                                        $rootScope.ruleeffects[ruleEffectKey][action.id].data = runExpression($rootScope.ruleeffects[ruleEffectKey][action.id].data, action.data, "action:" + action.id, flag, variablesHash);
+                                    }
+
+                                    if(oldData !== $rootScope.ruleeffects[ruleEffectKey][action.id].data) {
+                                        updatedEffectsExits = true;
+                                    }
+                                }
+
+                                //Update the rule effectiveness if it changed in this evaluation;
+                                if($rootScope.ruleeffects[ruleEffectKey][action.id].ineffect !== ruleEffective)
+                                {
+                                    //There is a change in the rule outcome, we need to update the effect object.
+                                    updatedEffectsExits = true;
+                                    $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect = ruleEffective;
+                                }
+
+                                //In case the rule is of type CREATEEVENT, run event creation:
+                                if($rootScope.ruleeffects[ruleEffectKey][action.id].action === "CREATEEVENT" && $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect){
+                                    if(evs && evs.byStage){
+                                        if($rootScope.ruleeffects[ruleEffectKey][action.id].programStage) {
+                                            var createdNow = performCreateEventAction($rootScope.ruleeffects[ruleEffectKey][action.id], selectedEntity, selectedEnrollment, evs.byStage[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id]);
+                                            eventsCreated += createdNow;
+                                        } else {
+                                            $log.warn("No programstage defined for CREATEEVENT action: " + action.id);
+                                        }
+                                    } else {
+                                        $log.warn("Events to evaluate for CREATEEVENT action: " + action.id + ". Could it have been triggered at the wrong time or during registration?");
+                                    }
+                                }
+                                //In case the rule is of type "assign variable" and the rule is effective,
+                                //the variable data result needs to be applied to the correct variable:
+                                else if($rootScope.ruleeffects[ruleEffectKey][action.id].action === "ASSIGN" && $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect){
+                                    //from earlier evaluation, the data portion of the ruleeffect now contains the value of the variable to be assigned.
+                                    //the content portion of the ruleeffect defines the name for the variable, when the qualidisers are removed:
+                                    var variabletoassign = $rootScope.ruleeffects[ruleEffectKey][action.id].content ?
+                                        $rootScope.ruleeffects[ruleEffectKey][action.id].content.replace("#{","").replace("A{","").replace("}","") : null;
+
+                                    if(variabletoassign && !angular.isDefined(variablesHash[variabletoassign])){
+                                        //If a variable is mentioned in the content of the rule, but does not exist in the variables hash, show a warning:
+                                        $log.warn("Variable " + variabletoassign + " was not defined.");
+                                    }
+
+                                    if(variablesHash[variabletoassign]){
+                                        var updatedValue = $rootScope.ruleeffects[ruleEffectKey][action.id].data;
+
+                                        var valueType = determineValueType(updatedValue);
+
+                                        if($rootScope.ruleeffects[ruleEffectKey][action.id].dataElement) {
+                                            updatedValue = VariableService.getDataElementValueOrCodeForValue(variablesHash[variabletoassign].useCodeForOptionSet, updatedValue, $rootScope.ruleeffects[ruleEffectKey][action.id].dataElement.id, allDataElements, optionSets);
+                                        }
+                                        updatedValue = VariableService.processValue(updatedValue, valueType);
+
+                                        variablesHash[variabletoassign] = {
+                                            variableValue:updatedValue,
+                                            variableType:valueType,
+                                            hasValue:true,
+                                            variableEventDate:'',
+                                            variablePrefix:variablesHash[variabletoassign].variablePrefix ? variablesHash[variabletoassign].variablePrefix : '#',
+                                            allValues:[updatedValue]
+                                        };
+
+                                        if(variablesHash[variabletoassign].variableValue !== updatedValue) {
+                                            //If the variable was actually updated, we assume that there is an updated ruleeffect somewhere:
+                                            updatedEffectsExits = true;
+                                        }
+                                    }
+                                }
+                            });
                         });
-                    });
-
-                    //Broadcast rules finished if there was any actual changes to the event.
-                    if(updatedEffectsExits){
-                        $rootScope.$broadcast("ruleeffectsupdated", { event: ruleEffectKey, eventsCreated:eventsCreated });
+                        var result = { event: ruleEffectKey, callerId:flag.callerId, eventsCreated:eventsCreated };
+                        //Broadcast rules finished if there was any actual changes to the event.
+                        if(updatedEffectsExits){
+                            $rootScope.$broadcast("ruleeffectsupdated", result);
+                        }
+                        return result;
                     }
-                }
-
-                return true;
+                    return null;
+                });
             }
+            var def = $q.defer();
+            def.resolve();
+            return def.promise;
         };
         
-        var getRuleEffectKey = function(event){
-            var emptyEventKey = "globalKey";
-            var key;
-            if(angular.isObject(event)){
-                if(angular.equals(event, {}) || event === null){
-                    key = emptyEventKey;
-                }
-                else{
-                    if(angular.isDefined(event.event)){
-                        key = event.event;
-                    }
-                    else {
-                        $log.warn("could not find ruleEffectKey for event" + event.toString());
-                    }
-                }
+        var internalProcessEventGrid = function( eventGrid ){
+            var events = [];
+            if( eventGrid && eventGrid.rows && eventGrid.headers ){    		
+                angular.forEach(eventGrid.rows, function(row) {
+                    var ev = {};
+                    var i = 0;
+                    angular.forEach(eventGrid.headers, function(h){
+                        ev[h] = row[i];
+                        i++;
+                    });                            
+                });
             }
-            else if(angular.isString(event)){
-                if(event.trim() === ""){
-                    key = emptyEventKey;
-                }
-                else {
-                    key = event;
-                }
-            }
-            else if(event === null){
-                key = emptyEventKey;
-            }
-            else if(angular.isNumber(event)){
-                key = event;
-            }
-            else if(angular.isUndefined(event)) {
-                $log.warn("tried to use undefined event as ruleEffectKey. If you would like to use a global key, please use an empty string or an empty object");
-            }
-            else {
-                $log.warn("could not find ruleEffectKey");
-            }
-            
-            return key;
-        }
-        
-        var internalProcessEvent = function(event) {
-            event.eventDate = DateUtils.formatFromApiToUser(event.eventDate);
-            
-            angular.forEach(event.dataValues, function(dataValue) {
-                event[dataValue.dataElement] = dataValue.value;
-            });
-            return event;
+            return events;
         };
 
         var internalGetOrLoadScope = function(currentEvent,programStageId,orgUnitId) {        
@@ -2608,20 +2620,20 @@ var existing = angular.module('d2Services')
                     lastEventDate = currentEvent.eventDate;
 
                     
-                    var pager = {pageSize: NUMBER_OF_EVENTS_IN_SCOPE};
-                    var ordering = {field:"eventDate",direction:"desc"};
-                    var filterings = [{field:"programStage", value:programStageId}];
-                    return DHIS2EventFactory.getByFilters(orgUnitId, pager, true, ordering, filterings).then(function(newestEvents) {
-                        filterings.push({field:"dueDate",value:lastEventDate});
-                        return DHIS2EventFactory.getByFilters(orgUnitId, pager, true, ordering, filterings).then(function(previousEvents) {
+                    var pager = {pageSize: NUMBER_OF_EVENTS_IN_SCOPE};                
+                    var ordering = {id:"eventDate",direction:"desc"};
+                    
+                    return DHIS2EventFactory.getByStage(orgUnitId, programStageId, null, pager, true, null, null, ordering).then(function(events) {                	
+                        var allEventsWithPossibleDuplicates = internalProcessEventGrid( events );                	
+                        var filterUrl = '&dueDateStart=' + DateUtils.formatFromUserToApi(lastEventDate) + '&dueDateEnd=' + DateUtils.formatFromUserToApi(lastEventDate); 
+                        return DHIS2EventFactory.getByStage(orgUnitId, programStageId, null, pager, true, null, filterUrl, ordering).then(function(events) {
+                            allEventsWithPossibleDuplicates = allEventsWithPossibleDuplicates.concat( internalProcessEventGrid( events ) );
                             eventScopeExceptCurrent = [];
                             var eventIdDictionary = {};
-                            var allEventsWithPossibleDuplicates = newestEvents.events.concat(previousEvents.events);
                             angular.forEach(allEventsWithPossibleDuplicates, function(eventInScope) {
                                 if(currentEvent.event !== eventInScope.event 
                                         && !eventIdDictionary[eventInScope.event]) {
-                                    //Add event and update dictionary to avoid duplicates:
-                                    eventScopeExceptCurrent.push(internalProcessEvent(eventInScope));
+                                    //Add event and update dictionary to avoid duplicates:                                
                                     eventIdDictionary[eventInScope.event] = true;
                                 }
                             });
@@ -2686,93 +2698,107 @@ var existing = angular.module('d2Services')
             }
         };
         return {
-            executeRules: function(allProgramRules, executingEvent, evs, allDataElements, selectedEntity, selectedEnrollment, flag, stagesById ) {
-                internalExecuteRules(allProgramRules, executingEvent, evs, allDataElements, selectedEntity, selectedEnrollment, flag, stagesById );
+            executeRules: function(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flags) {
+                return internalExecuteRules(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flags);
             },
-            loadAndExecuteRulesScope: function(currentEvent,programId,programStageId,programStageDataElements,orgUnitId,flags){
-                internalGetOrLoadRules(programId).then(function(rules) {
-                    internalGetOrLoadScope(currentEvent,programStageId,orgUnitId).then(function(scope) {
-                        internalExecuteRules(rules,currentEvent,scope,programStageDataElements,null,null,flags);
+            loadAndExecuteRulesScope: function(currentEvent, programId, programStageId, programStageDataElements, allTrackedEntityAttributes, optionSets, orgUnitId, flags){
+                return internalGetOrLoadRules(programId).then(function(rules) {
+                    return internalGetOrLoadScope(currentEvent,programStageId,orgUnitId).then(function(scope) {
+                        return internalExecuteRules(rules, currentEvent, scope, programStageDataElements, allTrackedEntityAttributes, null, null, optionSets, flags);
                     });
                 });
             },
-            processRuleEffectAttribute: function(context, selectedTei, tei, currentEvent, currentEventOriginialValue, affectedEvent, attributesById, prStDes, hiddenFields, hiddenSections, warningMessages, assignedFields){
+            processRuleEffectsForTrackedEntityAttributes: function(context, currentTei, teiOriginalValues, attributesById, optionSets ) {
+                var hiddenFields = {};
+                var assignedFields = {};
+                var hiddenSections = {};
+                var warningMessages = [];
+                
                 angular.forEach($rootScope.ruleeffects[context], function (effect) {
-                    if (effect.trackedEntityAttribute) {
-                        //in the data entry controller we only care about the "hidefield", showerror and showwarning actions
-                        if (effect.action === "HIDEFIELD") {
-                            if (effect.trackedEntityAttribute) {
-                                if (effect.ineffect && selectedTei[effect.trackedEntityAttribute.id]) {
-                                    //If a field is going to be hidden, but contains a value, we need to take action;
-                                    if (effect.content) {
-                                        //TODO: Alerts is going to be replaced with a proper display mecanism.
-                                        alert(effect.content);
-                                    }
-                                    else {
-                                        //TODO: Alerts is going to be replaced with a proper display mecanism.
-                                        alert(attributesById[effect.trackedEntityAttribute.id].displayName + "Was blanked out and hidden by your last action");
-                                    }
-
-                                    //Blank out the value:
-                                    selectedTei[effect.trackedEntityAttribute.id] = "";
+                    if (effect.ineffect) {
+                        if (effect.action === "HIDEFIELD" && effect.trackedEntityAttribute) {
+                            if (currentTei[effect.trackedEntityAttribute.id]) {
+                                //If a field is going to be hidden, but contains a value, we need to take action;
+                                if (effect.content) {
+                                    //TODO: Alerts is going to be replaced with a proper display mecanism.
+                                    alert(effect.content);
+                                }
+                                else {
+                                    //TODO: Alerts is going to be replaced with a proper display mecanism.
+                                    alert(attributesById[effect.trackedEntityAttribute.id].displayName + " - was blanked out and hidden by your last action");
                                 }
 
-                                hiddenFields[effect.trackedEntityAttribute.id] = effect.ineffect;
+                                //Blank out the value:
+                                currentTei[effect.trackedEntityAttribute.id] = "";
                             }
-                            else {
-                                $log.warn("ProgramRuleAction " + effect.id + " is of type HIDEFIELD, bot does not have an attribute defined");
-                            }
-                        } else if (effect.action === "SHOWERROR") {
-                            if (effect.trackedEntityAttribute) {                        
-                                if(effect.ineffect) {
-                                    var dialogOptions = {
-                                        headerText: 'validation_error',
-                                        bodyText: effect.content + (effect.data ? effect.data : "")
-                                    };
-                                    DialogService.showDialog({}, dialogOptions);
-                                    selectedTei[effect.trackedEntityAttribute.id] = tei[effect.trackedEntityAttribute.id];
+
+                            hiddenFields[effect.trackedEntityAttribute.id] = true;
+                        } else if (effect.action === "SHOWERROR" && effect.trackedEntityAttribute) {
+                            if(effect.ineffect) {
+                                var headerText =  $translate.instant('validation_error');
+                                var bodyText = effect.content + (effect.data ? effect.data : "");
+
+                                NotificationService.showNotifcationDialog(headerText, bodyText);
+                                if( effect.trackedEntityAttribute ) {
+                                    currentTei[effect.trackedEntityAttribute.id] = teiOriginalValues[effect.trackedEntityAttribute.id];
                                 }
                             }
-                            else {
-                                $log.warn("ProgramRuleAction " + effect.id + " is of type HIDEFIELD, bot does not have an attribute defined");
-                            }
-                        } else if (effect.action === "SHOWWARNING") {
-                            if (effect.trackedEntityAttribute) {
-                                if(effect.ineffect) {
-                                    var message = effect.content + (angular.isDefined(effect.data) ? effect.data : "");
-                                    warningMessages.push(message);
+                        } else if (effect.action === "SHOWWARNING" && effect.trackedEntityAttribute) {
+                            if(effect.ineffect) {
+                                var message = effect.content + (angular.isDefined(effect.data) ? effect.data : "");
+                                
+                                if( effect.trackedEntityAttribute ) {
                                     warningMessages[effect.trackedEntityAttribute.id] = message;
                                 }
-                            }
-                            else {
-                                $log.warn("ProgramRuleAction " + effect.id + " is of type HIDEFIELD, bot does not have an attribute defined");
+                                else
+                                {
+                                    warningMessages.push(message);
+                                }
                             }
                         }
-                    }
-                    
-                    if(effect.dataElement && effect.ineffect) {
-                        //in the data entry controller we only care about the "hidefield" actions
-                        if(effect.action === "HIDEFIELD") {
-                            if(effect.dataElement) {
-                                if(affectedEvent[effect.dataElement.id]) {
-                                    //If a field is going to be hidden, but contains a value, we need to take action;
-                                    if(effect.content) {
-                                        //TODO: Alerts is going to be replaced with a proper display mecanism.
-                                        alert(effect.content);
-                                    }
-                                    else {
-                                        //TODO: Alerts is going to be replaced with a proper display mecanism.
-                                        alert(prStDes[effect.dataElement.id].dataElement.formName + "Was blanked out and hidden by your last action");
-                                    }
+                        else if (effect.action === "ASSIGN" && effect.trackedEntityAttribute) {
+                            var processedValue = $filter('trimquotes')(effect.data);
 
-                                    //Blank out the value:
-                                    affectedEvent[effect.dataElement.id] = "";
+                            if(attributesById[effect.trackedEntityAttribute.id]
+                                    && attributesById[effect.trackedEntityAttribute.id].optionSet) {
+                                processedValue = OptionSetService.getName(
+                                        optionSets[attributesById[effect.trackedEntityAttribute.id].optionSet.id].options, processedValue)
+                            }
+
+                            processedValue = processedValue === "true" ? true : processedValue;
+                            processedValue = processedValue === "false" ? false : processedValue;
+
+                            //For "ASSIGN" actions where we have a dataelement, we save the calculated value to the dataelement:
+                            currentTei[effect.trackedEntityAttribute.id] = processedValue;
+                            assignedFields[effect.trackedEntityAttribute.id] = true;
+                        }
+                    }
+                });
+                return {currentTei: currentTei, hiddenFields: hiddenFields, hiddenSections: hiddenSections, warningMessages: warningMessages, assignedFields: assignedFields};
+            },
+            processRuleEffectsForEvent: function(eventId, currentEvent, currentEventOriginalValues, prStDes, optionSets ) {
+                var hiddenFields = {};
+                var assignedFields = {};
+                var hiddenSections = {};
+                var warningMessages = [];
+                
+                angular.forEach($rootScope.ruleeffects[eventId], function (effect) {
+                    if (effect.ineffect) {
+                        if (effect.action === "HIDEFIELD" && effect.dataElement) {
+                            if(currentEvent[effect.dataElement.id]) {
+                                //If a field is going to be hidden, but contains a value, we need to take action;
+                                if(effect.content) {
+                                    //TODO: Alerts is going to be replaced with a proper display mecanism.
+                                    alert(effect.content);
                                 }
-                                hiddenFields[effect.dataElement.id] = effect.ineffect;
+                                else {
+                                    //TODO: Alerts is going to be replaced with a proper display mecanism.
+                                    alert(prStDes[effect.dataElement.id].dataElement.displayFormName + " - was blanked out and hidden by your last action");
+                                }
+
                             }
-                            else {
-                                $log.warn("ProgramRuleAction " + effect.id + " is of type HIDEFIELD, bot does not have a dataelement defined");
-                            }
+                            currentEvent[effect.dataElement.id] = "";
+                            hiddenFields[effect.dataElement.id] = true;
                         }
                         else if(effect.action === "HIDESECTION") {
                             if(effect.programStageSection){
@@ -2780,27 +2806,50 @@ var existing = angular.module('d2Services')
                             }
                         }
                         else if(effect.action === "SHOWERROR" && effect.dataElement.id){
-                            var dialogOptions = {
-                                headerText: 'validation_error',
-                                bodyText: effect.content + (effect.data ? effect.data : "")
-                            };
-                            DialogService.showDialog({}, dialogOptions);
+                            var headerTxt =  $translate.instant('validation_error');
+                            var bodyTxt = effect.content + (effect.data ? effect.data : "");
+                            NotificationService.showNotifcationDialog(headerTxt, bodyTxt);
 
-                            currentEvent[effect.dataElement.id] = currentEventOriginialValue[effect.dataElement.id];
+                            currentEvent[effect.dataElement.id] = currentEventOriginalValues[effect.dataElement.id];
                         }
                         else if(effect.action === "SHOWWARNING"){
                             warningMessages.push(effect.content + (effect.data ? effect.data : ""));
                         }
-                        else if (effect.action === "ASSIGN") {
+                        else if (effect.action === "ASSIGN" && effect.dataElement) {
+                            var processedValue = $filter('trimquotes')(effect.data);
 
-                            //For "ASSIGN" actions where we have a dataelement, we save the calculated value to the dataelement:
-                            affectedEvent[effect.dataElement.id] = effect.data;
+                            if(prStDes[effect.dataElement.id] 
+                                    && prStDes[effect.dataElement.id].dataElement.optionSet) {
+                                processedValue = OptionSetService.getName(
+                                        optionSets[prStDes[effect.dataElement.id].dataElement.optionSet.id].options, processedValue)
+                            }
+
+                            processedValue = processedValue === "true" ? true : processedValue;
+                            processedValue = processedValue === "false" ? false : processedValue;
+
+                            currentEvent[effect.dataElement.id] = processedValue;
                             assignedFields[effect.dataElement.id] = true;
                         }
                     }
                 });
+            
+                return {currentEvent: currentEvent, hiddenFields: hiddenFields, hiddenSections: hiddenSections, warningMessages: warningMessages, assignedFields: assignedFields};
+            },
+            processRuleEffectAttribute: function(context, selectedTei, tei, currentEvent, currentEventOriginialValue, affectedEvent, attributesById, prStDes, hiddenFields, hiddenSections, warningMessages, assignedFields, optionSets){
+                //Function used from registration controller to process effects for the tracked entity instance and for the events in the same operation
+                var teiAttributesEffects = this.processRuleEffectsForTrackedEntityAttributes(context, selectedTei, tei, attributesById, optionSets );
+                teiAttributesEffects.selectedTei = teiAttributesEffects.currentTei;
                 
-                return {selectedTei: selectedTei, currentEvent: currentEvent, hiddenFields: hiddenFields, hiddenSections: hiddenSections, warningMessages: warningMessages};
+                if(context === "SINGLE_EVENT" && currentEvent && prStDes ) {
+                    var eventEffects = this.processRuleEffectsForEvent("SINGLE_EVENT", currentEvent, currentEventOriginialValue, prStDes, optionSets);
+                    teiAttributesEffects.warningMessages = angular.extend(teiAttributesEffects.warningMessages,eventEffects.warningMessages);
+                    teiAttributesEffects.hiddenFields = angular.extend(teiAttributesEffects.hiddenFields,eventEffects.hiddenFields);
+                    teiAttributesEffects.hiddenSections = angular.extend(teiAttributesEffects.hiddenSections,eventEffects.hiddenSections);
+                    teiAttributesEffects.assignedFields = angular.extend(teiAttributesEffects.assignedFields,eventEffects.assignedFields);
+                    teiAttributesEffects.currentEvent = eventEffects.currentEvent;
+                }
+                
+                return teiAttributesEffects;
             }
         };
     })
@@ -2869,7 +2918,7 @@ var existing = angular.module('d2Services')
         this.location = null;
         this.dataElementTranslations = null;
         this.advancedSearchOptions = null;
-		this.trackedEntities = null;
+		this.trackedEntityTypes = null;
 
         this.set = function(currentSelection){
             this.currentSelection = currentSelection;
@@ -2955,11 +3004,11 @@ var existing = angular.module('d2Services')
             return this.advancedSearchOptions;
         };
 
-        this.setTrackedEntities = function (trackedEntities) {
-            this.trackedEntities = trackedEntities;
+        this.setTrackedEntityTypes = function (trackedEntityTypes) {
+            this.trackedEntityTypes = trackedEntityTypes;
         };
-        this.getTrackedEntities = function () {
-            return this.trackedEntities;
+        this.getTrackedEntityTypes = function () {
+            return this.trackedEntityTypes;
         };
 
         this.setSortColumn = function (sortColumn) {
@@ -2981,14 +3030,30 @@ var existing = angular.module('d2Services')
         }
     })
 
+    .service('UsersService', function( $http, $translate, DHIS2URL) {
+        return {
+            getAll: function(){
+                var promise = $http.get(DHIS2URL+"/users?paging=false&fields=*").then(function (response) {
+                    var users = [];
+                    angular.forEach(response.data.users, function (user) {
+                        var userObj = {username: user.userCredentials.username, orgUnits: user.organisationUnits, name: user.userCredentials.displayName, roles: user.userCredentials.userRoles};
+                        users.push(userObj);
+                    });
+                    return users;
+                });
+                return promise;
+            }
+        };
+    })    
+
     .service('AuditHistoryDataService', function( $http, $translate, DialogService) {
         this.getAuditHistoryData = function(dataId, dataType ) {
             var url="";
             if (dataType === "attribute") {
-                url="../api/audits/trackedEntityAttributeValue?tei="+dataId+"&skipPaging=true";
+                url=DHIS2URL+"/audits/trackedEntityAttributeValue?tei="+dataId+"&skipPaging=true";
                 
             } else {
-                url="../api/audits/trackedEntityDataValue?psi="+dataId+"&skipPaging=true";
+                url=DHIS2URL+"/audits/trackedEntityDataValue?psi="+dataId+"&skipPaging=true";
             }
 
             var promise = $http.get(url).then(function( response ) {
@@ -3003,5 +3068,6 @@ var existing = angular.module('d2Services')
                 }
             });
             return promise;
-        }
+        };
     });
+    

@@ -1,6 +1,6 @@
 //Controller for column show/hide
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('LeftBarMenuController',
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('LeftBarMenuController',
         function($scope,
                 $location) {
     $scope.showHome = function(){

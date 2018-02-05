@@ -1,8 +1,7 @@
-/* global trackerCapture, angular */
-
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
 //conroller for tei report
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('TeiReportController',
+eRegistry.controller('TeiReportController',
         function($scope,
                 $filter,
                 CurrentSelection,
@@ -11,7 +10,8 @@ trackerCapture.controller('TeiReportController',
                 EventUtils,
                 TEIService,
                 ProgramStageFactory,
-                EnrollmentService) {  
+                EnrollmentService,
+                DHIS2BASEURL) {  
     $scope.showProgramReportDetailsDiv = false;
     $scope.enrollmentsByProgram = [];
     $scope.dashboardReady = false;
@@ -120,47 +120,46 @@ trackerCapture.controller('TeiReportController',
         $scope.allowProvidedElsewhereExists = [];
         $scope.prStDes = [];
         
-        ProgramStageFactory.getByProgram($scope.selectedProgram).then(function(stages){
-            $scope.programStages = stages;
-            angular.forEach(stages, function(stage){
-                var providedElsewhereExists = false;
-                for(var i=0; i<stage.programStageDataElements.length; i++){                
-                    if(stage.programStageDataElements[i].allowProvidedElsewhere && !providedElsewhereExists){
-                        providedElsewhereExists = true;
-                        $scope.allowProvidedElsewhereExists[stage.id] = true;
-                    }
-                    $scope.prStDes[stage.programStageDataElements[i].dataElement.id] = stage.programStageDataElements[i];
+        var stages = $scope.selectedProgram.programStages;
+        $scope.programStages = stages;
+        angular.forEach(stages, function(stage){
+            var providedElsewhereExists = false;
+            for(var i=0; i<stage.programStageDataElements.length; i++){                
+                if(stage.programStageDataElements[i].allowProvidedElsewhere && !providedElsewhereExists){
+                    providedElsewhereExists = true;
+                    $scope.allowProvidedElsewhereExists[stage.id] = true;
                 }
+                $scope.prStDes[stage.programStageDataElements[i].dataElement.id] = stage.programStageDataElements[i];
+            }
 
-                $scope.stagesById[stage.id] = stage;
-            });        
-        
-            //program reports come grouped in enrollment, process for each enrollment
-            $scope.enrollments = [];        
-            angular.forEach(Object.keys($scope.selectedReport.enrollments), function(enr){        
-                //format report data values
-                angular.forEach($scope.selectedReport.enrollments[enr], function(ev){
+            $scope.stagesById[stage.id] = stage;
+        });        
+    
+        //program reports come grouped in enrollment, process for each enrollment
+        $scope.enrollments = [];        
+        angular.forEach(Object.keys($scope.selectedReport.enrollments), function(enr){        
+            //format report data values
+            angular.forEach($scope.selectedReport.enrollments[enr], function(ev){
 
-                    angular.forEach(ev.notes, function(note){
-                        note.storedDate = DateUtils.formatToHrsMins(note.storedDate);
-                    });
-
-                    if(ev.dataValues){
-                        ev = EventUtils.processEvent(ev, $scope.stagesById[ev.programStage], $scope.optionSets, $scope.prStDes);
-                    }
+                angular.forEach(ev.notes, function(note){
+                    note.storedDate = DateUtils.formatToHrsMins(note.storedDate);
                 });
 
-                //get enrollment details
-                EnrollmentService.get(enr).then(function(enrollment){
-                    enrollment.enrollmentDate = DateUtils.formatFromApiToUser(enrollment.enrollmentDate);
-                    enrollment.incidentDate = DateUtils.formatFromApiToUser(enrollment.incidentDate);            
-                    angular.forEach(enrollment.notes, function(note){
-                        note.storedDate = DateUtils.formatToHrsMins(note.storedDate);
-                    });            
-                    $scope.enrollments.push(enrollment);               
-                });
-            });    
-        });
+                if(ev.dataValues){
+                    ev = EventUtils.processEvent(ev, $scope.stagesById[ev.programStage], $scope.optionSets, $scope.prStDes);
+                }
+            });
+
+            //get enrollment details
+            EnrollmentService.get(enr).then(function(enrollment){
+                enrollment.enrollmentDate = DateUtils.formatFromApiToUser(enrollment.enrollmentDate);
+                enrollment.incidentDate = DateUtils.formatFromApiToUser(enrollment.incidentDate);            
+                angular.forEach(enrollment.notes, function(note){
+                    note.storedDate = DateUtils.formatToHrsMins(note.storedDate);
+                });            
+                $scope.enrollments.push(enrollment);               
+            });
+        });    
     };
     
     $scope.close = function(){
@@ -174,8 +173,8 @@ trackerCapture.controller('TeiReportController',
         popupWin.document.open();
         popupWin.document.write('<html>\n\
                                         <head>\n\
-                                                <link rel="stylesheet" type="text/css" href="../dhis-web-commons/bootstrap/css/bootstrap.min.css" />\n\
-                                                <link rel="stylesheet" type="text/css" href="../dhis-web-commons/css/print.css" />\n\
+                                                <link rel="stylesheet" type="text/css" href="'+DHIS2BASEURL+'/dhis-web-commons/bootstrap/css/bootstrap.min.css" />\n\
+                                                <link rel="stylesheet" type="text/css" href="'+DHIS2BASEURL+'/dhis-web-commons/css/print.css" />\n\
                                                 <link rel="stylesheet" type="text/css" href="styles/style.css" />\n\
                                                 <link rel="stylesheet" type="text/css" href="styles/print.css" />\n\
                                         </head>\n\

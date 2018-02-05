@@ -1,7 +1,7 @@
 
-/* global trackerCapture, angular */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('EventCreationController',
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('EventCreationController',
         function ($scope,
                 $modalInstance,
                 $timeout,
@@ -12,6 +12,7 @@ trackerCapture.controller('EventCreationController',
                 DialogService,
                 ModalService,
                 EventCreationService,
+                RegistrationService,
                 eventsByStage,
                 stage,
                 stages,
@@ -24,7 +25,9 @@ trackerCapture.controller('EventCreationController',
                 autoCreate,
                 EventUtils,
                 events,
-                suggestedStage,RegistrationService,EnrollmentService) {
+                suggestedStage,
+                EnrollmentService,
+                CurrentSelection) {
     $scope.stages = stages;
     $scope.allStages = allStages;
     $scope.events = events;
@@ -111,7 +114,7 @@ trackerCapture.controller('EventCreationController',
             }
 
             
-            for(j = 0; j < availableStagesOrdered.length; j++){
+            for(var j = 0; j < availableStagesOrdered.length; j++){
                 var availableStage = availableStagesOrdered[j];
                 
                 if(availableStage.id === lastStageForEvents.id){
@@ -244,7 +247,16 @@ trackerCapture.controller('EventCreationController',
         };             
         ModalService.showModal({},modalOptions).then(function(){
             $rootScope.$broadcast('changeOrgUnit', {orgUnit: dummyEvent.orgUnit});
-            $scope.save();
+            
+            $scope.attributesById = CurrentSelection.getAttributesById();
+            $scope.optionSets = CurrentSelection.getOptionSets();
+            $scope.tei = CurrentSelection.get().tei;
+
+            $scope.tei.orgUnit = dummyEvent.orgUnit;
+
+            RegistrationService.registerOrUpdate($scope.tei, $scope.optionSets, $scope.attributesById).then(function (regResponse) {
+                $scope.save();
+            });
         });
     };
     
@@ -258,9 +270,9 @@ trackerCapture.controller('EventCreationController',
     if(angular.isDefined(orgUnit) && angular.isDefined(orgUnit.id) && $scope.isReferralEvent){
         $scope.orgUnitsLoading = true;
         $timeout(function(){
-            OrgUnitFactory.get(orgUnit.id).then(function(data){
-                if(data && data.organisationUnits && data.organisationUnits.length >0){
-                    orgUnit = data.organisationUnits[0];
+            OrgUnitFactory.get(orgUnit.id).then(function(ou){
+                if(ou){
+                    orgUnit = ou;
                     var url = generateFieldsUrl();
                     OrgUnitFactory.getOrgUnits(orgUnit.id,url).then(function(data){
                         if(data && data.organisationUnits && data.organisationUnits.length >0){
@@ -294,6 +306,8 @@ trackerCapture.controller('EventCreationController',
                         }
                         $scope.orgUnitsLoading = false;
                     });
+                }else{
+                    $scope.orgUnitsLoading = false;
                 }
 
                 

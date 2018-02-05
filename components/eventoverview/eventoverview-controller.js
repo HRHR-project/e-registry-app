@@ -1,5 +1,5 @@
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('EventOverViewController',
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('EventOverViewController',
         function(
                 $scope,
                 $translate,
@@ -67,35 +67,32 @@ trackerCapture.controller('EventOverViewController',
     });
     
     $scope.getDataElementsForProgramStage = function() {        
-        var def = $q.defer();        
-        ProgramStageFactory.getByProgram($scope.selectedProgram).then(function (stages) {
-            $scope.prStDes ={};
-            $scope.hiddenAuditDataElements = [];
-            for(var i = 0; i < stages.length; i++){  
-                var stage = stages[i];
-                if(stage.id === $scope.programStageIdFilter){
-                    $scope.programStage = stage;
-                    angular.forEach(stage.programStageDataElements, function (prStDe) {
-                        $scope.prStDes[prStDe.dataElement.id] = prStDe;
-                        if(angular.isDefined($scope.visibleDataElements[prStDe.dataElement.id])){
-                            prStDe.dataElement.sortOrder = prStDe.sortOrder;               
-                            prStDe.dataElement.compulsory = prStDe.compulsory;
-                            prStDe.dataElement.editable = angular.isDefined($scope.visibleDataElements[prStDe.dataElement.id].editable) ? true : false;
-                            $scope.dataElementsForProgramStageAss[prStDe.dataElement.id] = prStDe.dataElement;
-                            $scope.dataElementsForProgramStage.push(prStDe.dataElement);                        
-                        }
-                        if(prStDe.dataElement.id === 'RO9lM47fth5'){
-                            
-                        }
-                    });
-                    sortDataElements();
-                    break;                    
-                }
+        var def = $q.defer();
+        var stages = $scope.selectedProgram.programStages;
+        $scope.prStDes ={};
+        $scope.hiddenAuditDataElements = [];
+        for(var i = 0; i < stages.length; i++){  
+            var stage = stages[i];
+            if(stage.id === $scope.programStageIdFilter){
+                $scope.programStage = stage;
+                angular.forEach(stage.programStageDataElements, function (prStDe) {
+                    $scope.prStDes[prStDe.dataElement.id] = prStDe;
+                    if(angular.isDefined($scope.visibleDataElements[prStDe.dataElement.id])){
+                        prStDe.dataElement.sortOrder = prStDe.sortOrder;               
+                        prStDe.dataElement.compulsory = prStDe.compulsory;
+                        prStDe.dataElement.editable = angular.isDefined($scope.visibleDataElements[prStDe.dataElement.id].editable) ? true : false;
+                        $scope.dataElementsForProgramStageAss[prStDe.dataElement.id] = prStDe.dataElement;
+                        $scope.dataElementsForProgramStage.push(prStDe.dataElement);                        
+                    }
+                    if(prStDe.dataElement.id === 'RO9lM47fth5'){
+                        
+                    }
+                });
+                sortDataElements();
+                break;                    
             }
-            def.resolve();
-        }, function(){
-            def.reject();
-        });        
+        }
+        def.resolve();        
         return def.promise;
     };
     

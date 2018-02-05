@@ -1,5 +1,6 @@
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('UpcomingEventsController',
+
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('UpcomingEventsController',
          function($scope,
                 $modal,
                 $location,
@@ -66,7 +67,7 @@ trackerCapture.controller('UpcomingEventsController',
     //load programs associated with the selected org unit.
     $scope.loadPrograms = function(orgUnit) {
         if (angular.isObject($scope.selectedOrgUnit)) {   
-            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit, $scope.model.selectedProgram).then(function(response){
+            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit,true, $scope.model.selectedProgram).then(function(response){
                 $scope.programs = response.programs;
                 $scope.model.selectedProgram = response.selectedProgram;
             });

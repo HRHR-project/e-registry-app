@@ -1,5 +1,5 @@
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('MakeReferralController', function($scope, $modalInstance, stage, OrgUnitFactory){
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('MakeReferralController', function($scope, $modalInstance, stage, OrgUnitFactory){
     $scope.stage = stage;
     $scope.cancel = function(){
         $modalInstance.close();

@@ -1,12 +1,12 @@
-export default angular.module('trackerCapture', [
+export default angular.module('eRegistry', [
     'ui.bootstrap',
     'ngRoute',
     'ngCookies',
     'ngSanitize',
     'ngMessages',
-    'trackerCaptureServices',
-    'trackerCaptureFilters',
-    'trackerCaptureDirectives',
+    'eRegistryServices',
+    'eRegistryFilters',
+    'eRegistryDirectives',
     'd2Directives',
     'd2Filters',
     'd2Services',

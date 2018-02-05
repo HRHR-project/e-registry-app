@@ -76,7 +76,7 @@
                     <div class="col-sm-4 vertical-spacing">
                         <select ng-model="selectedProgramForRelative"
                                 class="form-control"
-                                ng-disabled="programs.length < 1 || (selectedProgramForRelative && selectedProgram.relatedProgram && relatedProgramRelationship) || selectedAttribute && selectedAttribute.trackedEntity"
+                                ng-disabled="programs.length < 1 || (selectedProgramForRelative && selectedProgram.relatedProgram && relatedProgramRelationship) || selectedAttribute && selectedAttribute.trackedEntityType"
                                 ng-options="program as program.displayName for program in programs | orderBy: 'name'" 
                                 ng-change="setAttributesForSearch(selectedProgramForRelative)">
                             <option value="">{{'please_select_a_program'| translate}}</option>

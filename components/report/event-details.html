@@ -38,7 +38,7 @@
             </thead>
             <tr class="col-md-12" ng-repeat="prStDe in currentStage.programStageDataElements">
                 <td class="col-md-5">
-                    {{prStDe.dataElement.formName ? prStDe.dataElement.formName : prStDe.dataElement.displayName}}
+                    {{prStDe.dataElement.displayFormName ? prStDe.dataElement.displayFormName : prStDe.dataElement.displayName}}
                 </td>
                 <td class="col-md-5">
                     {{currentEvent[prStDe.dataElement.id].value}}

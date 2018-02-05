@@ -1,6 +1,6 @@
 //Controller for column show/hide
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('DisplayModeController',
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('DisplayModeController',
         function($scope, $modalInstance) {
     
     $scope.close = function () {

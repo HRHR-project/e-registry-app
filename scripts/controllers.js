@@ -3,10 +3,10 @@
 'use strict';
 
 /* Controllers */
-var trackerCapture = angular.module('trackerCapture');
+var eRegistry = angular.module('eRegistry');
 
 //Controller for settings page
-trackerCapture.controller('SelectionController',
+eRegistry.controller('SelectionController',
         function($rootScope,
                 $scope,
                 $modal,
@@ -27,8 +27,19 @@ trackerCapture.controller('SelectionController',
                 TEIGridService,
                 TEIService,
                 EventReportService,
-                ModalService,$q) {
+                SystemSettingsService,
+                ModalService,$q,
+                DHIS2BASEURL,
+                DialogService) 
+                 {
+    $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.maxOptionSize = 30;
+
+    $scope.$watch("selectedProgram", function(){
+        if($scope.selectedProgram){
+            $scope.selectedProgram.access.data.write = false;
+        }
+    });
     
     $scope.contentViews = [
         { view: "find",title: "search_register_patient", value: "find", type: "search", icon: "fa-search", index: 3, template: "views/find.html"},
@@ -54,6 +65,7 @@ trackerCapture.controller('SelectionController',
     $scope.model = {};
 
     //Selection
+    $scope.pageReady = false;
     $scope.ouModes = [{displayName: 'SELECTED'}, {displayName: 'CHILDREN'}, {displayName: 'DESCENDANTS'}, {displayName: 'ACCESSIBLE'}];         
     $scope.selectedOuMode = $scope.ouModes[2];    
     $scope.dashboardProgramId = ($location.search()).program;
@@ -61,6 +73,24 @@ trackerCapture.controller('SelectionController',
     $scope.treeLoaded = false;
     $scope.searchOuTree = {open: true};
     $scope.teiListMode = {onlyActive: false};
+
+    SystemSettingsService.getCountry().then(function(response){
+        if(response === 'bangladesh') {
+            $scope.isBangladesh = true;
+            OrgUnitFactory.getAll().then(function(allOrgUnits) {
+                var temp = {};
+                angular.forEach(allOrgUnits.organisationUnits, function(orgUnit){
+                    temp[orgUnit.id] = orgUnit;
+                });
+    
+                $scope.pageReady = true;
+                $scope.allOrgUnits = temp;
+            });
+        } else {
+            $scope.isBangladesh = false;
+            $scope.pageReady = true;
+        }
+    });
     
     //Paging
     $scope.pager = {pageSize: 50, page: 1, toolBarDisplay: 5};   
@@ -137,7 +167,7 @@ trackerCapture.controller('SelectionController',
             }
             
             //Labels
-            $scope.trackerCaptureLabel = $scope.selectedOrgUnit.displayName;
+            $scope.eRegistryLabel = $scope.selectedOrgUnit.displayName;
             $scope.orgUnitLabel = $translate.instant('org_unit');
             $scope.listAllLabel = $translate.instant('list_all');
             $scope.registerLabel = $translate.instant('register');
@@ -190,11 +220,11 @@ trackerCapture.controller('SelectionController',
     });    
     
     //watch for program feedback (this is when coming back from dashboard)
-    if($scope.dashboardProgramId && $scope.dashboardProgramId !== 'null'){        
+    /*if($scope.dashboardProgramId && $scope.dashboardProgramId !== 'null'){        
         ProgramFactory.get($scope.dashboardProgramId).then(function(program){
             $scope.selectedProgram = program;        
         });
-    }
+    }*/
     
     //load programs associated with the selected org unit.
     $scope.loadPrograms = function(orgUnit) {
@@ -202,7 +232,7 @@ trackerCapture.controller('SelectionController',
         
         if (angular.isObject($scope.selectedOrgUnit)) {   
             
-            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit, $scope.selectedProgram).then(function(response){
+            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit,true, $scope.selectedProgram).then(function(response){
                 $scope.programs = response.programs;
                 $scope.selectedProgram = response.selectedProgram;
                 if($scope.selectedProgram && $scope.selectedProgram.programStages){
@@ -268,7 +298,12 @@ trackerCapture.controller('SelectionController',
         }
         return tei[$scope.sortColumn.id];
     };
-   
+
+    $scope.convertDate = function(date){
+        var temp = DateUtils.formatFromApiToUser(date);
+        return temp;
+    };
+
     //$scope.searchParam = {bools: []};
     $scope.search = function(mode,goToPage){
         resetParams(goToPage);
@@ -328,6 +363,8 @@ trackerCapture.controller('SelectionController',
         $scope.teiFetched = false;
         $scope.trackedEntityList = null;
         var today = DateUtils.getToday();
+        //Covert to API format, otherwise in some cases (when user format is dd-mm-yyyy) the API request fails.
+        today = DateUtils.formatFromUserToApi(today);
         var promises = [];
         
         if(!statuses){
@@ -591,7 +628,7 @@ trackerCapture.controller('SelectionController',
             $scope.fetchTeis();
         }
     };
-    
+
     $scope.findTei = function(){
         if($scope.selectedProgram){
             $scope.programUrl = 'program=' + $scope.selectedProgram.id;
@@ -603,52 +640,76 @@ trackerCapture.controller('SelectionController',
         }
         TEIService.search($scope.selectedOrgUnit.id,$scope.selectedOuMode.displayName,null,$scope.programUrl,$scope.findAttributeUrl.url,null,false).then(function(data){            
             if( data && data.metaData){
-                if(data.rows.length===1){
-                    var newProgramUrl = $scope.programUrl +'&followUp=true';
-                    TEIService.search($scope.selectedOrgUnit.id,$scope.selectedOuMode.displayName,null,newProgramUrl,$scope.findAttributeUrl.url,null,false).then(function(followUpData){
-                        var followUp = false;
-                        if(followUpData && followUpData.metaData && followUpData.rows.length ===1){
-                            followUp = true;
-                        }
-                        var formattedData = TEIGridService.format(data,false, $scope.optionSets, null,followUp);
-                        $scope.teiFetched = $scope.teiFound = true;
-                        $scope.trackedEntityList = formattedData;
-                        $scope.findWarning = false;
-                    });
-
-                }else if(data.rows.length===0){
-                    TEIService.search($scope.selectedOrgUnit.id,'ALL',null,$scope.programUrl,$scope.findAttributeUrl.url,null,false).then(function(data){
-                        if(data && data.metaData){
-                            if(data.rows.length===1){
-                                var newProgramUrl = $scope.programUrl +'&followUp=true';
-                                TEIService.search($scope.selectedOrgUnit.id,'ALL',null,newProgramUrl,$scope.findAttributeUrl.url,null,false).then(function(followUpData){                                            
-                                    var followUp = false;
-                                    if(followUpData && followUpData.metaData && followUpData.rows.length ===1){
-                                        followUp = true;
-                                    }
-                                    $scope.showFoundInOtherOrgUnitModal(data,followUp);
-                                    $scope.findWarning = false;
-
-                                });
-
-
-                            }else if(data.rows.length===0){
-                                $scope.showNotFoundModal(data);   
-                                $scope.findWarning = false;
-                            }else{
-                                $scope.findWarning = true;
+                 SystemSettingsService.getCountry().then(function(response){
+                    //Determins how many results to display. Should be === 1 for Palestine and <= 5 for Bangladesh.
+                    var numToDisplay = response === 'bangladesh' ? 5 : 1;
+                    if (!$scope.allOrgUnits && response === 'bangladesh') {
+                        return OrgUnitFactory.getAll().then(function(allOrgUnits) {
+                            var temp = {};
+                            angular.forEach(allOrgUnits.organisationUnits, function(orgUnit){
+                                temp[orgUnit.id] = orgUnit;
+                            });
+                            $scope.allOrgUnits = temp;
+                            return numToDisplay;
+                        });
+                    }
+                    return numToDisplay;
+                }).then(function(numToDisplay) {
+                    if(data.rows.length <= numToDisplay && data.rows.length !== 0){
+                        var newProgramUrl = $scope.programUrl +'&followUp=true';
+                        TEIService.search($scope.selectedOrgUnit.id,$scope.selectedOuMode.displayName,null,newProgramUrl,$scope.findAttributeUrl.url,null,false).then(function(followUpData){
+                            var followUp = false;
+                            if(followUpData && followUpData.metaData && followUpData.rows.length ===1){
+                                followUp = true;
                             }
-                        }
+                            var formattedData = TEIGridService.format(data,false, $scope.optionSets, null,followUp);
+                            $scope.teiFetched = $scope.teiFound = true;
+                            $scope.trackedEntityList = formattedData;
+                            $scope.findWarning = false;
 
-                    });
-                }else{
-                    $scope.findWarning = true;
-                }
-            }
+                        });
+                    } else if(data.rows.length === 0) {
+                        TEIService.search($scope.selectedOrgUnit.id,'ALL',null,$scope.programUrl,$scope.findAttributeUrl.url,null,false).then(function(data){
+                            if(data && data.metaData){
+                                if(data.rows.length===1){
+                                    var newProgramUrl = $scope.programUrl +'&followUp=true';
+                                    TEIService.search($scope.selectedOrgUnit.id,'ALL',null,newProgramUrl,$scope.findAttributeUrl.url,null,false).then(function(followUpData){                                            
+                                        var followUp = false;
+                                        if(followUpData && followUpData.metaData && followUpData.rows.length ===1){
+                                            followUp = true;
+                                        }
+                                        $scope.showFoundInOtherOrgUnitModal(data,followUp);
+                                        $scope.findWarning = false;
+
+                                    });
+
+
+                                }else if(data.rows.length===0){
+                                    $scope.showNotFoundModal(data);   
+                                    $scope.findWarning = false;
+                                }else{
+                                    $scope.findWarning = true;
+                                }
+                            }
+
+                        });
+                    }else{
+                        $scope.findWarning = true;
+                    }
+                });
+            }   
         });
     };
     
     $scope.showNotFoundModal =  function(data){
+        if(!$scope.canRegister()){
+            var dialogOptions = {
+                headerText: "no_record_found",
+                bodyText: "no_record_found"
+            };
+            return DialogService.showDialog({}, dialogOptions);
+        }
+
         var modalOptions = {
             headerText: "no_record_found",
             bodyText: "no_record_found_create",
@@ -716,7 +777,23 @@ trackerCapture.controller('SelectionController',
     
     //load programs for the selected orgunit (from tree)
     $scope.setSelectedSearchingOrgUnit = function(orgUnit){    
-        $scope.selectedSearchingOrgUnit = orgUnit;
+        if(orgUnit === $scope.selectedSearchingOrgUnit) {
+            $scope.selectedSearchingOrgUnit = null;
+        } else {
+            $scope.selectedSearchingOrgUnit = orgUnit;            
+        }
+    };
+
+    $scope.getBangladeshOrgUnits = function(){
+        OrgUnitFactory.getSearchTreeRootBangladesh().then(function(response) {  
+            $scope.orgUnits = response.organisationUnits;
+            angular.forEach($scope.orgUnits, function(ou){
+                ou.show = true;
+                angular.forEach(ou.children, function(o){                    
+                    o.hasChildren = o.children && o.children.length > 0 ? true : false;
+                });            
+            });
+        });
     };
     
     function setFindAttributes(){
@@ -727,4 +804,7 @@ trackerCapture.controller('SelectionController',
             }
         });
     };
+    $scope.canRegister = function(){
+        return $scope.selectedProgram && $scope.selectedProgram.access.data.write;
+    }
 });

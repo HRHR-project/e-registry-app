@@ -29,7 +29,7 @@
         </ul>
     </div>
     
-    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
+    <img id="ouwt_loader" ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
     
     <div class="small-horizonal-spacing" ng-if="!treeLoaded">
         {{'loading_tree'| translate}}
@@ -37,10 +37,11 @@
     
 </div>
 
-<div class="page" id="mainPage">
 
+
+<div class="page" id="mainPage" ng-show="pageReady">
     <div ng-if="treeLoaded && !selectedOrgUnit">
-        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
+        <img ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
         {{'loading_metadata'| translate}}
     </div> 
 
@@ -48,7 +49,7 @@
         
         <!-- top bar begins -->
         <div class="row top-bar">     
-            <h2>{{trackerCaptureLabel}} </h2>                
+            <h2>{{eRegistryLabel}} </h2>                
         </div>
         <!-- top bar ends -->
 
@@ -58,10 +59,10 @@
 
         <!-- search and registration menu begins -->
         <!-- removed ng-if="selectedOrgUnit.displayName" from div below to make the program selecter load on start -->
-        <div class="row" ng-cloak>
+        <div class="row" ng-cloak ng-if="programs.length > 1">
             <!-- Was commented out -->
             <div class="col-md-4 small-vertical-spacing hideInPrint">
-                <label>Selected program:</label>
+                <label>{{'selected_program'| translate}}</label>
                 <ui-select ng-model="model.selectedProgram" 
                         theme="select2" 
                         on-select="getProgramAttributes(model.selectedProgram)"

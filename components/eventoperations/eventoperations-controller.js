@@ -1,5 +1,5 @@
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('EventOperationsController',
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('EventOperationsController',
         function(
                 $scope,
                 $translate,

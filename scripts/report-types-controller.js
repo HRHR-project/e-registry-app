@@ -1,6 +1,6 @@
 //Controller for the header section
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('ReportTypesController',
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('ReportTypesController',
         function($scope,
                 $location) {    
     $scope.programSummary = function(){

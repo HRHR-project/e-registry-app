@@ -1,6 +1,6 @@
-/* global trackerCapture, angular */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('NotesController',
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('NotesController',
         function($scope,
                 DateUtils,
                 EnrollmentService,

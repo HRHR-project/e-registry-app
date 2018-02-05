@@ -1,6 +1,6 @@
-/* global trackerCapture, angular */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('EnrollmentController',
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('EnrollmentController',
         function($rootScope,
                 $scope,  
                 $route,
@@ -14,8 +14,9 @@ trackerCapture.controller('EnrollmentController',
                 DialogService,
                 ModalService,
                 $translate,
-                DHIS2EventFactory) {
-    
+                DHIS2EventFactory,
+                DHIS2BASEURL) {
+    $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.today = DateUtils.getToday();
     $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU'); 
     $scope.dashboardReady = false;

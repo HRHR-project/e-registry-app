@@ -56,9 +56,9 @@
                        name="latitude"
                        d2-coordinate-validator
                        ng-blur="saveCoordinate('LAT')"
-                       ng-disabled="currentEvent.enrollmentStatus !== 'ACTIVE' || currentEvent.editingNotAllowed"    
+                       ng-disabled="!eventEditable()" 
                        ng-required="false"/>
-                <div ng-messages="outerForm.latitude.$error" ng-if="interacted(outerForm.latitude)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html">                        
+                <div ng-messages="outerForm.latitude.$error" ng-if="interacted(outerForm.latitude)" class="required" ng-messages-include="{{DHIS2BASEURL}}/dhis-web-commons/angular-forms/error-messages.html">                        
                 </div>
             </div>
             <div class="col-md-6">
@@ -70,9 +70,9 @@
                        name="longitude" 
                        d2-coordinate-validator
                        ng-blur="saveCoordinate('LNG')"
-                       ng-disabled="currentEvent.enrollmentStatus !== 'ACTIVE' || currentEvent.editingNotAllowed" 
+                       ng-disabled="!eventEditable()" 
                        ng-required="false"/>
-                <div ng-messages="outerForm.longitude.$error" ng-if="interacted(outerForm.longitude)" class="required" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html">
+                <div ng-messages="outerForm.longitude.$error" ng-if="interacted(outerForm.longitude)" class="required" ng-messages-include="{{DHIS2BASEURL}}/dhis-web-commons/angular-forms/error-messages.html">
                 </div>
             </div>
         </div>

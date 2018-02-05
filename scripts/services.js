@@ -4,13 +4,13 @@
 
 /* Services */
 
-var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResource'])
+var eRegistryServices = angular.module('eRegistryServices', ['ngResource']);
 
-.factory('TCStorageService', function(){
+eRegistryServices.factory('TCStorageService', function(){
     var store = new dhis2.storage.Store({
-        name: "dhis2tc",
+        name: "dhis2er",
         adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
-        objectStores: ['programs', 'programStages', 'trackedEntities', 'attributes', 'relationshipTypes', 'optionSets', 'programValidations', 'ouLevels', 'programRuleVariables', 'programRules', 'programIndicators', 'constants']
+        objectStores: ['programs', 'programStages', 'trackedEntityTypes', 'attributes', 'relationshipTypes', 'optionSets', 'programValidations', 'programIndicators', 'ouLevels', 'programRuleVariables', 'programRules','constants','programAccess']
     });
     return{
         currentStore: store
@@ -18,12 +18,12 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
 })
 
 /* Service to fetch/store dasboard widgets */
-.service('DashboardLayoutService', function($http, EventCreationService) {
+.service('DashboardLayoutService', function($http, EventCreationService, DHIS2URL) {
     
     var ButtonIds = { Complete: "Complete", Incomplete: "Incomplete", Validate: "Validate", Delete: "Delete", Skip: "Skip", Unskip: "Unskip", Note: "Note" };
       
     var w = {};
-    w.enrollmentWidget = {title: 'enrollment', view: "components/enrollment/enrollment.html", show: false, expand: true, parent: 'smallerWidget', order: 12, showHideAllowed: true};
+    w.enrollmentWidget = {title: 'enrollment', view: "components/enrollment/enrollment.html", show: true, expand: true, parent: 'smallerWidget', order: 12, showHideAllowed: true};
     //w.indicatorWidget = {title: 'indicators', view: "components/rulebound/rulebound.html", show: true, expand: true, parent: 'smallerWidget', order: 1, showHideAllowed: false};
     w.dataentryWidget = {title: 'dataentry', view: "components/dataentry/dataentry.html", show: true, expand: true, parent: 'biggerWidget', order: 2,showHideAllowed: false};
     w.reportWidget = {title: 'report', view: "components/report/tei-report.html", show: false, expand: true, parent: 'biggerWidget', order: 3, showHideAllowed: true};
@@ -88,7 +88,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
     
     var getDefaultLayout = function(customLayout){
         var dashboardLayout = {customLayout: customLayout, defaultLayout: defaultLayout};        
-        var promise = $http.get(  '../api/systemSettings/keyTrackerDashboardDefaultLayout' ).then(function(response){
+        var promise = $http.get(  DHIS2URL+'/systemSettings/keyTrackerDashboardDefaultLayout' ).then(function(response){
             angular.extend(dashboardLayout.defaultLayout, response.data);
             return dashboardLayout;
         }, function(){
@@ -100,9 +100,9 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
     return {
         saveLayout: function(dashboardLayout, saveAsDefault){
             var layout = JSON.stringify(dashboardLayout);
-            var url = '../api/userSettings/keyTrackerDashboardLayout?value=';            
+            var url = DHIS2URL+'/userSettings/keyTrackerDashboardLayout?value=';            
             if(saveAsDefault){
-                url = '../api/systemSettings/keyTrackerDashboardDefaultLayout?value=';
+                url = DHIS2URL+'/systemSettings/keyTrackerDashboardDefaultLayout?value=';
             }
             var promise = $http.post( url + layout, '', {headers: {'Content-Type': 'text/plain;charset=utf-8'}}).then(function(response){
                 return response.data;
@@ -110,7 +110,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             return promise;            
         },
         get: function(){
-            var promise = $http.get(  '../api/userSettings/keyTrackerDashboardLayout' ).then(function(response){
+            var promise = $http.get(  DHIS2URL+'/userSettings/keyTrackerDashboardLayout' ).then(function(response){
                 return getDefaultLayout(response.data);
             }, function(){
                 return getDefaultLayout(null);
@@ -119,6 +119,41 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
         }
     };
 })
+
+.service('SystemSettingsService', function($http, DHIS2URL) {
+    return {
+        getCountry: function(){
+            var promise = $http.get(DHIS2URL+'/systemSettings/keyCountry').then(function(response){
+                return response.data;
+            }, function(){
+                return null;
+            });
+            return promise;            
+        },
+        getMainMenuConfig: function(){
+            var promise = $http.get(DHIS2URL+'/systemSettings/eRegistryMainMenuConfig').then(function(response){
+                return response.data;
+            }, function(){
+                return null;
+            });
+            return promise;
+        }
+    };
+})
+
+.service('DataStoreService', function($http) {
+    return {
+        getCountry: function(){
+            var promise = $http.get(DHIS2URL+'/dataStore/mch-tracker/country').then(function(response){
+                return response.data.country;
+            }, function(){
+                return null;
+            });
+            return promise;            
+        }
+    };
+})
+
 
 /* current selections */
 .service('PeriodService', function(DateUtils, CalendarService, $filter){
@@ -294,95 +329,30 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
 
 /* Factory to fetch programs */
 .factory('ProgramFactory', function($q, $rootScope, SessionStorageService, TCStorageService) { 
+    var access = null;
     
-    var userHasValidRole = function(program, userRoles){
-        
-        var hasRole = false;
-
-        if($.isEmptyObject(program.userRoles)){
-            return hasRole;
-        }
-
-        for(var i=0; i < userRoles.length && !hasRole; i++){
-            if( program.userRoles.hasOwnProperty( userRoles[i].id ) ){
-                hasRole = true;
-            }
-            
-            if(!hasRole && userRoles[i].authorities && userRoles[i].authorities.indexOf('ALL') !== -1){
-                hasRole = true;
-            }
-        } 
-        return hasRole;        
-    };
-    
-    return {        
-        
-        getAll: function(){
-            
-            var roles = SessionStorageService.get('USER_ROLES');
-            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
-            var ou = SessionStorageService.get('SELECTED_OU');
+    return {
+        getAllAccesses: function(){
             var def = $q.defer();
-            
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('programs').done(function(prs){
-                    var programs = [];
-                    angular.forEach(prs, function(pr){
-                        if(pr.organisationUnits.hasOwnProperty( ou.id ) && userHasValidRole(pr, userRoles)){
-                            programs.push(pr);
-                        }
+            if(access){
+                def.resolve(access);
+            }else{
+                TCStorageService.currentStore.open().done(function(){
+                    TCStorageService.currentStore.getAll('programAccess').done(function(programAccess){
+                        access = { programsById: {}, programStagesById: {}};
+                        angular.forEach(programAccess, function(program){
+                            access.programsById[program.id] = program.access;
+                            angular.forEach(program.programStages, function(programStage){
+                                access.programStagesById[programStage.id] = programStage.access;
+                            });
+                        });
+                        def.resolve(access);
                     });
-                    $rootScope.$apply(function(){
-                        def.resolve(programs);
-                    });                      
                 });
-            });
-            
-            return def.promise;            
-        },
-        getAllForUser: function(selectedProgram){
-            var roles = SessionStorageService.get('USER_ROLES');
-            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
-            var def = $q.defer();
-            
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('programs').done(function(prs){
-                    var programs = [];
-                    angular.forEach(prs, function(pr){                            
-                        if(userHasValidRole(pr, userRoles)){
-                            programs.push(pr);
-                        }
-                    });
-                    
-                    if(programs.length === 0){
-                        selectedProgram = null;
-                    }
-                    else if(programs.length === 1){
-                        selectedProgram = programs[0];
-                    } 
-                    else{
-                        if(selectedProgram){
-                            var continueLoop = true;
-                            for(var i=0; i<programs.length && continueLoop; i++){
-                                if(programs[i].id === selectedProgram.id){                                
-                                    selectedProgram = programs[i];
-                                    continueLoop = false;
-                                }
-                            }
-                            if(continueLoop){
-                                selectedProgram = null;
-                            }
-                        }
-                    }
-                    
-                    $rootScope.$apply(function(){
-                        def.resolve({programs: programs, selectedProgram: selectedProgram});
-                    });                      
-                });
-            });
-            
+            }
             return def.promise;
-        },
+            
+        },     
         get: function(uid){
             
             var def = $q.defer();
@@ -396,44 +366,53 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             });                        
             return def.promise;            
         },
-        getProgramsByOu: function(ou, selectedProgram){
-            var roles = SessionStorageService.get('USER_ROLES');
-            var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
+        getProgramsByOu: function(ou,loadSelectedProgram, selectedProgram){
             var def = $q.defer();
-            
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('programs').done(function(prs){
-                    var programs = [];
-                    angular.forEach(prs, function(pr){                            
-                        if(pr.organisationUnits.hasOwnProperty( ou.id ) && userHasValidRole(pr, userRoles)){
-                            programs.push(pr);
-                        }
-                    });
-                    
-                    if(programs.length === 0){
-                        selectedProgram = null;
-                    }
-                    else if(programs.length === 1){
-                        selectedProgram = programs[0];
-                    } 
-                    else{
-                        if(selectedProgram){
-                            var continueLoop = true;
-                            for(var i=0; i<programs.length && continueLoop; i++){
-                                if(programs[i].id === selectedProgram.id){                                
-                                    selectedProgram = programs[i];
-                                    continueLoop = false;
-                                }
+            this.getAllAccesses().then(function(accesses){
+                TCStorageService.currentStore.open().done(function(){
+                    TCStorageService.currentStore.getAll('programs').done(function(prs){
+                        var programs = [];
+                        angular.forEach(prs, function(pr){                            
+                            if(pr.organisationUnits.hasOwnProperty( ou.id ) && accesses.programsById[pr.id] && accesses.programsById[pr.id].data.read){
+                                pr.access = accesses.programsById[pr.id];
+                                var accessiblePrs = [];
+                                angular.forEach(pr.programStages, function(prs){
+                                    if(accesses.programStagesById[prs.id] && accesses.programStagesById[prs.id].data.read){
+                                        prs.access = accesses.programStagesById[prs.id];
+                                        accessiblePrs.push(prs);
+                                    }
+                                });
+                                pr.programStages = accessiblePrs;
+                                programs.push(pr);
                             }
-                            if(continueLoop){
+                        });
+                        if(loadSelectedProgram){
+                            if(programs.length === 0){
                                 selectedProgram = null;
                             }
+                            else if(programs.length === 1){
+                                selectedProgram = programs[0];
+                            } 
+                            else{
+                                if(selectedProgram){
+                                    var continueLoop = true;
+                                    for(var i=0; i<programs.length && continueLoop; i++){
+                                        if(programs[i].id === selectedProgram.id){                                
+                                            selectedProgram = programs[i];
+                                            continueLoop = false;
+                                        }
+                                    }
+                                    if(continueLoop){
+                                        selectedProgram = null;
+                                    }
+                                }
+                            }
                         }
-                    }
-                    
-                    $rootScope.$apply(function(){
-                        def.resolve({programs: programs, selectedProgram: selectedProgram});
-                    });                      
+                        
+                        $rootScope.$apply(function(){
+                            def.resolve({programs: programs, selectedProgram: selectedProgram});
+                        });                      
+                    });
                 });
             });
             
@@ -521,40 +500,78 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
 })
 
 /* Factory for fetching OrgUnit */
-.factory('OrgUnitFactory', function($http, SessionStorageService) {    
+.factory('OrgUnitFactory', function($http, SessionStorageService, DHIS2URL) {    
     var orgUnit, orgUnitPromise, rootOrgUnitPromise,orgUnitTreePromise;
     return {
         get: function(uid){            
             if( orgUnit !== uid ){
-                orgUnitPromise = $http.get( '../api/organisationUnits.json?filter=id:eq:' + uid + '&fields=id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]&paging=false' ).then(function(response){
+                orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?filter=id:eq:' + uid + '&fields=id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]&paging=false' ).then(function(response){
                     orgUnit = response.data.id;
                     return response.data;
                 });
             }
             return orgUnitPromise;
         },
+        getAll: function(){            
+            orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?' + '&fields=id,name,displayName,&paging=false' ).then(function(response){
+                return response.data;
+            });
+            return orgUnitPromise;
+        },
+
+        //Gets all related orgunits, based on the root(uid) orgunit.
+        getIdDown: function(uid){    
+            var allDownId = [];
+            var allOrgUnits = [];
+            var rootOrgUnit = null;
+
+            orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?fields=id,level,children[id,level]&paging=false' ).then(function(response){
+                allOrgUnits = response.data.organisationUnits;
+                angular.forEach(response.data.organisationUnits, function(orgUnit){
+                    if(orgUnit.id === uid){
+                        rootOrgUnit = orgUnit;                               
+                    }                        
+                });
+                getAllRelated(rootOrgUnit);
+
+                //Recursive methode for finding all related orgUnits.
+                function getAllRelated(ou) {
+                    angular.forEach(allOrgUnits, function(orgUnit){
+                        if(orgUnit.id === ou.id){
+                            allDownId.push(orgUnit.id);                         
+                            if(!orgUnit.children) {
+                                return;
+                            } else {
+                                angular.forEach(orgUnit.children, function(child){
+                                    getAllRelated(child);                        
+                                });      
+                            }                         
+                        }                        
+                    });
+                }
+                return allDownId;
+            });
+
+            return orgUnitPromise;
+        },
         getSearchTreeRoot: function(){
-            //var roles = SessionStorageService.get('USER_ROLES');
             if(!rootOrgUnitPromise){
-                var url = '../api/me.json?fields=organisationUnits[id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]]&paging=false';
-                /*if( roles && roles.userCredentials && roles.userCredentials.userRoles){
-                    var userRoles = roles.userCredentials.userRoles;
-                    for(var i=0; i<userRoles.length; i++){
-                        if(userRoles[i].authorities.indexOf('ALL') !== -1 || 
-                          userRoles[i].authorities.indexOf('F_TRACKED_ENTITY_INSTANCE_SEARCH_IN_ALL_ORGUNITS') !== -1 ){                        
-                          url = '../api/organisationUnits.json?filter=level:eq:1&fields=id,name,children[id,name,children[id,name]]&paging=false';
-                          i=userRoles.length;
-                        }
-                    }  
-                }*/
+                var url = DHIS2URL+'/organisationUnits.json?filter=level:eq:1&fields=id,name, displayName,children[id,name, displayName, children[id,name, displayName]]&paging=false';
                 rootOrgUnitPromise = $http.get( url ).then(function(response){
                     return response.data;
                 });
             }
             return rootOrgUnitPromise;
         },
+        getSearchTreeRootBangladesh: function(){
+            var url = DHIS2URL+'/organisationUnits.json?filter=level:eq:3&fields=id,name, displayName,level,children[id,name, displayName, children[id,name, displayName]]&paging=false';
+            rootOrgUnitPromise = $http.get( url ).then(function(response){
+                return response.data;
+            });
+            return rootOrgUnitPromise;
+        },
         getOrgUnits: function(uid,fieldUrl){
-            var url = '../api/organisationUnits.json?filter=id:eq:'+uid+'&'+fieldUrl+'&paging=false';
+            var url = DHIS2URL+'/organisationUnits.json?filter=id:eq:'+uid+'&'+fieldUrl+'&paging=false';
             orgUnitTreePromise = $http.get(url).then(function(response){
               return response.data; 
             });               
@@ -601,7 +618,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
 })
 
 /* Service to deal with enrollment */
-.service('EnrollmentService', function($http, DateUtils, DialogService, $translate) {
+.service('EnrollmentService', function($http, DateUtils, DialogService, $translate, DHIS2URL) {
     
     var convertFromApiToUser = function(enrollment){
         if(enrollment.enrollments){
@@ -625,19 +642,19 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
     };
     return {        
         get: function( enrollmentUid ){
-            var promise = $http.get(  '../api/enrollments/' + enrollmentUid ).then(function(response){
+            var promise = $http.get(  DHIS2URL+'/enrollments/' + enrollmentUid ).then(function(response){
                 return convertFromApiToUser(response.data);
             });
             return promise;
         },
         getByEntity: function( entity ){
-            var promise = $http.get(  '../api/enrollments.json?ouMode=ACCESSIBLE&trackedEntityInstance=' + entity + '&paging=false').then(function(response){
+            var promise = $http.get(  DHIS2URL+'/enrollments.json?ouMode=ACCESSIBLE&trackedEntityInstance=' + entity + '&paging=false').then(function(response){
                 return convertFromApiToUser(response.data);
             });
             return promise;
         },
         getByEntityAndProgram: function( entity, program ){
-            var promise = $http.get(  '../api/enrollments.json?ouMode=ACCESSIBLE&trackedEntityInstance=' + entity + '&program=' + program + '&paging=false').then(function(response){
+            var promise = $http.get(  DHIS2URL+'/enrollments.json?ouMode=ACCESSIBLE&trackedEntityInstance=' + entity + '&program=' + program + '&paging=false').then(function(response){
                 return convertFromApiToUser(response.data);
             }, function(response){
                 if( response && response.data && response.data.status === 'ERROR'){
@@ -651,39 +668,39 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             return promise;
         },
         getByStartAndEndDate: function( program, orgUnit, ouMode, startDate, endDate ){
-            var promise = $http.get(  '../api/enrollments.json?ouMode=ACCESSIBLE&program=' + program + '&orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&startDate=' + startDate + '&endDate=' + endDate + '&paging=false').then(function(response){
+            var promise = $http.get(  DHIS2URL+'/enrollments.json?ouMode=ACCESSIBLE&program=' + program + '&orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&startDate=' + startDate + '&endDate=' + endDate + '&paging=false').then(function(response){
                 return convertFromApiToUser(response.data);
             });
             return promise;
         },
         enroll: function( enrollment ){
             var en = convertFromUserToApi(angular.copy(enrollment));
-            var promise = $http.post(  '../api/enrollments', en ).then(function(response){
+            var promise = $http.post(  DHIS2URL+'/enrollments', en ).then(function(response){
                 return response.data;
             });
             return promise;
         },
         update: function( enrollment ){
             var en = convertFromUserToApi(angular.copy(enrollment));
-            var promise = $http.put( '../api/enrollments/' + en.enrollment , en ).then(function(response){
+            var promise = $http.put( DHIS2URL+'/enrollments/' + en.enrollment , en ).then(function(response){
                 return response.data;
             });
             return promise;
         },
         updateForNote: function( enrollment ){
-            var promise = $http.post('../api/enrollments/' + enrollment.enrollment + '/note', enrollment).then(function(response){
+            var promise = $http.post(DHIS2URL+'/enrollments/' + enrollment.enrollment + '/note', enrollment).then(function(response){
                 return response.data;         
             });
             return promise;
         },
         cancel: function(enrollment){
-            var promise = $http.put('../api/enrollments/' + enrollment.enrollment + '/cancelled').then(function(response){
+            var promise = $http.put(DHIS2URL+'/enrollments/' + enrollment.enrollment + '/cancelled').then(function(response){
                 return response.data;               
             });
             return promise;           
         },
         completeIncomplete: function(enrollment, status){
-            var promise = $http.put('../api/enrollments/' + enrollment.enrollment + '/' + status).then(function(response){
+            var promise = $http.put(DHIS2URL+'/enrollments/' + enrollment.enrollment + '/' + status).then(function(response){
                 return response.data;               
             });
             return promise; 
@@ -699,7 +716,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             var def = $q.defer();
             
             TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('trackedEntities').done(function(entities){
+                TCStorageService.currentStore.getAll('trackedEntityTypes').done(function(entities){
                     $rootScope.$apply(function(){
                         def.resolve(entities);
                     });                    
@@ -711,7 +728,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             var def = $q.defer();
             
             TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get('trackedEntities', uid).done(function(te){                    
+                TCStorageService.currentStore.get('trackedEntityTypes', uid).done(function(te){                    
                     $rootScope.$apply(function(){
                         def.resolve(te);
                     });
@@ -723,11 +740,11 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
 })
 
 /* Service for getting tracked entity instances */
-.factory('TEIService', function($http, $q, AttributesFactory, DialogService ) {
+.factory('TEIService', function($http, $q, AttributesFactory, DialogService, DHIS2URL ) {
     
     return {
         get: function(entityUid, optionSets, attributesById){
-            var promise = $http.get( '../api/trackedEntityInstances/' +  entityUid + '.json').then(function(response){
+            var promise = $http.get( DHIS2URL+'/trackedEntityInstances/' +  entityUid + '.json').then(function(response){
                 var tei = response.data;
                 angular.forEach(tei.attributes, function(att){                    
                     if(attributesById[att.attribute]){
@@ -757,7 +774,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
         },
         search: function(ouId, ouMode, queryUrl, programUrl, attributeUrl, pager, paging) {
                 
-            var url =  '../api/trackedEntityInstances/query.json?ou=' + ouId + '&ouMode='+ ouMode;
+            var url =  DHIS2URL+'/trackedEntityInstances/query.json?ou=' + ouId + '&ouMode='+ ouMode;
             
             if(queryUrl){
                 url = url + '&'+ queryUrl;
@@ -798,7 +815,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             angular.forEach(formattedTei.attributes, function(att){                        
                 att.value = AttributesFactory.formatAttributeValue(att, attributesById, optionSets, 'API');                                                                
             });
-            var promise = $http.put( '../api/trackedEntityInstances/' + formattedTei.trackedEntityInstance , formattedTei ).then(function(response){                    
+            var promise = $http.put( DHIS2URL+'/trackedEntityInstances/' + formattedTei.trackedEntityInstance , formattedTei ).then(function(response){                    
                 return response.data;
             });
             
@@ -812,7 +829,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             });
             
             formattedTei.attributes = attributes;
-            var promise = $http.post( '../api/trackedEntityInstances' , formattedTei ).then(function(response){                    
+            var promise = $http.post( DHIS2URL+'/trackedEntityInstances' , formattedTei ).then(function(response){                    
                 return response.data;
             }, function(response) {
                 //Necessary now that import errors gives a 409 response from the server.
@@ -849,7 +866,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             return def.promise;
         },
         addAuditMessage: function(tei, message){
-            var promise = $http.get('../api/trackedEntityInstances/'+tei+'/auditMessage', {params:{"message": message}}).then(function(){
+            var promise = $http.get(DHIS2URL+'/trackedEntityInstances/'+tei+'/auditMessage', {params:{"message": message}}).then(function(){
                 return null;
             });
             return promise;
@@ -1047,19 +1064,19 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
 })
 
 /* factory for handling events */
-.factory('DHIS2EventFactory', function($http, DialogService, $translate) {   
+.factory('DHIS2EventFactory', function($http, DialogService, $translate, DHIS2URL) {   
     
     return {     
         
         getEventsByStatus: function(entity, orgUnit, program, programStatus){   
-            var promise = $http.get( '../api/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&orgUnit=' + orgUnit + '&program=' + program + '&programStatus=' + programStatus  + '&paging=false').then(function(response){
+            var promise = $http.get( DHIS2URL+'/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&orgUnit=' + orgUnit + '&program=' + program + '&programStatus=' + programStatus  + '&skipPaging=true').then(function(response){
                 return response.data.events;
             });            
             return promise;
         },
         getEventsByProgram: function(entity, program){   
             
-            var url = '../api/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&paging=false';            
+            var url = DHIS2URL+'/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&skipPaging=true';            
             if(program){
                 url = url + '&program=' + program;
             }
@@ -1069,7 +1086,7 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             return promise;
         },
         getEventsByProgramStage: function(entity, programStage){
-          var url = '../api/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&paging=false'; 
+          var url = DHIS2URL+'/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&skipPaging=true'; 
           if(programStage){
               url += '&programStage='+programStage;
           }
@@ -1081,10 +1098,10 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
         getByOrgUnitAndProgram: function(orgUnit, ouMode, program, startDate, endDate){
             var url;
             if(startDate && endDate){
-                url = '../api/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + '&startDate=' + startDate + '&endDate=' + endDate + '&paging=false';
+                url = DHIS2URL+'/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + '&startDate=' + startDate + '&endDate=' + endDate + '&skipPaging=true';
             }
             else{
-                url = '../api/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + '&paging=false';
+                url = DHIS2URL+'/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + '&skipPaging=true';
             }
             var promise = $http.get( url ).then(function(response){
                 return response.data.events;
@@ -1100,43 +1117,43 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
             return promise;
         },
         get: function(eventUid){            
-            var promise = $http.get('../api/events/' + eventUid + '.json').then(function(response){               
+            var promise = $http.get(DHIS2URL+'/events/' + eventUid + '.json').then(function(response){               
                 return response.data;
             });            
             return promise;
         },        
         create: function(dhis2Event){    
-            var promise = $http.post('../api/events.json', dhis2Event).then(function(response){
+            var promise = $http.post(DHIS2URL+'/events.json', dhis2Event).then(function(response){
                 return response.data;           
             });
             return promise;            
         },
         delete: function(dhis2Event){
-            var promise = $http.delete('../api/events/' + dhis2Event.event).then(function(response){
+            var promise = $http.delete(DHIS2URL+'/events/' + dhis2Event.event).then(function(response){
                 return response.data;               
             });
             return promise;           
         },
         update: function(dhis2Event){   
-            var promise = $http.put('../api/events/' + dhis2Event.event, dhis2Event).then(function(response){
+            var promise = $http.put(DHIS2URL+'/events/' + dhis2Event.event, dhis2Event).then(function(response){
                 return response.data;         
             });
             return promise;
         },        
         updateForSingleValue: function(singleValue){   
-            var promise = $http.put('../api/events/' + singleValue.event + '/' + singleValue.dataValues[0].dataElement, singleValue ).then(function(response){
+            var promise = $http.put(DHIS2URL+'/events/' + singleValue.event + '/' + singleValue.dataValues[0].dataElement, singleValue ).then(function(response){
                 return response.data;
             });
             return promise;
         },
         updateForNote: function(dhis2Event){   
-            var promise = $http.post('../api/events/' + dhis2Event.event + '/note', dhis2Event).then(function(response){
+            var promise = $http.post(DHIS2URL+'/events/' + dhis2Event.event + '/note', dhis2Event).then(function(response){
                 return response.data;         
             });
             return promise;
         },
         updateForEventDate: function(dhis2Event){
-            var promise = $http.put('../api/events/' + dhis2Event.event + '/eventDate', dhis2Event).then(function(response){
+            var promise = $http.put(DHIS2URL+'/events/' + dhis2Event.event + '/eventDate', dhis2Event).then(function(response){
                 return response.data;         
             });
             return promise;
@@ -1145,12 +1162,12 @@ var trackerCaptureServices = angular.module('trackerCaptureServices', ['ngResour
 })
 
 /* factory for handling event reports */
-.factory('EventReportService', function($http, DialogService, $translate) {   
+.factory('EventReportService', function($http, DialogService, $translate, DHIS2URL) {   
     
     return {        
         getEventReport: function(orgUnit, ouMode, program, startDate, endDate, programStatus, eventStatus, pager){
             
-            var url = '../api/events/eventRows.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program;
+            var url = DHIS2URL+'/events/eventRows.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program;
             
             if( programStatus ){
                 url = url + '&programStatus=' + programStatus;

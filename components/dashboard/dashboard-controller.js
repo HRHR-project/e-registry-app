@@ -1,12 +1,12 @@
-/* global trackerCapture, angular */
-
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
 //Controller for dashboard
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('DashboardController',
+eRegistry.controller('DashboardController',
         function($rootScope,
                 $scope,
                 $location,
                 $modal,
+                $window,
                 $timeout,
                 $filter,
                 $translate,
@@ -29,7 +29,7 @@ trackerCapture.controller('DashboardController',
     $scope.selectedTeiId = ($location.search()).tei; 
     $scope.selectedProgramId = ($location.search()).program; 
     $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU');
-    $scope.userAuthority = AuthorityService.getUserAuthorities(SessionStorageService.get('USER_ROLES'));
+    $scope.userAuthority = AuthorityService.getUserAuthorities(SessionStorageService.get('USER_PROFILE'));
     $scope.sortedTeiIds = CurrentSelection.getSortedTeiIds();
     
     $scope.showSettingsButton = false;
@@ -179,51 +179,46 @@ trackerCapture.controller('DashboardController',
                         setInactiveMessage();                   
 
                         //get the entity type
-                        TEService.get($scope.selectedTei.trackedEntity).then(function(te){                    
-                            $scope.trackedEntity = te;
+                        TEService.get($scope.selectedTei.trackedEntityType).then(function(tet){                    
+                            $scope.trackedEntityType = tet;
 
                             //get enrollments for the selected tei
                             EnrollmentService.getByEntity($scope.selectedTeiId).then(function(response){                    
                                 var enrollments = angular.isObject(response) && response.enrollments ? response.enrollments : [];
-                                var selectedEnrollment = null, backupSelectedEnrollment = null;                            
-                                if(enrollments.length === 1 ){
-                                    selectedEnrollment = enrollments[0];                               
-                                }
-                                else{
-                                    if( $scope.selectedProgramId ){
-                                        angular.forEach(enrollments, function(en){
-                                            if( en.program === $scope.selectedProgramId ){
-                                                if( en.status === 'ACTIVE'){
-                                                    selectedEnrollment = en;
-                                                }
-                                                else{
-                                                    backupSelectedEnrollment = en;
-                                                }
-                                            }
-                                        });
-                                    }                                
-                                }                            
-                                selectedEnrollment = selectedEnrollment ? selectedEnrollment : backupSelectedEnrollment;
-
-                                ProgramFactory.getAll().then(function(programs){
+                                var selectedEnrollment = null;
+                                var backupSelectedEnrollment = null;
+                                
+                                ProgramFactory.getProgramsByOu($scope.selectedOrgUnit,false).then(function(res){
                                     $scope.programs = [];
                                     $scope.programNames = [];  
                                     $scope.programStageNames = [];        
 
                                     //get programs valid for the selected ou and tei
-                                    angular.forEach(programs, function(program){                                    
-                                        if( program.trackedEntity.id === $scope.selectedTei.trackedEntity ){
+                                    angular.forEach(res.programs, function(program){                                    
+                                        if( program.trackedEntityType.id === $scope.selectedTei.trackedEntityType ){
                                             $scope.programs.push(program);
                                             $scope.programNames[program.id] = {id: program.id, displayName: program.displayName};
                                             angular.forEach(program.programStages, function(stage){                
                                                     $scope.programStageNames[stage.id] = {id: stage.id, displayName: stage.displayName};
                                             });
 
-                                            if($scope.selectedProgramId && program.id === $scope.selectedProgramId || selectedEnrollment && selectedEnrollment.program === program.id){
+                                            if($scope.selectedProgramId && program.id === $scope.selectedProgramId){
                                                 $scope.selectedProgram = program;
+                                                angular.forEach(enrollments, function(en){
+                                                    if( en.program === $scope.selectedProgramId ){
+                                                        if( en.status === 'ACTIVE'){
+                                                            selectedEnrollment = en;
+                                                        }
+                                                        else{
+                                                            backupSelectedEnrollment = en;
+                                                        }
+                                                    }
+                                                });
+                                                selectedEnrollment = selectedEnrollment ? selectedEnrollment : backupSelectedEnrollment;
                                             }
                                         }                                
                                     });
+                                    
 
                                     //filter those enrollments that belong to available programs
                                     var len = enrollments.length;
@@ -236,7 +231,7 @@ trackerCapture.controller('DashboardController',
                                     DHIS2EventFactory.getEventsByProgram($scope.selectedTeiId, null).then(function(events){                                        
                                         //prepare selected items for broadcast
                                         CurrentSelection.setSelectedTeiEvents(events);                                        
-                                        CurrentSelection.set({tei: $scope.selectedTei, te: $scope.trackedEntity, prs: $scope.programs, pr: $scope.selectedProgram, prNames: $scope.programNames, prStNames: $scope.programStageNames, enrollments: enrollments, selectedEnrollment: selectedEnrollment, optionSets: $scope.optionSets});                            
+                                        CurrentSelection.set({tei: $scope.selectedTei, te: $scope.trackedEntityType, prs: $scope.programs, pr: $scope.selectedProgram, prNames: $scope.programNames, prStNames: $scope.programStageNames, enrollments: enrollments, selectedEnrollment: selectedEnrollment, optionSets: $scope.optionSets});                            
                                         getDashboardLayout(); 
                                     });                    
                                 });
@@ -339,6 +334,10 @@ trackerCapture.controller('DashboardController',
         getDashboardLayout();
     };
     
+    $scope.applySelectedProgramPostback = function(program){
+        $window.location.href = $window.location.href.replace(/&program=\w+/,"&program=" + program.id);
+    };
+    
     $scope.broadCastSelections = function(tei){
         
         var selections = CurrentSelection.get();
@@ -349,13 +348,13 @@ trackerCapture.controller('DashboardController',
             $scope.selectedTei = selections.tei;
         }
         
-        $scope.trackedEntity = selections.te;
+        $scope.trackedEntityType = selections.te;
         $scope.optionSets = selections.optionSets;
         
-        CurrentSelection.set({tei: $scope.selectedTei, te: $scope.trackedEntity, prs: $scope.programs, pr: $scope.selectedProgram, prNames: $scope.programNames, prStNames: $scope.programStageNames, enrollments: selections.enrollments, selectedEnrollment: selections.selectedEnrollment, optionSets: $scope.optionSets});        
+        CurrentSelection.set({tei: $scope.selectedTei, te: $scope.trackedEntityType, prs: $scope.programs, pr: $scope.selectedProgram, prNames: $scope.programNames, prStNames: $scope.programStageNames, enrollments: selections.enrollments, selectedEnrollment: selections.selectedEnrollment, optionSets: $scope.optionSets});        
         $timeout(function() { 
             $rootScope.$broadcast('selectedItems', {programExists: $scope.programs.length > 0});            
-        }, 500);
+        }, 500);    
     };     
     
     $scope.activiateTEI = function(){

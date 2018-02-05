@@ -3,7 +3,8 @@
         <h3>Find result</h3>
         <div ng-include="'views/tei.html'" ng-if="teiFound"></div>
     </div>
-    <h3>{{'search_register_patient'| translate}}</h3>
+    <h3 ng-if="canRegister()">{{'search_register_patient'| translate}}</h3>
+    <h3 ng-if="!canRegister()">{{'search_for_patient'| translate}}</h3>
     <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
             <form>
@@ -22,21 +23,80 @@
                             <select ui-select2 multiple ng-model="attribute.value" data-placeholder="{{'please_select'| translate}}" style="width:100%;">
                                 <option ng-repeat="option in boolOperators" value="{{option}}">{{option| translate}}</option>
                             </select>
-                        </div> 
+                        </div>
+                        <div ng-switch-when="USERNAME">
+                            <d2-users-input-find d2-model="attribute.value"
+                                                 d2-max-option-size="maxOptionSize"
+                                                 d2-selected-orgunit-id="selectedSearchingOrgUnit.id">
+                            </d2-users-input-find>
+                        </div>
+                        <div ng-switch-when="ORGANISATION_UNIT" ng-init="setSelectedSearchingOrgUnit(null)">
+                            <div id="searchOuTree">
+                                <accordion>
+                                    <accordion-group is-open="searchOuTree.open">
+                                        <accordion-heading>
+                                            <span ng-if="!selectedSearchingOrgUnit.displayName"> {{'please_select'| translate}} <i class="pull-right" ng-class="{'fa fa-chevron-up vertical-center': searchOuTree.open, 'fa fa-chevron-down vertical-center': !searchOuTree.open}"></i></span>
+                                            <span ng-if="selectedSearchingOrgUnit.displayName">{{selectedSearchingOrgUnit.displayName}} <i class="pull-right" ng-class="{'fa fa-chevron-up vertical-center': searchOuTree.open, 'fa fa-chevron-down vertical-center': !searchOuTree.open}"></i></span>
+                                        </accordion-heading>
+                                        <div ng-if="!isBangladesh" class="org-unit-tree row" data-stop-propagation="true" style="max-height: 250px;">
+                                            <script type="text/ng-template" id="orgUnitTree.html">
+                                                <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
+                                                <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="(!orgUnit.show && orgUnit.children.length > 0) || (!orgUnit.show && orgUnit.hasChildren)"><i class="fa fa-plus-square-o"></i></span>
+                                                <span class="org-unit-tree-button" ng-click="setSelectedSearchingOrgUnit(orgUnit); attribute.value = selectedSearchingOrgUnit.id" ng-class="{'selected-org-unit' : orgUnit.id === selectedSearchingOrgUnit.id}">{{orgUnit.displayName}}</span>
+                                                <ul class="tree" id="tree" ng-show="orgUnit.show">
+                                                    <li ng-repeat="orgUnit in orgUnit.children | orderBy:'name'" ng-include="'orgUnitTree.html'"></li>
+                                                </ul>
+                                            </script>
+                                            <ul class="tree" id="tree">
+                                                <li ng-repeat="orgUnit in orgUnits | orderBy:'name'" ng-include="'orgUnitTree.html'"></li>
+                                            </ul>
+                                        </div>
+                                        
+                                        <!-- Custom code for Bangladesh -->
+                                        <div ng-if="isBangladesh" class="org-unit-tree row" data-stop-propagation="true" style="max-height: 250px;" ng-init="getBangladeshOrgUnits()">
+                                            <script type="text/ng-template" id="orgUnitTree.html">
+                                                <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="orgUnit.level !== 5 && orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
+                                                <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="(orgUnit.level !== 5 && !orgUnit.show && orgUnit.children.length > 0) || orgUnit.level !== 5 && (!orgUnit.show && orgUnit.hasChildren)"><i class="fa fa-plus-square-o"></i></span>
+                                                <span class="org-unit-tree-button" ng-click="setSelectedSearchingOrgUnit(orgUnit); attribute.value = selectedSearchingOrgUnit.id" ng-class="{'selected-org-unit' : orgUnit.id === selectedSearchingOrgUnit.id}" ng-if="orgUnit.children.length > 0">{{orgUnit.displayName}}</span>
+                                                <ul class="tree" id="tree" ng-show="orgUnit.show">
+                                                    <li ng-repeat="orgUnit in orgUnit.children | orderBy:'name'" ng-include="'orgUnitTree.html'"></li>
+                                                </ul>
+                                            </script>
+                                            <ul class="tree" id="tree">
+                                                <li ng-repeat="orgUnit in orgUnits | orderBy:'name'" ng-include="'orgUnitTree.html'"></li>
+                                            </ul>
+                                        </div>
+
+                                    </accordion-group> 
+                                </accordion>
+                            </div>
+                        </div>
                         <div ng-switch-default>
-                            <input type="text" class="form-control" ng-model="attribute.value" /> 
+                            <input type="text" class="form-control" ng-model="attribute.value" />
                         </div>
                     </div>
+                    <div ng-if="attribute.optionSetValue">
+                        <select ui-select2 ng-model="attribute.value" data-placeholder="{{'please_select'| translate}}" style="width:100%;">
+                            <option value="">(No selection)</option>
+                            <option ng-repeat="option in optionSets[attribute.optionSet.id].options" value="{{option.code}}">{{option.name | translate}}</option>
+                        </select>
+                    </div> 
                 </div>
             </form>           
         </div>
         <div class="col-lg-8 col-md-6 col-sm-12 col-xs-12">
             <div class="row findview-padding">
                 <div class="col-md-12 vertical-spacing">
-                     <button type="button" class="btn btn-primary" ng-click="findTei()">{{'search_register' | translate }}</button>
+                     <button type="button" class="btn btn-primary" ng-click="findTei()">
+                        <span ng-if="canRegister()">{{'search_register' | translate }}</span>
+                        <span ng-if="!canRegister()">{{'search' | translate }}</span>   
+                    </button>
                 </div>
-                <div class="col-md-12 vertical-spacing" ng-if="findWarning">
+                <div class="col-md-12 vertical-spacing" ng-if="findWarning && !isBangladesh">
                     <div class="alert alert-warning"><span>{{'multiple_records_warning'| translate}}</span></div>
+                </div>
+                <div class="col-md-12 vertical-spacing" ng-if="findWarning && isBangladesh">
+                    <div class="alert alert-warning"><span>{{'more_than_5_records_warning'| translate}}</span></div>
                 </div>
             </div>
 

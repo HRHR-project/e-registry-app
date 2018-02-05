@@ -12,9 +12,9 @@
                     </td>
                     <td>
                         <select class="form-control" 
-                                ng-model="trackedEntities.selected" 
-                                ng-disabled="selectedAttribute && selectedAttribute.trackedEntity"
-                                ng-options="trackedEntity.displayName for trackedEntity in trackedEntities.available | orderBy: 'name'">                                
+                                ng-model="trackedEntityTypes.selected" 
+                                ng-disabled="selectedAttribute && selectedAttribute.trackedEntityType"
+                                ng-options="trackedEntityType.displayName for trackedEntityType in trackedEntityTypes.available | orderBy: 'name'">                                
                         </select>                            
                     </td>
                 </tr>                   
@@ -32,7 +32,7 @@
             </div>
             <!-- enrollment and incidence dates end -->
 
-            <div ng-include="'../dhis-web-commons/angular-forms/custom-form.html'"></div>
+            <div ng-include="'{{DHIS2BASEURL}}/dhis-web-commons/angular-forms/custom-form.html'"></div>
 
         </div>
         <!-- custom registration form ends-->

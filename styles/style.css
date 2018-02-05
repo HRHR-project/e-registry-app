@@ -1978,6 +1978,9 @@ a.disable-link-effects:focus {
     margin-bottom: 3px;
 }
 
+.table-text span {
+    font-size: 75%;
+}
 
 
 

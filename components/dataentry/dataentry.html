@@ -57,7 +57,7 @@
     <div ng-show="dataentryWidget.expand && showSelf" class="panel-body dashboard-widget-container">
 
         <div ng-if="!dashboardReady">
-            <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'loading'| translate}}"/>
+            <img id="ouwt_loader" ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'loading'| translate}}"/>
         </div>
 
         <div ng-if="dashboardReady"> 

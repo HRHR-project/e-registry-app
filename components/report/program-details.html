@@ -8,7 +8,7 @@
     <div class="modal-body">
         <div class='row'>
             <div class="col-sm-6">
-                <h2>{{selectedProgram.trackedEntity.displayName}} {{'_details'| translate}}</h2>
+                <h2>{{selectedProgram.trackedEntityType.displayName}} {{'_details'| translate}}</h2>
                 <table class="table table-bordered table-compact">
                     <tr ng-repeat="attribute in selectedTei.attributes" ng-show="attribute.show">
                         <td class="bold">
@@ -90,7 +90,7 @@
                             </tr>
                             <tr class="col-sm-12" ng-repeat="prStDe in stagesById[dhis2Event.programStage].programStageDataElements">
                                 <td>
-                                    {{prStDe.dataElement.formName ? prStDe.dataElement.formName : prStDe.dataElement.displayName}}
+                                    {{prStDe.dataElement.displayFormName ? prStDe.dataElement.displayFormName : prStDe.dataElement.displayName}}
                                 </td>
                                 <td>
                                     {{dhis2Event[prStDe.dataElement.id]}}

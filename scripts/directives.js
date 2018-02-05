@@ -4,9 +4,9 @@
 
 /* Directives */
 
-var trackerCaptureDirectives = angular.module('trackerCaptureDirectives', [])
+var eRegistryDirectives = angular.module('eRegistryDirectives',[]);
 
-.directive('stringToNumber', function () {
+eRegistryDirectives.directive('stringToNumber', function () {
     return {
         require: 'ngModel',
         link: function (scope, element, attrs, ngModel) {

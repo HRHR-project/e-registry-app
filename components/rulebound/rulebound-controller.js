@@ -1,6 +1,6 @@
-/* global angular, trackerCapture */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('RuleBoundController',
+/* global angular, eRegistry */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('RuleBoundController',
         function(
                 $rootScope,
                 $scope,

@@ -12,7 +12,7 @@
         </div>        
         <div ng-show="this.widget.expand" class="panel-body dashboard-widget-container">
                 <div ng-if="!dashboardReady">
-                    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'loading'| translate}}"/>
+                    <img id="ouwt_loader" ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'loading'| translate}}"/>
                 </div>
                 <table class="table table-event-overview table-striped" ng-if='eventsInProgramStage.length > 0 && dashboardReady'>  
                     <thead>                
@@ -23,10 +23,10 @@
                                 {{eventsInProgramStage[0].excecutionDateLabel}}-->
                             </th>
                             <th class="" ng-repeat="elementForProgramStage in dataElementsForProgramStage">                        
-                                {{elementForProgramStage.formName ? elementForProgramStage.formName : elementForProgramStage.displayName}}
+                                {{elementForProgramStage.displayFormName ? elementForProgramStage.displayFormName : elementForProgramStage.displayName}}
                             </th>                    
                             <!--<th class="col-md-2" ng-repeat="prStDe in dataElementsForProgramStage.programStageDataElements">
-                                {{prStDe.dataElement.formName ? prStDe.dataElement.formName : prStDe.dataElement.displayName}}
+                                {{prStDe.dataElement.displayFormName ? prStDe.dataElement.displayFormName : prStDe.dataElement.displayName}}
                                 <a ng-if="prStDes[prStDe.dataElement.id].dataElement.description" Title="{{prStDes[prStDe.dataElement.id].dataElement.description}}" ng-init="showHelpText[prStDe.dataElement.id] = false;" ng-click="showHelpText[prStDe.dataElement.id] = !showHelpText[prStDe.dataElement.id]">
                                     <span class="glyphicon glyphicon-info-sign" ></span>
                                     <span ng-show="showHelpText[prStDe.dataElement.id]" ><br>{{prStDes[prStDe.dataElement.id].dataElement.description}}</span>
@@ -60,7 +60,7 @@
                                         name="eventDate"
                                         ng-required="true"                                                                      
                                         blur-or-change="saveEventDate(event, $eval('form' + event.event + '.eventDate'))"/>
-                                        <div ng-messages="form{{event.event}}.eventDate.$error" class="error-text" ng-messages-include="../dhis-web-commons/angular-forms/error-messages.html"></div>                                        
+                                        <div ng-messages="form{{event.event}}.eventDate.$error" class="error-text" ng-messages-include="{{DHIS2BASEURL}}/dhis-web-commons/angular-forms/error-messages.html"></div>                                        
                                     </div>
                                     <div ng-if="!eventDateIsEditable || currentEvent !== event">
                                         {{event.eventDate}}

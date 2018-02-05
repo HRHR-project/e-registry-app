@@ -1,6 +1,6 @@
-/* global trackerCapture, angular */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('ProfileController',
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('ProfileController',
         function($rootScope,
                 $scope,
                 $timeout,
@@ -31,7 +31,7 @@ trackerCapture.controller('ProfileController',
         $scope.editingDisabled = true;
         selections = CurrentSelection.get();
         $scope.selectedTei = angular.copy(selections.tei);
-        $scope.trackedEntity = selections.te;
+        $scope.trackedEntityType = selections.te;
         $scope.selectedProgram = selections.pr;   
         $scope.selectedEnrollment = selections.selectedEnrollment;
         $scope.optionSets = selections.optionSets;

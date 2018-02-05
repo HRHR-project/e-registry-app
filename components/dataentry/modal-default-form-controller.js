@@ -1,5 +1,5 @@
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('ModalDefaultFormController', function($scope, $rootScope){
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('ModalDefaultFormController', function($scope, $rootScope){
     
     var defaultRequestError = "Server error. Please try again later.";
     

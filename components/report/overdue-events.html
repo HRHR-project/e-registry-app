@@ -11,7 +11,7 @@
         </ul>
     </div>
     
-    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
+    <img id="ouwt_loader" ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
     
     <div class="small-horizonal-spacing" ng-if="!treeLoaded">
         {{'loading_tree'| translate}}
@@ -41,7 +41,7 @@
     <!-- top bar ends -->
 
     <!-- program select begins-->
-    <div class="row" ng-cloak>
+    <div class="row" ng-cloak ng-if="programs.length > 1">
         <div class="col-md-4 small-vertical-spacing hideInPrint">
             <label>Selected program:</label>
             <ui-select ng-model="model.selectedProgram" 
@@ -121,7 +121,7 @@
     </form>
     <!--input form ends -->
 
-    <img src="../images/ajax-loader-bar.gif" ng-if="reportStarted && !reportFinished"/>
+    <img ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" ng-if="reportStarted && !reportFinished"/>
 
     <!-- upcoming events list begins -->
     <div ng-if="reportFinished">

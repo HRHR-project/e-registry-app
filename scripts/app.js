@@ -1,4 +1,4 @@
-import './trackerCaptureModule';
+import './eRegistryModule';
 
 // Tracker core
 import 'd2-tracker/lib/dhis2.angular.services.js';
@@ -9,6 +9,7 @@ import 'd2-tracker/lib/dhis2.angular.templates.js';
 
 // App files
 import '../scripts/dhis2.angular.services.js';
+import '../scripts/dhis2.angular.directives.js';
 import '../scripts/services.js';
 import '../scripts/filters.js';
 import '../scripts/directives.js';
@@ -44,11 +45,12 @@ import 'leaflet-geocoder-mapzen';
 import 'leaflet-contextmenu';
 import 'd2-tracker/lib/Google.js';
 
-L.Icon.Default.imagePath = '../dhis-web-commons/leaflet/images';
+L.Icon.Default.imagePath = BASEURL+'/dhis-web-commons/leaflet/images';
 
-angular.module('trackerCapture')
+angular.module('eRegistry')
 
-.value('DHIS2URL', '../api/26')
+.value('DHIS2URL', BASEAPIURL)
+.value('DHIS2BASEURL', BASEURL)
 
 .value('DHIS2COORDINATESIZE', 6)
 
@@ -99,16 +101,16 @@ angular.module('trackerCapture')
 
 /* App Module */
 
-/*var trackerCapture = angular.module('trackerCapture',
+/*var eRegistry = angular.module('eRegistry',
         ['ui.bootstrap', 
          'ngRoute', 
          'ngCookies',
          'ngSanitize',
          'ngMessages',
-         'trackerCaptureServices',
-         'trackerCaptureFilters',
-         'trackerCaptureDirectives', 
-         'trackerCaptureControllers',
+         'eRegistryServices',
+         'eRegistryFilters',
+         'eRegistryDirectives', 
+         'eRegistryControllers',
          'd2Directives',
          'd2Filters',
          'd2Services',

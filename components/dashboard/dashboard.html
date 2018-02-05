@@ -27,7 +27,7 @@
                         <ul class="dropdown-menu pull-right" role="menu">
                             <li><a href ng-click="showHideWidgets()">{{showHideWidgetsLabel}}</a></li>
                             <li ng-if="userAuthority.canAdministerDashboard"><a href ng-click="saveDashboarLayoutAsDefault()">{{'save_layout_as_default'| translate}}</a></li>
-                            <li><a href ng-click="activiateTEI()">{{selectedTei.inactive ? 'activate_tei' : 'deactivate_tei' | translate}} {{trackedEntity.displayName}}</a></li>
+                            <li><a href ng-click="activiateTEI()">{{selectedTei.inactive ? 'activate_tei' : 'deactivate_tei' | translate}} {{trackedEntityType.displayName}}</a></li>
                         </ul>
                     </div>
                 </div>          
@@ -48,13 +48,14 @@
                 <button ng-disabled="!nextTeiExists" type="button" class="btn btn-default small-horizonal-spacing" ng-click="fetchTei('NEXT')" title="{{'next'| translate}}"><i class="fa fa-caret-right"></i></button>
                 -->
                 
-                <!--<select ng-model="selectedProgram"
+                <select ng-if="programs && programs.length > 1" ng-model="selectedProgram"
                         class="form-control-program"
                         ng-options="program as program.displayName for program in programs | orderBy: 'name'" 
+                        ng-model-options="{ updateOn: 'default blur', debounce: { default: 500, blur: 0 } }"
                         ng-disabled="programs.length < 1"
-                        ng-change="applySelectedProgram()">
+                        ng-change="applySelectedProgramPostback(selectedProgram)">
                     <option value="">{{programs.length > 0 ? 'please_select_a_program' : 'no_program_exists' | translate}}</option>
-                </select>-->
+                </select>
                 <!-- dashboard buttons end -->
         
                 <div id="biggerWidget" class="row connectedSortable empty-dashboard-container" d2-sortable bigger-widgets={{dashboardWidgets | filter: {parent: 'biggerWidget'}}} smaller-widgets={{ dashboardWidgets | filter: {parent: 'smallerWidget'}}}>
@@ -87,7 +88,7 @@
                             <ul class="dropdown-menu pull-right" role="menu">
                                 <li><a href ng-click="showHideWidgets()">{{showHideWidgetsLabel}}</a></li>
                                 <li ng-if="userAuthority.canAdministerDashboard"><a href ng-click="saveDashboarLayoutAsDefault()">{{'save_layout_as_default'| translate}}</a></li>
-                                <li><a href ng-click="activiateTEI()">{{selectedTei.inactive ? 'activate_tei' : 'deactivate_tei' | translate}} {{trackedEntity.displayName}}</a></li>
+                                <li><a href ng-click="activiateTEI()">{{selectedTei.inactive ? 'activate_tei' : 'deactivate_tei' | translate}} {{trackedEntityType.displayName}}</a></li>
                             </ul>
                         </div>
                     </div>    

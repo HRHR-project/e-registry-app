@@ -2,4 +2,4 @@
 
 /* Filters */
 
-var trackerCaptureFilters = angular.module('trackerCaptureFilters', []);
+var eRegistryFilters = angular.module('eRegistryFilters', []);

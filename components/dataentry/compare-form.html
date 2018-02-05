@@ -33,10 +33,10 @@
                         </div>
                     </div>            
                     <div ng-class="getCompareModeColSize(compareModeColDefs.currentEvent)">   
-                        <span ng-if="selectedEnrollment.status === 'ACTIVE' && !currentEvent.editingNotAllowed">                    
+                        <span ng-if="eventEditable()">                    
                             {{'current' | translate}}
                         </span>  
-                        <span ng-if="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed">                    
+                        <span ng-if="!eventEditable()">                    
                             {{currentStage.displayName}} {{currentStageEventNumber()}}
                         </span>                        
                     </div>
@@ -66,7 +66,7 @@
 
                     <div ng-class="getCompareModeColSize(compareModeColDefs.currentEvent)">
 
-                        <div ng-if="selectedEnrollment.status === 'ACTIVE' && !currentEvent.editingNotAllowed" class="compare-form-extra-padding-current-event">
+                        <div ng-if="eventEditable()" class="compare-form-extra-padding-current-event">
                             <input type="text"
                                    placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
                                    class="form-control hideInPrint" 
@@ -75,7 +75,7 @@
                                    max-date="0"
                                    min-date=""
                                    ng-model="currentEvent.eventDate"
-                                   ng-disabled="currentEvent.status === 'SKIPPED' || selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed"    
+                                   ng-disabled="currentEvent.status === 'SKIPPED' || !eventEditable()"    
                                    ng-required="true"
                                    blur-or-change="saveEventDate()"/>
                             <input type="text"
@@ -85,7 +85,7 @@
                             <span ng-if="invalidDate === currentEvent.event" class="error">{{'date_required'| translate}}</span>
                         </div>
 
-                        <div ng-if="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed" class="compare-form-extra-padding">
+                        <div ng-if="!eventEditable()" class="compare-form-extra-padding">
                             {{currentEvent.eventDate}}
                         </div>
                     </div>
@@ -112,7 +112,7 @@
                     </div>
 
                     <div ng-class="getCompareModeColSize(compareModeColDefs.currentEvent)">
-                        <div ng-if="selectedEnrollment.status === 'ACTIVE' && !currentEvent.editingNotAllowed" class="compare-form-extra-padding-current-event">
+                        <div ng-if="eventEditable()" class="compare-form-extra-padding-current-event">
                             <span ng-if="!currentEvent.eventDate && currentEvent.status !== 'SKIPPED' && !selectedEntity.inactive && selectedEnrollment.status === 'ACTIVE'">
                                 <a href ng-click="enableRescheduling()" title="{{ schedulingEnabled ? 'disable_rescheduling' : 'enable_rescheduling' | translate}}"><span class="text-primary bold">{{'reschedule_duedate'| translate}}</span></a>                        
                             </span>                    
@@ -123,10 +123,10 @@
                                    d2-date                                
                                    ng-model="currentEvent.dueDate"
                                    blur-or-change="saveDueDate()" 
-                                   ng-disabled="currentEvent.eventDate || !schedulingEnabled || currentEvent.enrollmentStatus !== 'ACTIVE' || currentEvent.editingNotAllowed"/>
+                                   ng-disabled="currentEvent.eventDate || !schedulingEnabled || !eventEditable()"/>
                             <span ng-if="invalidDueDate === currentEvent.event" class="error">{{'date_required'| translate}}</span>
                         </div>                
-                        <div ng-if="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed" class="compare-form-extra-padding">
+                        <div ng-if="!eventEditable()" class="compare-form-extra-padding">
                             {{currentEvent.dueDate}}
                         </div>
                     </div>
@@ -159,12 +159,12 @@
 
                 <div class="row row-alternate compare-form-row" ng-repeat="prStDe in currentStage.programStageDataElements" ng-if="(!currentStage.programStageSections || currentStage.programStageSections.length === 0) && currentEvent.eventDate && (!isHidden(prStDe.dataElement.id, currentEvent) || printMode === true)">
                     <div ng-class="getCompareModeColSize(compareModeColDefs.header)" class="compare-form-extra-padding">
-                        <span ng-bind="prStDe.dataElement.formName ? prStDe.dataElement.formName : prStDe.dataElement.displayName"></span>
+                        <span ng-bind="prStDe.dataElement.displayFormName ? prStDe.dataElement.displayFormName : prStDe.dataElement.displayName"></span>
                         <span ng-if="prStDe.compulsory" class="required">*</span>
                         <span class="hideInPrint">
-                            <a ng-if="prStDe.dataElement.description" Title="{{prStDe.dataElement.description}}" ng-init="showHelpText[prStDe.dataElement.id] = false;" ng-click="showHelpText[prStDe.dataElement.id] = !showHelpText[prStDe.dataElement.id]">
+                            <a ng-if="prStDe.dataElement.description || prStDe.dataElement.displayDescription" Title="{{prStDe.dataElement.displayDescription ? prStDe.dataElement.displayDescription : prStDe.dataElement.description}}" ng-init="showHelpText[prStDe.dataElement.id] = false;" ng-click="showHelpText[prStDe.dataElement.id] = !showHelpText[prStDe.dataElement.id]">
                                 <span class="glyphicon glyphicon-info-sign"></span>
-                                <span ng-show="showHelpText[prStDe.dataElement.id]" ><br>{{prStDe.dataElement.description}}</span>
+                                <span ng-show="showHelpText[prStDe.dataElement.id]" ><br>{{prStDe.dataElement.displayDescription ? prStDe.dataElement.displayDescription : prStDe.dataElement.description}}</span>
                             </a>                        
                         </span>                       
                     </div>
@@ -193,7 +193,7 @@
                                     <div ng-switch-when="MULTI_SELECT_GROUP">
                                         <ul>
                                             <li ng-repeat='event in otherEvent[prStDe.dataElement.id].selections'>
-                                                {{event.formName ? event.formName : event.displayName}}
+                                                {{event.displayFormName ? event.displayFormName : event.displayName}}
                                             </li>
                                         </ul>
                                     </div>
@@ -209,13 +209,13 @@
                     </div>
 
                     <div ng-class="getCompareModeColSize(compareModeColDefs.currentEvent)">
-                        <!--<div ng-if="selectedEnrollment.status === 'ACTIVE' && !currentEvent.editingNotAllowed" ng-include="'components/dataentry/inner-form.html'"></div>-->
-                        <div ng-if="selectedEnrollment.status === 'ACTIVE' && !currentEvent.editingNotAllowed" 
+                        <!--<div ng-if="eventEditable()" ng-include="'components/dataentry/inner-form.html'"></div>-->
+                        <div ng-if="eventEditable()" 
                              class="compare-form-extra-padding-current-event current-event-width"                              
                              style="float: left" 
                              dhis2-compiled-include="components/dataentry/inner-form.html">                            
                         </div>                                                                       
-                        <div ng-if="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed" class="compare-form-extra-padding current-event-width" style="float: left">
+                        <div ng-if="!eventEditable()" class="compare-form-extra-padding current-event-width" style="float: left">
                             <div ng-switch="prStDe.dataElement.valueType">
                                 <div ng-switch-when="BOOLEAN">
                                     <dhis2-radio-button                                                                       
@@ -236,7 +236,7 @@
                                 <div ng-switch-when="MULTI_SELECT_GROUP">
                                     <ul>
                                         <li ng-repeat='event in currentEvent[prStDe.dataElement.id].selections'>
-                                            {{event.formName ? event.formName : event.displayName}}
+                                            {{event.displayFormName ? event.displayFormName : event.displayName}}
                                         </li>
                                     </ul>
                                 </div>
@@ -254,7 +254,7 @@
                                 <input type="checkbox"
                                    class=""
                                    ng-model="currentEvent.providedElsewhere[prStDe.dataElement.id]"
-                                   ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed"
+                                   ng-disabled="!eventEditable()"
                                    ng-change="saveDatavalueLocation(prStDe)"/>
                             </span>
                         </div>
@@ -285,10 +285,10 @@
                                        </div>
                                     </div>
                                     <div ng-class="getCompareModeColSize(compareModeColDefs.currentEvent)">   
-                                        <span ng-if="selectedEnrollment.status === 'ACTIVE' && !currentEvent.editingNotAllowed">                    
+                                        <span ng-if="eventEditable()">                    
                                             {{'current' | translate}}
                                         </span>  
-                                        <span ng-if="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed">                    
+                                        <span ng-if="!eventEditable()">                    
                                             {{currentStage.displayName}} {{currentStageEventNumber()}}
                                         </span>                        
                                     </div>
@@ -298,12 +298,12 @@
                                 
                                 <div class="row row-alternate compare-form-row" ng-repeat="de in section.programStageDataElements" ng-if="currentEvent.eventDate && (!isHidden(de.dataElement.id, currentEvent) || printMode === true)">
                                     <div ng-class="getCompareModeColSize(compareModeColDefs.header)" class="compare-form-extra-padding">
-                                        <span ng-bind="prStDes[de.dataElement.id].dataElement.formName ? prStDes[de.dataElement.id].dataElement.formName : prStDes[de.dataElement.id].dataElement.displayName"></span>                                
+                                        <span ng-bind="prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>                                
                                         <span ng-if="prStDes[de.dataElement.id].compulsory" class="required">*</span>
                                         <span class="hideInPrint">
-                                            <a ng-if="prStDes[de.dataElement.id].dataElement.description" Title="{{prStDes[de.dataElement.id].dataElement.description}}" ng-init="showHelpText[de.dataElement.id] = false;" ng-click="showHelpText[de.dataElement.id] = !showHelpText[de.dataElement.id]">
+                                            <a ng-if="prStDes[de.dataElement.id].dataElement.description || prStDes[de.dataElement.id].dataElement.displayDescription" Title="{{prStDes[de.dataElement.id].dataElement.displayDescription ? prStDes[de.dataElement.id].dataElement.displayDescription : prStDes[de.dataElement.id].dataElement.description}}" ng-init="showHelpText[de.dataElement.id] = false;" ng-click="showHelpText[de.dataElement.id] = !showHelpText[de.dataElement.id]">
                                                 <span class="glyphicon glyphicon-info-sign" ></span>
-                                                <span ng-show="showHelpText[de.dataElement.id]" ><br>{{prStDes[de.dataElement.id].dataElement.description}}</span>
+                                                <span ng-show="showHelpText[de.dataElement.id]" ><br>{{prStDes[de.dataElement.id].dataElement.displayDescription ? prStDes[de.dataElement.id].dataElement.displayDescription : prStDes[de.dataElement.id].dataElement.description}}</span>
                                             </a>                                       
                                         </span>          
                                     </div>
@@ -335,7 +335,7 @@
                                                     <div ng-switch-when="MULTI_SELECT_GROUP">
                                                         <ul>
                                                             <li ng-repeat='event in otherEvent[de.dataElement.id].selections'>
-                                                                {{event.formName ? event.formName : event.displayName}}
+                                                                {{event.displayFormName ? event.displayFormName : event.displayName}}
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -365,7 +365,7 @@
                                             <input type="checkbox"
                                                    class=""
                                                    ng-model="currentEvent.providedElsewhere[prStDes[de.dataElement.id].dataElement.id]"
-                                                   ng-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed"
+                                                   ng-disabled="!eventEditable()"
                                                    ng-change="saveDatavalueLocation(prStDes[de.dataElement.id])"/>
                                         </div>
                                     </div>                                    

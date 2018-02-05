@@ -1,6 +1,6 @@
-/* global trackerCapture, angular */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('ProgramSummaryController',
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('ProgramSummaryController',
         function($scope,
                 DateUtils,
                 EventUtils,
@@ -44,7 +44,7 @@ trackerCapture.controller('ProgramSummaryController',
     $scope.loadPrograms = function(orgUnit) {        
         $scope.selectedOrgUnit = orgUnit;        
         if (angular.isObject($scope.selectedOrgUnit)){
-            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit, $scope.selectedProgram).then(function(response){
+            ProgramFactory.getProgramsByOu($scope.selectedOrgUnit,true, $scope.selectedProgram).then(function(response){
                 $scope.programs = response.programs;
                 $scope.selectedProgram = response.selectedProgram;
             });
@@ -56,13 +56,11 @@ trackerCapture.controller('ProgramSummaryController',
         $scope.stagesById = [];
         if( angular.isObject($scope.selectedProgram)){            
             $scope.reportStarted = false;
-            $scope.dataReady = false;            
-            ProgramStageFactory.getByProgram($scope.selectedProgram).then(function(stages){
-                $scope.programStages = stages;
-                $scope.stagesById = [];
-                angular.forEach(stages, function(stage){
-                    $scope.stagesById[stage.id] = stage;
-                });
+            $scope.dataReady = false;        
+            $scope.programStages = $scope.selectedProgram.programStages;
+            $scope.stagesById = [];
+            angular.forEach(stages, function(stage){
+                $scope.stagesById[stage.id] = stage;
             });
         }
     });

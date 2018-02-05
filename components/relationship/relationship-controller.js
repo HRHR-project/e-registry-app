@@ -1,6 +1,6 @@
-/* global trackerCapture, angular */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('RelationshipController',
+/* global eRegistry, angular */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('RelationshipController',
         function($scope,
                 $rootScope,
                 $modal,                
@@ -32,7 +32,7 @@ trackerCapture.controller('RelationshipController',
             }            
         }
         
-        $scope.trackedEntity = $scope.selections.te;
+        $scope.trackedEntityType = $scope.selections.te;
         $scope.selectedEnrollment = $scope.selections.selectedEnrollment;
         $scope.selectedProgram = $scope.selections.pr;
         $scope.programs = $scope.selections.pr;
@@ -159,7 +159,7 @@ trackerCapture.controller('RelationshipController',
         });
         
         var selections = CurrentSelection.get();
-        CurrentSelection.set({tei: $scope.selectedTei, te: $scope.selectedTei.trackedEntity, prs: selections.prs, pr: $scope.selectedProgram, prNames: selections.prNames, prStNames: selections.prStNames, enrollments: selections.enrollments, selectedEnrollment: $scope.selectedEnrollment, optionSets: selections.optionSets});       
+        CurrentSelection.set({tei: $scope.selectedTei, te: $scope.selectedTei.trackedEntityType, prs: selections.prs, pr: $scope.selectedProgram, prNames: selections.prNames, prStNames: selections.prStNames, enrollments: selections.enrollments, selectedEnrollment: $scope.selectedEnrollment, optionSets: selections.optionSets});       
     };
     
     var getRelativeAttributes = function(tei){

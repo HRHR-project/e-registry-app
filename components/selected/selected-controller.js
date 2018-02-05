@@ -1,6 +1,6 @@
-/* global trackerCapture */
-var trackerCapture = angular.module('trackerCapture');
-trackerCapture.controller('SelectedInfoController',
+/* global eRegistry */
+var eRegistry = angular.module('eRegistry');
+eRegistry.controller('SelectedInfoController',
         function($scope,                
                 SessionStorageService,
                 CurrentSelection) {
