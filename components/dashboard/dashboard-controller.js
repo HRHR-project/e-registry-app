@@ -10,7 +10,7 @@ eRegistry.controller('DashboardController',
                 $timeout,
                 $filter,
                 $translate,
-                TCStorageService,
+                ERStorageService,
                 orderByFilter,
                 SessionStorageService,
                 TEIService, 
@@ -74,8 +74,8 @@ eRegistry.controller('DashboardController',
     $scope.selectedTei;
     
     //get ouLevels
-    TCStorageService.currentStore.open().done(function(){
-        TCStorageService.currentStore.getAll('ouLevels').done(function(response){
+    ERStorageService.currentStore.open().done(function(){
+        ERStorageService.currentStore.getAll('ouLevels').done(function(response){
             var ouLevels = angular.isObject(response) ? orderByFilter(response, '-level').reverse() : [];
             CurrentSelection.setOuLevels(orderByFilter(ouLevels, '-level').reverse());
         });

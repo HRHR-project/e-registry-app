@@ -138,13 +138,11 @@ eRegistry.controller('RegistrationController',
                 $scope.customForm = CustomFormService.getForTrackedEntity($scope.trackedEntityForm, mode);
             }
             if($rootScope.findAttributes){
-                angular.forEach($rootScope.findAttributes, function(attr){
-                   if(attr.value){
-                    $scope.selectedTei[attr.id] = attr.value;
-                    }else if(attr.exactValue){
-                        $scope.selectedTei[attr.id] = attr.exactValue;
+                for(var key in $rootScope.findAttributes){
+                    if($rootScope.findAttributes.hasOwnProperty(key)){
+                        $scope.selectedTei[key] =$rootScope.findAttributes[key];
                     }
-                });
+                }
             }
         });
     }; 

@@ -6,7 +6,7 @@
 
 var eRegistryServices = angular.module('eRegistryServices', ['ngResource']);
 
-eRegistryServices.factory('TCStorageService', function(){
+eRegistryServices.factory('ERStorageService', function(){
     var store = new dhis2.storage.Store({
         name: "dhis2er",
         adapters: [dhis2.storage.IndexedDBAdapter, dhis2.storage.DomSessionStorageAdapter, dhis2.storage.InMemoryAdapter],
@@ -242,14 +242,14 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* Factory to fetch optionSets */
-.factory('OptionSetService', function($q, $rootScope, TCStorageService) { 
+.factory('OptionSetService', function($q, $rootScope, ERStorageService) { 
     return {
         getAll: function(){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('optionSets').done(function(optionSets){
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll('optionSets').done(function(optionSets){
                     $rootScope.$apply(function(){
                         def.resolve(optionSets);
                     });                    
@@ -262,8 +262,8 @@ eRegistryServices.factory('TCStorageService', function(){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get('optionSets', uid).done(function(optionSet){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.get('optionSets', uid).done(function(optionSet){                    
                     $rootScope.$apply(function(){
                         def.resolve(optionSet);
                     });
@@ -295,14 +295,14 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* Factory to fetch relationships */
-.factory('RelationshipFactory', function($q, $rootScope, TCStorageService) { 
+.factory('RelationshipFactory', function($q, $rootScope, ERStorageService) { 
     return {
         getAll: function(){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('relationshipTypes').done(function(relationshipTypes){
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll('relationshipTypes').done(function(relationshipTypes){
                     $rootScope.$apply(function(){
                         def.resolve(relationshipTypes);
                     });                    
@@ -315,8 +315,8 @@ eRegistryServices.factory('TCStorageService', function(){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get('relationshipTypes', uid).done(function(relationshipType){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.get('relationshipTypes', uid).done(function(relationshipType){                    
                     $rootScope.$apply(function(){
                         def.resolve(relationshipType);
                     });
@@ -328,7 +328,7 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* Factory to fetch programs */
-.factory('ProgramFactory', function($q, $rootScope, SessionStorageService, TCStorageService) { 
+.factory('ProgramFactory', function($q, $rootScope, SessionStorageService, ERStorageService) { 
     var access = null;
     
     return {
@@ -337,8 +337,8 @@ eRegistryServices.factory('TCStorageService', function(){
             if(access){
                 def.resolve(access);
             }else{
-                TCStorageService.currentStore.open().done(function(){
-                    TCStorageService.currentStore.getAll('programAccess').done(function(programAccess){
+                ERStorageService.currentStore.open().done(function(){
+                    ERStorageService.currentStore.getAll('programAccess').done(function(programAccess){
                         access = { programsById: {}, programStagesById: {}};
                         angular.forEach(programAccess, function(program){
                             access.programsById[program.id] = program.access;
@@ -357,8 +357,8 @@ eRegistryServices.factory('TCStorageService', function(){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get('programs', uid).done(function(pr){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.get('programs', uid).done(function(pr){                    
                     $rootScope.$apply(function(){
                         def.resolve(pr);
                     });
@@ -369,8 +369,8 @@ eRegistryServices.factory('TCStorageService', function(){
         getProgramsByOu: function(ou,loadSelectedProgram, selectedProgram){
             var def = $q.defer();
             this.getAllAccesses().then(function(accesses){
-                TCStorageService.currentStore.open().done(function(){
-                    TCStorageService.currentStore.getAll('programs').done(function(prs){
+                ERStorageService.currentStore.open().done(function(){
+                    ERStorageService.currentStore.getAll('programs').done(function(prs){
                         var programs = [];
                         angular.forEach(prs, function(pr){                            
                             if(pr.organisationUnits.hasOwnProperty( ou.id ) && accesses.programsById[pr.id] && accesses.programsById[pr.id].data.read){
@@ -422,13 +422,13 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* Factory to fetch programStages */
-.factory('ProgramStageFactory', function($q, $rootScope, TCStorageService) {  
+.factory('ProgramStageFactory', function($q, $rootScope, ERStorageService) {  
     
     return {        
         get: function(uid){            
             var def = $q.defer();
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get('programStages', uid).done(function(pst){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.get('programStages', uid).done(function(pst){                    
                     $rootScope.$apply(function(){
                         def.resolve(pst);
                     });
@@ -444,8 +444,8 @@ eRegistryServices.factory('TCStorageService', function(){
                 stageIds.push(stage.id);
             });
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('programStages').done(function(stages){   
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll('programStages').done(function(stages){   
                     angular.forEach(stages, function(stage){
                         if(stageIds.indexOf(stage.id) !== -1){                            
                             programStages.push(stage);                               
@@ -462,15 +462,15 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* Factory to fetch programValidations */
-.factory('ProgramValidationFactory', function($q, $rootScope, TCStorageService) {  
+.factory('ProgramValidationFactory', function($q, $rootScope, ERStorageService) {  
     
     return {        
         get: function(uid){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get('programValidations', uid).done(function(pv){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.get('programValidations', uid).done(function(pv){                    
                     $rootScope.$apply(function(){
                         def.resolve(pv);
                     });
@@ -482,8 +482,8 @@ eRegistryServices.factory('TCStorageService', function(){
             var def = $q.defer();
             var programValidations = [];
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('programValidations').done(function(pvs){   
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll('programValidations').done(function(pvs){   
                     angular.forEach(pvs, function(pv){
                         if(pv.program.id === program){                            
                             programValidations.push(pv);                               
@@ -709,14 +709,14 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* Service for getting tracked entity */
-.factory('TEService', function(TCStorageService, $q, $rootScope) {
+.factory('TEService', function(ERStorageService, $q, $rootScope) {
 
     return {        
         getAll: function(){            
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('trackedEntityTypes').done(function(entities){
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll('trackedEntityTypes').done(function(entities){
                     $rootScope.$apply(function(){
                         def.resolve(entities);
                     });                    
@@ -727,8 +727,8 @@ eRegistryServices.factory('TCStorageService', function(){
         get: function(uid){            
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get('trackedEntityTypes', uid).done(function(te){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.get('trackedEntityTypes', uid).done(function(te){                    
                     $rootScope.$apply(function(){
                         def.resolve(te);
                     });
@@ -876,15 +876,15 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* Factory for getting tracked entity attributes */
-.factory('AttributesFactory', function($q, $rootScope, TCStorageService, orderByFilter, DateUtils, OptionSetService, OperatorFactory) {      
+.factory('AttributesFactory', function($q, $rootScope, ERStorageService, orderByFilter, DateUtils, OptionSetService, OperatorFactory) {      
 
     return {
         getAll: function(){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll('attributes').done(function(attributes){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll('attributes').done(function(attributes){                    
                     $rootScope.$apply(function(){
                         def.resolve(attributes);
                     });
@@ -908,6 +908,9 @@ eRegistryServices.factory('TCStorageService', function(){
                         att.mandatory = pAttribute.mandatory;
                         if(pAttribute.displayInList){
                             att.displayInListNoProgram = true;
+                        }
+                        if(pAttribute.searchable){
+                            att.searchable = true;
                         }
                         programAttributes.push(att);                
                     });
@@ -1216,15 +1219,15 @@ eRegistryServices.factory('TCStorageService', function(){
 })
 
 /* factory to fetch and process programValidations */
-.factory('MetaDataFactory', function($q, $rootScope, TCStorageService) {  
+.factory('MetaDataFactory', function($q, $rootScope, ERStorageService) {  
     
     return {        
         get: function(store, uid){
             
             var def = $q.defer();
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.get(store, uid).done(function(pv){                    
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.get(store, uid).done(function(pv){                    
                     $rootScope.$apply(function(){
                         def.resolve(pv);
                     });
@@ -1236,8 +1239,8 @@ eRegistryServices.factory('TCStorageService', function(){
             var def = $q.defer();
             var obj = [];
             
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll(store, program).done(function(pvs){   
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll(store, program).done(function(pvs){   
                     angular.forEach(pvs, function(pv){
                         if(pv.program.id === program){                            
                             obj.push(pv);                               
@@ -1252,8 +1255,8 @@ eRegistryServices.factory('TCStorageService', function(){
         },
         getAll: function(store){
             var def = $q.defer();            
-            TCStorageService.currentStore.open().done(function(){
-                TCStorageService.currentStore.getAll(store).done(function(pvs){                       
+            ERStorageService.currentStore.open().done(function(){
+                ERStorageService.currentStore.getAll(store).done(function(pvs){                       
                     $rootScope.$apply(function(){
                         def.resolve(pvs);
                     });
@@ -2030,5 +2033,245 @@ eRegistryServices.factory('TCStorageService', function(){
             return modalInstance;
         };
         this.eventCreationActions = { add: 'ADD',  schedule: 'SCHEDULE', referral: 'REFERRAL'};
+})
+.service("SearchGroupService", function(TEIService, $q, OperatorFactory, AttributesFactory, DateUtils){
+    var programSearchConfigsById = {};
+    var trackedEntityTypeSearchConfigsById = {};
+    var defaultOperators = OperatorFactory.defaultOperators;
+
+    var makeSearchConfig = function(dimensionAttributes, minAttributesRequiredToSearch,orgUnitUniqueAsSearchGroup){
+        var searchConfig = { searchGroups: [], searchGroupsByAttributeId: {}};
+        if(dimensionAttributes){
+            var defaultSearchGroup = { id: dhis2.util.uid(), attributes: [], ouMode: {name: 'ACCESSIBLE'}, orgunitUnique: false};
+            var attributes = AttributesFactory.generateAttributeFilters(angular.copy(dimensionAttributes));
+            angular.forEach(attributes, function(attr){
+                if(attr.searchable || (attr.unique && !attr.orgunitScope)){
+                    searchConfig.searchGroupsByAttributeId[attr.id] = {};
+                    if(attr.unique){
+                        var uniqueAttr = attr.orgunitScope ? angular.copy(attr) : attr;
+                        uniqueAttr.operator = "Eq";
+                        var uniqueSearchGroup = {
+                            id: dhis2.util.uid(),
+                            uniqueGroup: true,
+                            orgunitUnique: uniqueAttr.orgunitScope,
+                            attributes: [uniqueAttr],
+                            ouMode: {name: 'ACCESSIBLE'}
+                        }
+                        if(uniqueAttr.orgunitScope) uniqueSearchGroup.ouMode = {name: 'SELECTED'};
+                        searchConfig.searchGroups.push(uniqueSearchGroup);
+                        searchConfig.searchGroupsByAttributeId[uniqueAttr.id].unique = uniqueSearchGroup;
+                    }
+                    if(!attr.unique || attr.orgunitScope){
+                        if(attr.optionSetValue && attr.valueType === "TEXT") attr.operator = "Eq";
+                        defaultSearchGroup.attributes.push(attr);
+                        searchConfig.searchGroupsByAttributeId[attr.id].default = defaultSearchGroup;
+                    }
+
+                }
+            });
+            if(defaultSearchGroup.attributes.length !== 0){
+                defaultSearchGroup.minAttributesRequiredToSearch = minAttributesRequiredToSearch;
+                searchConfig.searchGroups.push(defaultSearchGroup);
+            }
+        }
+        return searchConfig;
+    }
+
+    var getSearchParams = function(searchGroup, program,trackedEntityType, orgUnit,pager){
+        var uniqueSearch = false;
+        var numberOfSetAttributes = 0;
+        var query = {url: null, hasValue: false};
+        if(searchGroup){
+            angular.forEach(searchGroup.attributes, function(attr){
+                if(searchGroup.uniqueGroup) uniqueSearch = true;
+                if(attr.valueType === 'DATE' || attr.valueType === 'NUMBER' || attr.valueType === 'DATETIME'){
+                    var q = '';
+    
+                    if(attr.operator === OperatorFactory.defaultOperators[0]){
+                        var exactValue = searchGroup[attr.id] ? searchGroup[attr.id].exactValue : null;
+                        if(exactValue == null) exactValue = searchGroup[attr.id];
+
+
+                        if(exactValue && exactValue !== ''){
+                            query.hasValue = true;
+                            if(attr.valueType === 'DATE' || attr.valueType === 'DATETIME'){
+                                exactValue = DateUtils.formatFromUserToApi(exactValue);
+                            }
+                            if(attr.valueType === 'DATETIME') {
+                                q += 'LIKE:' + exactValue + ':';
+                            } else {
+                                q += 'EQ:' + exactValue + ':';
+                            }
+                            numberOfSetAttributes++;
+                        }
+                    }
+                    if(attr.operator === OperatorFactory.defaultOperators[1]){
+                        var startValue =  searchGroup[attr.id] ? searchGroup[attr.id].startValue : null;
+                        var endValue = searchGroup[attr.id] ? searchGroup[attr.id].endValue : null;
+                        if(startValue && startValue !== ''){
+                            query.hasValue = true;
+                            if(attr.valueType === 'DATE' || attr.valueType === 'DATETIME'){
+                                startValue = DateUtils.formatFromUserToApi(startValue);
+                            }
+                            q += 'GT:' + startValue + ':';
+                        }
+                        if(endValue && endValue !== ''){
+                            query.hasValue = true;
+                            if(attr.valueType === 'DATE' || attr.valueType === 'DATETIME'){
+                                endValue = DateUtils.formatFromUserToApi(endValue);
+                            }
+                            q += 'LT:' + endValue + ':';
+                        }
+                    }
+                    if(query.url){
+                        if(q){
+                            numberOfSetAttributes++;
+                            q = q.substr(0,q.length-1);
+                            query.url = query.url + '&filter=' + attr.id + ':' + q;
+                        }
+                    }
+                    else{
+                        if(q){
+                            numberOfSetAttributes++;
+                            q = q.substr(0,q.length-1);
+                            query.url = 'filter=' + attr.id + ':' + q;
+                        }
+                    }
+                }
+                else{
+                    var value = searchGroup[attr.id] ? searchGroup[attr.id].value : null;
+                    if(value == null) value = searchGroup[attr.id];
+                    if(value && value !== ''){
+                        query.hasValue = true;
+    
+                        if(angular.isArray(value)){
+                            var q = '';
+                            angular.forEach(value, function(val){
+                                q += val + ';';
+                            });
+    
+                            q = q.substr(0,q.length-1);
+    
+                            if(query.url){
+                                if(q){
+                                    numberOfSetAttributes++;
+                                    query.url = query.url + '&filter=' + attr.id + ':IN:' + q;
+                                }
+                            }
+                            else{
+                                if(q){
+                                    numberOfSetAttributes++;
+                                    query.url = 'filter=' + attr.id + ':IN:' + q;
+                                }
+                            }
+                        }
+                        else{
+                            if(query.url){
+                                numberOfSetAttributes++;
+                                if(attr.operator === "Eq"){
+                                    query.url = query.url + '&filter=' + attr.id + ':EQ:' + value;
+                                }else{
+                                    query.url = query.url + '&filter=' + attr.id + ':LIKE:' + value;
+                                }
+                                
+                            }
+                            else{
+                                numberOfSetAttributes++;
+                                if(attr.operator === "Eq"){
+                                    query.url = 'filter=' + attr.id + ':EQ:' + value;
+                                }else{
+                                    query.url = 'filter=' + attr.id + ':LIKE:' + value;
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        if(query.hasValue &&(uniqueSearch || numberOfSetAttributes >= searchGroup.minAttributesRequiredToSearch)){
+            var programOrTETUrl = "";
+            if(program){
+                programOrTETUrl = "program="+program.id;
+            }else{
+                programOrTETUrl = "trackedEntityType="+trackedEntityType.id;
+            }
+            var searchOrgUnit = searchGroup.orgUnit ? searchGroup.orgUnit : orgUnit;
+            return { orgUnit: searchOrgUnit, ouMode: searchGroup.ouMode.name, programOrTETUrl: programOrTETUrl, queryUrl: query.url, pager: pager, uniqueSearch: uniqueSearch };
+        }
+    }
+    
+    this.getSearchConfigForProgram = function(program, orgUnitUniqueAsSearchGroup) {
+        var def = $q.defer();
+        if(!programSearchConfigsById[program.id]){
+            return AttributesFactory.getByProgram(program).then(function(attributes)
+            {
+                var searchConfig = makeSearchConfig(attributes, program.minAttributesRequiredToSearch,orgUnitUniqueAsSearchGroup);
+                programSearchConfigsById[program.id] = searchConfig;
+                def.resolve(angular.copy(searchConfig));
+                return def.promise;
+            });
+        }
+        def.resolve(angular.copy(programSearchConfigsById[program.id]));
+        return def.promise;
+    }
+    this.getSearchConfigForTrackedEntityType = function(trackedEntityType,orgUnitUniqueAsSearchGroup){
+        var def = $q.defer();
+        if(!trackedEntityTypeSearchConfigsById[trackedEntityType.id]){
+            return AttributesFactory.getByTrackedEntityType(trackedEntityType).then(function(attributes)
+            {
+                var searchConfig = makeSearchConfig(attributes, trackedEntityType.minAttributesRequiredToSearch,orgUnitUniqueAsSearchGroup);
+                trackedEntityTypeSearchConfigsById[trackedEntityType.id] = searchConfig;
+                def.resolve(angular.copy(searchConfig));
+                return def.promise;
+            });
+        }
+        def.resolve(angular.copy(trackedEntityTypeSearchConfigsById[trackedEntityType.id]));
+        return def.promise;
+    }
+
+    this.searchCount = function(searchGroup, program, trackedEntityType, orgUnit, pager){
+        var params = getSearchParams(searchGroup, program, trackedEntityType, orgUnit, pager);
+        if(params){
+            return TEIService.searchCount(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
+                if(response){
+                    return response;
+                }
+                return 0;
+            },function(error){
+                return 0;
+            });
+        }else{
+            var def = $q.defer();
+            def.resolve(0);
+            return def.promise;
+        }
+    }
+    this.search = function(searchGroup, program,trackedEntityType, orgUnit, pager){
+        var params = getSearchParams(searchGroup, program, trackedEntityType, orgUnit, pager);
+        if(params){
+            var searchOrgUnit = searchGroup.orgUnit ? searchGroup.orgUnit : orgUnit;
+            return TEIService.search(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
+                if(response && response.rows && response.rows.length > 0){
+                    if(params.uniqueSearch) return { status: "UNIQUE", data: response };
+                    return { status: "MATCHES", data: response };
+                }
+                return { status: "NOMATCH"};
+            },function(error){
+                var d = $q.defer();
+                if(error && error.data && error.data.message === "maxteicountreached"){
+                    d.resolve({ status: "TOOMANYMATCHES", data: null});
+                } 
+                else {
+                    d.reject(error);
+                }
+                return d.promise;
+            });
+        }else{
+            var def = $q.defer();
+            def.resolve({status: "NOMATCH"});
+            return def.promise;
+        }
+    }
 })
 

@@ -34,15 +34,11 @@ eRegistry.controller('SelectionController',
                  {
     $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.maxOptionSize = 30;
+    $scope.base = {};
 
-    $scope.$watch("selectedProgram", function(){
-        if($scope.selectedProgram){
-            $scope.selectedProgram.access.data.write = false;
-        }
-    });
-    
+
     $scope.contentViews = [
-        { view: "find",title: "search_register_patient", value: "find", type: "search", icon: "fa-search", index: 3, template: "views/find.html"},
+        { view: "find",title: "search_register_patient", value: "find", type: "search", icon: "fa-search", index: 3, template: "components/search/search.html"},
         { view: "eventScheduled",title: "events_today_scheduled", value: ["SCHEDULE"], type: "event", icon: "fa-calendar-o", index:0, template: "views/tei.html"},
         { view: "eventOpened",title: "events_today_current_open", value: ["ACTIVE", "VISITED"], type: "event", icon: "fa-folder-open-o",index: 1, template: "views/tei.html"},
         { view: "eventCompleted",title: "events_today_files_completed", value: ["COMPLETED"], type: "event", icon: "fa-check", index: 2, template: "views/tei.html"},
@@ -107,7 +103,6 @@ eRegistry.controller('SelectionController',
     $scope.enrollment = {programStartDate: '', programEndDate: '', operator: $scope.defaultOperators[0]};
     $scope.searchMode = { listAll: 'LIST_ALL', freeText: 'FREE_TEXT', attributeBased: 'ATTRIBUTE_BASED' };    
     $scope.optionSets = null;
-    $scope.attributesById = null;
     $scope.doSearch = true;
     $scope.programStagesById ={};
     $scope.eventsTodayProgramStageFilter = ["BjNpOxjvEj5","FRSZV43y35y","WZbXY0S00lP","dqF3sxJKBls","edqlbukwRfQ","uUHQw5KrZAL"];
@@ -144,15 +139,15 @@ eRegistry.controller('SelectionController',
             
             $scope.optionSets = CurrentSelection.getOptionSets();
             
-            $scope.attributesById = CurrentSelection.getAttributesById();
+            $scope.base.attributesById  = CurrentSelection.getAttributesById();
             
-            if(!$scope.attributesById){
-                $scope.attributesById = [];
+            if(!$scope.base.attributesById){
+                $scope.base.attributesById = [];
                 MetaDataFactory.getAll('attributes').then(function(atts){                    
                     angular.forEach(atts, function(att){
-                        $scope.attributesById[att.id] = att;
+                        $scope.base.attributesById[att.id] = att;
                     });
-                    CurrentSelection.setAttributesById($scope.attributesById);
+                    CurrentSelection.setAttributesById($scope.base.attributesById);
                 });
             }
             
@@ -261,9 +256,7 @@ eRegistry.controller('SelectionController',
         AttributesFactory.getByProgram($scope.selectedProgram).then(function(atts){
             $scope.attributes = AttributesFactory.generateAttributeFilters(atts);
             var grid = TEIGridService.generateGridColumns($scope.attributes, $scope.selectedOuMode.displayName); 
-            $scope.gridColumns = grid.columns;
-            
-            setFindAttributes();
+            $scope.base.gridColumns = $scope.gridColumns = grid.columns;
             
             if($scope.showRegistrationDiv){
 
@@ -669,7 +662,7 @@ eRegistry.controller('SelectionController',
 
                         });
                     } else if(data.rows.length === 0) {
-                        TEIService.search($scope.selectedOrgUnit.id,'ALL',null,$scope.programUrl,$scope.findAttributeUrl.url,null,false).then(function(data){
+                        TEIService.search($scope.selectedOrgUnit.id,'ACCESSIBLE',null,$scope.programUrl,$scope.findAttributeUrl.url,null,false).then(function(data){
                             if(data && data.metaData){
                                 if(data.rows.length===1){
                                     var newProgramUrl = $scope.programUrl +'&followUp=true';
@@ -806,5 +799,14 @@ eRegistry.controller('SelectionController',
     };
     $scope.canRegister = function(){
         return $scope.selectedProgram && $scope.selectedProgram.access.data.write;
+    }
+
+    $scope.$watch('selectedProgram', function(selectedProgram){
+        $scope.base.selectedProgram = selectedProgram;
+    })
+
+    $scope.goToRegistrationWithData = function(registrationPrefill){
+        $rootScope.findAttributes = registrationPrefill;
+        $scope.showRegistration();
     }
 });

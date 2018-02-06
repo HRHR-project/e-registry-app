@@ -39,6 +39,7 @@ import '../components/teiadd/tei-add-controller.js';
 import '../components/profile/profile-controller.js';
 import '../components/notes/notes-controller.js';
 import '../components/rulebound/rulebound-controller.js';
+import '../components/search/search-controller.js';
 
 import L from 'leaflet';
 import 'leaflet-geocoder-mapzen';

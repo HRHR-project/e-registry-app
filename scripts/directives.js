@@ -853,5 +853,84 @@ eRegistryDirectives.directive('stringToNumber', function () {
       }
     };
   }
-]);
-;
+])
+.directive('trackerTeiList', function(){
+    return {
+        restrict: 'E',
+        templateUrl: 'views/tei-list.html',
+        scope: {
+            data: "=teiData",
+            pager: "=?teiPager",
+            sortColumn: "=?teiSortColumn",
+            gridColumns: "=?teiGridColumns",
+            refetchData: "&teiRefetchData",
+            onTeiClicked: "&onTeiClicked"
+        },
+
+        
+        controller: function($scope, Paginator){
+            $scope.$watch("pager", function(){
+                if($scope.pager){
+                    Paginator.setPage($scope.pager.page);
+                    Paginator.setPageCount($scope.pager.pageCount);
+                    Paginator.setPageSize($scope.pager.pageSize);
+                    Paginator.setItemCount($scope.pager.total);
+                }
+            });
+
+            $scope.$watch("data", function(){
+                setGridColumns();
+            });
+
+            var setGridColumns = function(){
+                if($scope.data && !$scope.gridColumns){
+                    $scope.gridColumns = [];
+                    for(var key in $scope.data.headers){
+                        if($scope.data.headers.hasOwnProperty(key)){
+                            var column = $scope.data.headers[key];
+                            column.show = true;
+                            $scope.gridColumns.push(column);
+                        }
+                    }
+                }
+            }
+
+            setGridColumns();
+
+            $scope.sortGrid = function(gridHeader){
+                if ($scope.sortColumn && $scope.sortColumn.id === gridHeader.id){
+                    $scope.sortColumn.direction = $scope.sortColumn.direction === 'asc' ? 'desc' : 'asc';
+                }else if(!$scope.sortColumn){
+                    $scope.sortColumn = {id: gridHeader.id, direction: 'asc'};
+                }else{
+                    $scope.sortColumn.id = gridHeader.id;
+                    $scope.sortColumn.direction = 'asc';
+                }
+                $scope.refetchData({pager: $scope.pager, sortColumn: $scope.sortColumn});
+            };
+
+            $scope.onTeiClickedInternal = function(tei){
+                $scope.onTeiClicked({tei : tei});
+            }
+            
+            $scope.getPage = function(page){
+                $scope.pager.page = page;
+
+                $scope.refetchData({pager: $scope.pager, sortColumn: $scope.sortColumn});
+            };
+
+            $scope.resetPageSize = function(){
+                $scope.pager.page = 1;
+                $scope.refetchData({pager: $scope.pager, sortColumn: $scope.sortColumn});
+            };
+
+            $scope.jumpToPage = function(){
+                if($scope.pager && $scope.pager.page && $scope.pager.pageCount && $scope.pager.page > $scope.pager.pageCount){
+                    $scope.pager.page = $scope.pager.pageCount;
+                }
+                $scope.refetchData({pager: $scope.pager, sortColumn: $scope.sortColumn});
+                
+            };
+        }
+    }
+});
