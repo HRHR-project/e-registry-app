@@ -254,7 +254,7 @@ function getMetaPrograms()
 }
 
 function getProgramAccess(){
-    return dhis2.tracker.getTrackerObjects('programAccess','programs', BASEAPIURL+'/programs.json', 'paging=false&fields=id,access[data[read,write]],programStages[access[data[read,write]]]','temp', dhis2.er.store).then(function(programAccesses){
+    return dhis2.tracker.getTrackerObjects('programAccess','programs', BASEAPIURL+'/programs.json', 'filter=programType:eq:WITH_REGISTRATION&paging=false&fields=id,access[data[read,write]],programStages[access[data[read,write]]]','temp', dhis2.er.store).then(function(programAccesses){
         var programAccessesById = {};
         _.each(_.values(programAccesses), function(programAccess){
             if(hasAllAccess) programAccess.access.data = {read: true, write: true };
@@ -263,9 +263,14 @@ function getProgramAccess(){
         });
         return dhis2.tracker.getTrackerObjects('programStageAccess','programStages', BASEAPIURL+'/programStages.json', 'paging=false&fields=id,program,access[data[read,write]]','temp', dhis2.er.store).then(function(programStageAccesses){
             _.each(_.values(programStageAccesses), function(programStageAccess){
-                if(hasAllAccess) programStageAccess.access.data = {read : true, write: true};
-                programAccessesById[programStageAccess.program.id].programStages.push(programStageAccess);
+                if(programStageAccess.program && programAccessesById[programStageAccess.program.id]){
+                    if(hasAllAccess) programStageAccess.access.data = {read : true, write: true};
+                    programAccessesById[programStageAccess.program.id].programStages.push(programStageAccess);
+                }
+
             });
+            var g = 1;
+            var u = 2;
             return dhis2.er.store.setAll('programAccess',programAccesses);
         });
     });
