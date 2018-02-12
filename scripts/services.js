@@ -460,7 +460,6 @@ eRegistryServices.factory('ERStorageService', function(){
         }
     };    
 })
-
 /* Factory to fetch programValidations */
 .factory('ProgramValidationFactory', function($q, $rootScope, ERStorageService) {  
     
@@ -497,87 +496,6 @@ eRegistryServices.factory('ERStorageService', function(){
             return def.promise;
         }
     };        
-})
-
-/* Factory for fetching OrgUnit */
-.factory('OrgUnitFactory', function($http, SessionStorageService, DHIS2URL) {    
-    var orgUnit, orgUnitPromise, rootOrgUnitPromise,orgUnitTreePromise;
-    return {
-        get: function(uid){            
-            if( orgUnit !== uid ){
-                orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?filter=id:eq:' + uid + '&fields=id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]&paging=false' ).then(function(response){
-                    orgUnit = response.data.id;
-                    return response.data;
-                });
-            }
-            return orgUnitPromise;
-        },
-        getAll: function(){            
-            orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?' + '&fields=id,name,displayName,&paging=false' ).then(function(response){
-                return response.data;
-            });
-            return orgUnitPromise;
-        },
-
-        //Gets all related orgunits, based on the root(uid) orgunit.
-        getIdDown: function(uid){    
-            var allDownId = [];
-            var allOrgUnits = [];
-            var rootOrgUnit = null;
-
-            orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?fields=id,level,children[id,level]&paging=false' ).then(function(response){
-                allOrgUnits = response.data.organisationUnits;
-                angular.forEach(response.data.organisationUnits, function(orgUnit){
-                    if(orgUnit.id === uid){
-                        rootOrgUnit = orgUnit;                               
-                    }                        
-                });
-                getAllRelated(rootOrgUnit);
-
-                //Recursive methode for finding all related orgUnits.
-                function getAllRelated(ou) {
-                    angular.forEach(allOrgUnits, function(orgUnit){
-                        if(orgUnit.id === ou.id){
-                            allDownId.push(orgUnit.id);                         
-                            if(!orgUnit.children) {
-                                return;
-                            } else {
-                                angular.forEach(orgUnit.children, function(child){
-                                    getAllRelated(child);                        
-                                });      
-                            }                         
-                        }                        
-                    });
-                }
-                return allDownId;
-            });
-
-            return orgUnitPromise;
-        },
-        getSearchTreeRoot: function(){
-            if(!rootOrgUnitPromise){
-                var url = DHIS2URL+'/organisationUnits.json?filter=level:eq:1&fields=id,name, displayName,children[id,name, displayName, children[id,name, displayName]]&paging=false';
-                rootOrgUnitPromise = $http.get( url ).then(function(response){
-                    return response.data;
-                });
-            }
-            return rootOrgUnitPromise;
-        },
-        getSearchTreeRootBangladesh: function(){
-            var url = DHIS2URL+'/organisationUnits.json?filter=level:eq:3&fields=id,name, displayName,level,children[id,name, displayName, children[id,name, displayName]]&paging=false';
-            rootOrgUnitPromise = $http.get( url ).then(function(response){
-                return response.data;
-            });
-            return rootOrgUnitPromise;
-        },
-        getOrgUnits: function(uid,fieldUrl){
-            var url = DHIS2URL+'/organisationUnits.json?filter=id:eq:'+uid+'&'+fieldUrl+'&paging=false';
-            orgUnitTreePromise = $http.get(url).then(function(response){
-              return response.data; 
-            });               
-            return orgUnitTreePromise;
-        }
-    }; 
 })
 
 /* service to deal with TEI registration and update */
