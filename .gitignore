@@ -5,8 +5,8 @@
 # Project folders/dependencies
 node_modules
 build
+buildzip
 coverage
-manifest.webapp
 
 # Misc files
 npm-debug.log

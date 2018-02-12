@@ -1,0 +1,21 @@
+{
+    "version": "0.1",
+    "name": "E-Registry",
+    "description": "E-Registry App",
+    "launch_path": "index.html",
+    "icons": {
+        "16": "img/e-registry.png",
+        "48": "img/e-registry.png",
+        "128": "img/e-registry.png"
+    },
+    "developer": {
+        "name": "HISP",
+        "url": "http://dhis2.org"
+    },
+    "default_locale": "en",
+    "activities": {
+        "dhis": {
+            "href": "*"
+        }
+    }
+}
