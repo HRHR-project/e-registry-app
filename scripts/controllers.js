@@ -561,11 +561,24 @@ eRegistry.controller('SelectionController',
        
     $scope.getHelpContent = function(){
     };   
+
+    var mapOrgUnitToId = function(orgUnit, obj){
+        if(orgUnit){
+            obj[orgUnit.id] = orgUnit;
+            if(orgUnit.children && orgUnit.children.length > 0){
+                angular.forEach(orgUnit.children, function(child){
+                    mapOrgUnitToId(child, obj);
+                });
+            }
+        }
+    }
     
     //Get orgunits for the logged in user
     OrgUnitFactory.getSearchTreeRoot().then(function(response) {  
         $scope.orgUnits = response.organisationUnits;
+        $scope.base.orgUnitsById = {};
         angular.forEach($scope.orgUnits, function(ou){
+            mapOrgUnitToId(ou, $scope.base.orgUnitsById);
             ou.show = true;
             angular.forEach(ou.children, function(o){                    
                 o.hasChildren = o.children && o.children.length > 0 ? true : false;
