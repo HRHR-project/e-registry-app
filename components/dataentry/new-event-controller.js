@@ -18,6 +18,7 @@ eRegistry.controller('EventCreationController',
                 stages,
                 allStages,
                 tei,
+                currentEvent,
                 program,
                 orgUnit,
                 enrollment,                
@@ -43,9 +44,33 @@ eRegistry.controller('EventCreationController',
     var orgPath = [];    
     var dummyEvent = {};
     
+    $scope.scheduleDateDataElement = "";
+    $scope.daysPregAtSchedDate = -1;
+
+    if(currentEvent) {
+        for(var i = 0; i < stage.programStageDataElements.length; i++) {
+            if(stage.programStageDataElements[i].dataElement.code === "DAYSPREGNANTATSCHEDULEDDDATE") {
+                var id = stage.programStageDataElements[i].dataElement.id;
+                $scope.daysPregAtSchedDate = currentEvent[id];
+                $scope.gestAgeWeeks = Math.floor($scope.daysPregAtSchedDate/7);
+                $scope.gestAgeDays = $scope.daysPregAtSchedDate%7;
+
+            }
+        }
+    }
+
     function prepareEvent(){
-        
-        dummyEvent = EventUtils.createDummyEvent(eventsByStage[stage.id], tei, program, stage, orgUnit, enrollment);
+       
+        if(currentEvent) {
+            for(var i = 0; i < stage.programStageDataElements.length; i++) {
+                if(stage.programStageDataElements[i].dataElement.code === "SCHEDULEDATE") {
+                    var id = stage.programStageDataElements[i].dataElement.id;
+                    $scope.scheduleDateDataElement = currentEvent[id];
+                }
+            }
+        }
+
+        dummyEvent = EventUtils.createDummyEvent(eventsByStage[stage.id], tei, program, stage, orgUnit, enrollment, $scope.scheduleDateDataElement);
         
         $scope.newEvent = {programStage: stage};
         $scope.dhis2Event = {eventDate: $scope.isScheduleEvent ? '' : DateUtils.getToday(), dueDate: dummyEvent.dueDate, excecutionDateLabel : dummyEvent.excecutionDateLabel, displayName: dummyEvent.displayName, invalid: true};        
@@ -374,6 +399,21 @@ eRegistry.controller('EventCreationController',
             }            
         }
         return false;
+    }
+
+    $scope.calcGestAge = function(date) {
+        var originalDate = $scope.scheduleDateDataElement;
+        var newDate = date;
+        var daysBetween = 0;
+
+        originalDate = new Date(originalDate);
+        newDate = new Date(newDate);
+
+        
+        daysBetween = (newDate - originalDate) / 1000 / 60 / 60 / 24;
+        
+        $scope.gestAgeWeeks = Math.floor(($scope.daysPregAtSchedDate + daysBetween) / 7);
+        $scope.gestAgeDays = ($scope.daysPregAtSchedDate + daysBetween) % 7;
     }
 
     $scope.expandCollapse = function(orgUnit) {

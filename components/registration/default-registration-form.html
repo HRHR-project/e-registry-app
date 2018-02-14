@@ -16,6 +16,7 @@
                                 ng-required="attribute.mandatory || attribute.unique"                                 
                                 name="foo" 
                                 d2-attribute-validator
+                                selected-tet={{trackedEntityTypes.selected.id}}
                                 attribute-data={{attribute}}
                                 selected-program-id={{selectedProgram.id}}  
                                 selected-tei-id={{selectedTei.trackedEntityInstance}}  
@@ -40,7 +41,8 @@
                                max-date="attribute.allowFutureDate ? '' : 0"
                                ng-model="selectedTei[attribute.id]"                               
                                ng-model-options="{ updateOn: 'default blur', allowInvalid: true }"
-                               d2-attribute-validator 
+                               d2-attribute-validator
+                               selected-tet={{trackedEntityTypes.selected.id}}
                                attribute-data={{attribute}}
                                selected-program-id={{selectedProgram.id}}  
                                selected-tei-id={{selectedTei.trackedEntityInstance}}  
@@ -65,7 +67,8 @@
                                class="form-control"
                                ng-model="selectedTei[attribute.id]" 
                                ng-model-options="{ updateOn: 'default blur', allowInvalid: true }"
-                               d2-attribute-validator 
+                               d2-attribute-validator
+                               selected-tet={{trackedEntityTypes.selected.id}}
                                attribute-data={{attribute}}
                                selected-program-id={{selectedProgram.id}}  
                                selected-tei-id={{selectedTei.trackedEntityInstance}}  
@@ -77,7 +80,8 @@
                         <label class="radio-inline">
                             <input  type="radio"
                                     ng-model="selectedTei[attribute.id]"
-                                    d2-attribute-validator 
+                                    d2-attribute-validator
+                                    selected-tet={{trackedEntityTypes.selected.id}}
                                     attribute-data={{attribute}}
                                     selected-program-id={{selectedProgram.id}}  
                                     selected-tei-id={{selectedTei.trackedEntityInstance}} 
@@ -91,7 +95,8 @@
                             <input  type="radio"
                                     class="input-with-audit"
                                     ng-model="selectedTei[attribute.id]" 
-                                    d2-attribute-validator 
+                                    d2-attribute-validator
+                                    selected-tet={{trackedEntityTypes.selected.id}}
                                     attribute-data={{attribute}}
                                     selected-program-id={{selectedProgram.id}}  
                                     selected-tei-id={{selectedTei.trackedEntityInstance}} 
@@ -105,6 +110,7 @@
                             <input  type="radio"                                                         
                                     ng-model="selectedTei[attribute.id]"
                                     d2-attribute-validator
+                                    selected-tet={{trackedEntityTypes.selected.id}}
                                     attribute-data={{attribute}}
                                     selected-program-id={{selectedProgram.id}}  
                                     selected-tei-id={{selectedTei.trackedEntityInstance}} 
@@ -121,7 +127,8 @@
                                class="form-control"
                                ng-model="selectedTei[attribute.id]"
                                ng-model-options="{ updateOn: 'default blur', allowInvalid: true }"
-                               d2-attribute-validator 
+                               d2-attribute-validator
+                               selected-tet={{trackedEntityTypes.selected.id}}
                                attribute-data={{attribute}}
                                selected-program-id={{selectedProgram.id}}  
                                selected-tei-id={{selectedTei.trackedEntityInstance}}  
@@ -137,7 +144,8 @@
                                class="form-control"
                                ng-model="selectedTei[attribute.id]"
                                ng-model-options="{ updateOn: 'default blur', allowInvalid: true }"
-                               d2-attribute-validator 
+                               d2-attribute-validator
+                               selected-tet={{trackedEntityTypes.selected.id}}
                                attribute-data={{attribute}}
                                selected-program-id={{selectedProgram.id}}  
                                selected-tei-id={{selectedTei.trackedEntityInstance}}  
@@ -152,6 +160,7 @@
                                ng-model="selectedTei[attribute.id]" 
                                ng-model-options="{ updateOn: 'default blur', allowInvalid: true }" 
                                d2-attribute-validator
+                               selected-tet={{trackedEntityTypes.selected.id}}
                                attribute-data={{attribute}}
                                selected-program-id={{selectedProgram.id}}  
                                selected-tei-id={{selectedTei.trackedEntityInstance}}  
@@ -166,7 +175,8 @@
                                class="form-control-trimmed"
                                ng-model="selectedTei[attribute.id]" 
                                ng-model-options="{ updateOn: 'default blur', allowInvalid: true }"
-                               d2-attribute-validator 
+                               d2-attribute-validator
+                               selected-tet={{trackedEntityTypes.selected.id}}
                                attribute-data={{attribute}}
                                selected-program-id={{selectedProgram.id}}  
                                selected-tei-id={{selectedTei.trackedEntityInstance}}
@@ -260,6 +270,7 @@
                                ng-model="selectedTei[attribute.id]" 
                                ng-model-options="{ updateOn: 'default blur', allowInvalid: true }"
                                d2-attribute-validator
+                               selected-tet={{trackedEntityTypes.selected.id}}
                                attribute-data={{attribute}}
                                selected-program-id={{selectedProgram.id}}  
                                selected-tei-id={{selectedTei.trackedEntityInstance}}  

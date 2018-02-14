@@ -82,14 +82,14 @@
 
                             <div class="vertical-spacing">
                                 <button type="button" 
-                                        ng-if="!hideCompleteIncompleteButton"
+                                        ng-if="selectedProgram.id != 'WSGAb5XwJ3Y'"
                                         class="btn btn-primary"
                                         ng-disabled="!canUseEnrollment()"
                                         ng-click="completeEnrollment()">
                                     {{selectedEnrollment.status === 'ACTIVE' ? 'complete' : 'incomplete' | translate}}
                                 </button>
-                                <!-- Not used in palestine
-                                <button type="button" 
+                                <button type="button"
+                                        ng-if="selectedProgram.id != 'WSGAb5XwJ3Y'"
                                         class="btn btn-warning"
                                         ng-disabled="selectedEnrollment.status !== 'ACTIVE' || selectedTei.inactive"
                                         ng-click="cancelEnrollment()">
@@ -97,12 +97,13 @@
                                 </button>
                                 
                                 <button type="button"
+                                        ng-if="selectedProgram.id != 'WSGAb5XwJ3Y'"
                                         title="{{selectedEnrollment.followup ? 'unmark_for_followup' : 'mark_for_followup' | translate}}"
                                         ng-class="{true: 'btn btn-danger', false: 'btn btn-default'} [selectedEnrollment.followup]"
                                         ng-disabled="selectedEnrollment.status !== 'ACTIVE' || selectedTei.inactive"
                                         ng-click="markForFollowup()">
                                     <i class="fa fa-exclamation-triangle"></i>
-                                </button> -->
+                                </button>
                             </div>
                         </div>
 

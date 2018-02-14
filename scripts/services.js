@@ -1730,7 +1730,7 @@ eRegistryServices.factory('ERStorageService', function(){
     };
     
     return {
-        createDummyEvent: function(eventsPerStage, tei, program, programStage, orgUnit, enrollment){
+        createDummyEvent: function(eventsPerStage, tei, program, programStage, orgUnit, enrollment, scheduleDate){
             var today = DateUtils.getToday();
             var dummyEvent = {trackedEntityInstance: tei.trackedEntityInstance, 
                               programStage: programStage.id, 
@@ -1752,6 +1752,10 @@ eRegistryServices.factory('ERStorageService', function(){
             }
             else{
                 dummyEvent.dueDate = getEventDueDate(eventsPerStage, programStage, enrollment);
+            }
+
+            if(scheduleDate) {
+                dummyEvent.dueDate = scheduleDate;
             }
             
             dummyEvent.sortingDate = dummyEvent.dueDate;
@@ -1905,7 +1909,7 @@ eRegistryServices.factory('ERStorageService', function(){
 
 .service('EventCreationService', function($modal){
             
-        this.showModal = function(eventsByStage, stage, availableStages,programStages,selectedEntity,selectedProgram,selectedOrgUnit,selectedEnrollment, autoCreate, eventCreationAction,allEventsSorted, suggestedStage){
+        this.showModal = function(eventsByStage, stage, availableStages,programStages,selectedEntity,selectedProgram,selectedOrgUnit,selectedEnrollment, autoCreate, eventCreationAction,allEventsSorted, suggestedStage, currentEvent){
             var modalInstance = $modal.open({
                 templateUrl: 'components/dataentry/new-event.html',
                 controller: 'EventCreationController',
@@ -1945,6 +1949,9 @@ eRegistryServices.factory('ERStorageService', function(){
                     },
                     suggestedStage: function(){
                         return suggestedStage;
+                    },
+                    currentEvent: function() {
+                        return currentEvent;
                     }
                 }
             }).result;

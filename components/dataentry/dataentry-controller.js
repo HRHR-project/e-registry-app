@@ -424,7 +424,11 @@ eRegistry.controller('DataEntryController',
                                     WPgz41MctSW:true, HaOwL7bIdrs: true, MO39jKgz2VA: true, E8Jetf3Q90U: true};
             $scope.topLineStageFilter = {};
             $scope.headerStages = [];
-            $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ", w0pwmNYugKX: "dqF3sxJKBls"};
+            if(!$scope.isBangladesh){
+                $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
+            }else{
+                $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls"};
+            }
         } else {
             $scope.bottomLineItems = $scope.mainMenuConfig.bottomLineItems;
             $scope.neverShowItems = $scope.mainMenuConfig.neverShowItems;
@@ -693,7 +697,7 @@ eRegistry.controller('DataEntryController',
 
         $scope.stagesById = [];
         if ($scope.selectedOrgUnit && $scope.selectedProgram && $scope.selectedProgram.id && $scope.selectedEntity) {
-            var stages = $scope.selectedProgram.programStages;                
+            var stages = $scope.programStages = $scope.selectedProgram.programStages;                
             angular.forEach(stages, function (stage) {
                 if (stage.openAfterEnrollment) {
                     $scope.currentStage = stage;
@@ -1085,7 +1089,6 @@ eRegistry.controller('DataEntryController',
     
     $scope.stageErrorInEventLayout = [];
     $scope.showCreateEventIfStageNeedsEvent = function(stage, eventCreationAction, requireStageEventsToBeCompleted, showModalOnNoEventsNeeded){
-        console.log(stage);
         //custom code for folkehelsa
         if(stage.id === 'edqlbukwRfQ'){
             if(angular.isUndefined($scope.eventsByStage['WZbXY0S00lP']) || $scope.eventsByStage['WZbXY0S00lP'].length === 0){
@@ -1096,7 +1099,6 @@ eRegistry.controller('DataEntryController',
                 stage = $scope.stagesById['w0pwmNYugKX'];
             }
         }
-        console.log(stage);
         //-------------------------                
         
         showModalOnNoEventsNeeded = angular.isDefined(showModalOnNoEventsNeeded) && showModalOnNoEventsNeeded === true ? true : false;
@@ -1191,7 +1193,7 @@ eRegistry.controller('DataEntryController',
             }
         }
         var autoCreate = !!(stage && stage.autoCreateNewEvents);
-        EventCreationService.showModal($scope.eventsByStage, stage, availableStages, $scope.programStages, $scope.selectedEntity, $scope.selectedProgram, $scope.selectedOrgUnit, $scope.selectedEnrollment, autoCreate, eventCreationAction, allApplicableEvents,suggestedStage)
+        EventCreationService.showModal($scope.eventsByStage, stage, availableStages, $scope.programStages, $scope.selectedEntity, $scope.selectedProgram, $scope.selectedOrgUnit, $scope.selectedEnrollment, autoCreate, eventCreationAction, allApplicableEvents,suggestedStage, $scope.currentEvent)
                 .then(function (eventContainer) {
                     if(angular.isDefined(eventContainer)){                
                         var ev = eventContainer.ev;
@@ -1340,6 +1342,7 @@ eRegistry.controller('DataEntryController',
         if(event.programStage === "PUZaKR0Jh2k"){
             $scope.modalOptions = {hideSkipped: true};
         }
+        var modalInstance;
         
         $scope.eventEditFormModalInstance = modalInstance = $modal.open({
             templateUrl: 'components/dataentry/modal-default-form.html',
@@ -1551,6 +1554,7 @@ eRegistry.controller('DataEntryController',
                     $scope.currentStageEvents = $scope.eventsByStage[$scope.currentStage.id];
                 }            
             }
+            $scope.currentStage.displayEventsInTable = true;
             $scope.displayCustomForm = "TABLE";
             
         }
@@ -3679,7 +3683,7 @@ eRegistry.controller('DataEntryController',
 
     $scope.dataElementEditable = function(prStDe){
         if($scope.eventEditable()){
-            if($scope.assignedFields[$scope.currentEvent.event][prStDe.dataElement.id]) return false;
+            if($scope.assignedFields[$scope.currentEvent.event] && $scope.assignedFields[$scope.currentEvent.event][prStDe.dataElement.id]) return false;
             return true;
         }
         return false;
