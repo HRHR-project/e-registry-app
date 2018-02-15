@@ -1462,9 +1462,15 @@ eRegistry.controller('DataEntryController',
                     //if the element it grouped, we only add a prStDe for the group element:
                     if( !$scope.currentStage.multiSelectGroups[dataElementGroup.id] ) {
                         $scope.currentStage.multiSelectGroups[dataElementGroup.id] = $scope.prStDes[dataElementGroup.id] =
-                            {dataElement:{valueType:'MULTI_SELECT_GROUP',displayName:dataElementGroup.displayName,id:dataElementGroup.id},
-                             dataElements: []};
-                        //-------------
+                        {dataElement:{valueType:'MULTI_SELECT_GROUP',displayName:dataElementGroup.displayName,id:dataElementGroup.id}, dataElements: []};
+                        
+                        //for folkehelsa                        
+                        if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "z2OCjflFLxa") {
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occured during this particular pregnancy or delivery.";
+                        } else if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "XKV79R3LG5J") {
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occurred during this particular postpartum period.";
+                        }
+                        
                         $scope.currentStage.programStageDataElements.splice(i+1+groupsAdded,0,$scope.currentStage.multiSelectGroups[dataElementGroup.id]);
                         groupsAdded++;
                     }                    
