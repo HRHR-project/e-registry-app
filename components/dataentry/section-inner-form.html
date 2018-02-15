@@ -150,7 +150,19 @@
                 <input type="text" class="form-control" value={{currentEvent[prStDes[de.dataElement.id].dataElement.id]}}>
             </div>
         </div>
-
+        <div ng-switch-when="AGE">
+            <h1>{{prStDes}}</h1>
+            <d2-age id="{{prStDes[de.dataElement.id].dataElement.id}}"
+                    d2-age-saved="currentElement.saved && currentElement.id === prStDe.dataElement.id"
+                    d2-object="currentEvent"
+                    d2-required="prStDes[de.dataElement.id].compulsory"
+                    d2-disabled="!dataElementEditable(prStDe)"
+                    d2-function="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)">
+            </d2-age>
+            <div class="not-for-screen">
+                <input type="text" class="form-control" value={{currentEvent[prStDes[de.dataElement.id].dataElement.id]}}>
+            </div>
+        </div>
         <div ng-switch-when="BOOLEAN">
             <div class="hideInPrint">
                 <dhis2-radio-button

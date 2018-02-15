@@ -147,6 +147,18 @@
                 <input type="text" class="form-control" value={{currentEvent[prStDe.dataElement.id]}}>
             </div>
         </div>
+        <div ng-switch-when="AGE">
+            <d2-age id="{{prStDe.dataElement.id}}" 
+                    d2-age-saved="currentElement.saved && currentElement.id === prStDe.dataElement.id"
+                    d2-object="currentEvent" 
+                    d2-required="prStDe.compulsory || mandatoryFields[currentEvent.event][prStDe.dataElement.id]"
+                    d2-disabled="selectedEnrollment.status !== 'ACTIVE' || currentEvent.editingNotAllowed || assignedFields[currentEvent.event][prStDe.dataElement.id]"
+                    d2-function="saveDatavalue(prStDe, innerForm.foo)">                                                    
+            </d2-age>
+            <div class="not-for-screen">
+                <input type="text" class="form-control" value={{currentEvent[prStDe.dataElement.id]}}>
+            </div>
+        </div>
         <div ng-switch-when="LONG_TEXT">
             <div class="hideInPrint">
                 <textarea rows="3"
