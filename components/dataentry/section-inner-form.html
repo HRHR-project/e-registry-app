@@ -2,21 +2,21 @@
     <div ng-if="prStDes[de.dataElement.id].dataElement.optionSetValue">
         <div class="hideInPrint">
             <div ng-if="!selectedProgram.dataEntryMethod || optionSets[prStDes[de.dataElement.id].dataElement.optionSet.id].options.length >= 7">
+                <h1>{{}}</h1>
                 <ui-select  ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                             theme="select2"
                             ng-required={{prStDes[de.dataElement.id].compulsory}}
                             handle-dirty
                             handle-dirty-type="select"
-                            ng-disabled="!dataElementEditable(prStDe)"
+                            ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                             name="foo"
                             on-select="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
-                            ng-style="{'width':'100%'}"/>
+                            style="width: 100%;">
                     <ui-select-match allow-clear="true" ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,true, currentEvent)"  class="form-control-ui-select"  placeholder="{{'select_or_search' | translate}}">{{$select.selected.displayName  || $select.selected}}</ui-select-match>
                     <ui-select-choices  repeat="option.displayName as option in optionSets[prStDes[de.dataElement.id].dataElement.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
                         <span ng-bind-html="option.displayName | highlight: $select.search"></span>
                     </ui-select-choices>
                 </ui-select>
-
             </div>
             <div ng-if="selectedProgram.dataEntryMethod && optionSets[prStDes[de.dataElement.id].dataElement.optionSet.id].options.length < 7">
                 <label>
@@ -27,7 +27,7 @@
                                name="foo"
                                ng-required={{prStDes[de.dataElement.id].compulsory}}                               
                                handle-dirty
-                               ng-disabled="!dataElementEditable(prStDe)"
+                               ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                                ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                                ng-change="saveDatavalue(prStDes[de.dataElement.id])"
                                value=""> {{'no_value' | translate}}<br>
@@ -42,7 +42,7 @@
                                    name="foo"
                                    ng-required={{prStDes[de.dataElement.id].compulsory}}                                   
                                    handle-dirty
-                                   ng-disabled="!dataElementEditable(prStDe)"
+                                   ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                                    ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                                    ng-change="saveDatavalue(prStDes[de.dataElement.id])"
                                    value={{option.displayName}}> {{option.displayName}}
@@ -64,7 +64,7 @@
                            ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                            ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                            ng-required={{prStDes[de.dataElement.id].compulsory}}
-                           ng-disabled="!dataElementEditable(prStDe)"
+                           ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                            ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                            on-editing-css-class="form-element-changing"
                            handle-dirty
@@ -83,7 +83,7 @@
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                        on-editing-css-class="form-element-changing"
                        handle-dirty
@@ -102,7 +102,7 @@
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                        on-editing-css-class="form-element-changing"
                        handle-dirty
@@ -121,7 +121,7 @@
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                        on-editing-css-class="form-element-changing"
                        handle-dirty
@@ -140,7 +140,7 @@
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                        on-editing-css-class="form-element-changing"
                        handle-dirty
@@ -155,7 +155,7 @@
             <div class="hideInPrint">
                 <dhis2-radio-button
                     ng-required="prStDes[de.dataElement.id].compulsory"
-                    dh-disabled="!dataElementEditable(prStDe)"      
+                    dh-disabled="!dataElementEditable(prStDes[de.dataElement.id])"      
                     dh-use-external-button-color-exp="true"
                     dh-button-color-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id, false, currentEvent, value, true)"
                     dh-id="de.dataElement.id"   
@@ -182,7 +182,7 @@
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        blur-or-change="saveDatavalue(prStDes[de.dataElement.id])"
                        handle-dirty
                        name="foo"/>
@@ -209,7 +209,7 @@
                        class="form-control-checkbox"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        ng-change="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                        handle-dirty
                        name="foo"/>
@@ -250,7 +250,7 @@
                               ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                               ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                               ng-required={{prStDes[de.dataElement.id].compulsory}}
-                              ng-disabled="!dataElementEditable(prStDe)"
+                              ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                               ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                               on-editing-css-class="form-element-changing"
                               handle-dirty
@@ -267,7 +267,7 @@
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        ng-blur="saveDatavalue(prStDes[de.dataElement.id], innerForm.foo)"
                        on-editing-css-class="form-element-changing"
                        handle-dirty
@@ -320,7 +320,7 @@
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                        ng-required={{prStDes[de.dataElement.id].compulsory}}
-                       ng-disabled="!dataElementEditable(prStDe)"
+                       ng-disabled="!dataElementEditable(prStDes[de.dataElement.id])"
                        ng-blur="saveDatavalue(prStDes[de.dataElement.id])"
                        on-editing-css-class="form-element-changing"
                        handle-dirty
