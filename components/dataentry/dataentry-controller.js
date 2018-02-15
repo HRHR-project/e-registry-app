@@ -3683,7 +3683,7 @@ eRegistry.controller('DataEntryController',
 
     $scope.dataElementEditable = function(prStDe){
         if($scope.eventEditable()){
-            //if($scope.assignedFields[$scope.currentEvent.event] && $scope.assignedFields[$scope.currentEvent.event][prStDe.dataElement.id]) return false;
+            if($scope.assignedFields[$scope.currentEvent.event] && $scope.assignedFields[$scope.currentEvent.event][prStDe.dataElement.id]) return false;
             return true;
         }
         return false;
