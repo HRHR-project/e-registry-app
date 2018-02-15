@@ -2,7 +2,6 @@
     <div ng-if="prStDes[de.dataElement.id].dataElement.optionSetValue">
         <div class="hideInPrint">
             <div ng-if="!selectedProgram.dataEntryMethod || optionSets[prStDes[de.dataElement.id].dataElement.optionSet.id].options.length >= 7">
-                <h1>{{}}</h1>
                 <ui-select  ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
                             theme="select2"
                             ng-required={{prStDes[de.dataElement.id].compulsory}}
