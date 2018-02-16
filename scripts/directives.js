@@ -775,6 +775,113 @@ eRegistryDirectives.directive('stringToNumber', function () {
         };
 }])
 
+.directive('erUsersInput', function(){
+    return {
+        restrict: 'E',
+        templateUrl: 'views/users-input.html',
+        scope: {
+            d2Model: '=',
+            d2ModelId: '=',
+            d2Required: '=',
+            d2Disabled: '=',
+            d2SelectedOrgunitId: '=',
+            d2SaveMethode: '&',
+            d2SaveMethodeParameter1: '=',
+            d2SaveMethodeParameter2: '=',
+            d2MaxOptionSize: '=',
+            d2AttributeData: '@',
+            d2SelectedProgramId: '@',
+            d2SelectedTeiId: '@'
+            
+        },
+        link: function (scope, element, attrs) {
+
+        },
+        controller: function($scope, UsersService, OrgUnitFactory) {
+            $scope.$watch("d2SelectedOrgunitId", function(newValue, oldValue){
+                $scope.allUsers = [];        
+                $scope.temp = UsersService.getAll().then(function(users){
+                    var temp = [];
+                    if($scope.d2SelectedOrgunitId) {
+                        var relatedOrgunits = OrgUnitFactory.get($scope.d2SelectedOrgunitId).then(function(selectedOrgUnit) {
+                            angular.forEach(users, function(user){  
+                                //Hardcoded for Bangladesh (Checks if the user has a certain role).
+                                if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
+                                    angular.forEach(user.orgUnits, function(orgUnit){  
+                                        if(selectedOrgUnit.organisationUnits[0].id === orgUnit.id && $scope.allUsers.indexOf(user) === -1) {
+                                            $scope.allUsers.push(user);
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    //No OrgUnit selected.
+                    } else {
+                        //Hardcoded for Bangladesh (Checks if the user has a certain role).
+                        angular.forEach(users, function(user){  
+                            if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
+                                $scope.allUsers.push(user);
+                            }
+                        });
+                    }
+                });
+            });
+
+            $scope.saveOption = function() {
+                $scope.d2SaveMethode()($scope.d2SaveMethodeParameter1, $scope.d2SaveMethodeParameter2);
+            };
+        }
+
+    };
+})
+
+.directive('erUsersInputFind', function(){
+    return {
+        restrict: 'E',
+        templateUrl: 'views/find-user.html',
+        scope: {
+            d2Model: '=',
+            d2MaxOptionSize: '=',
+            d2SelectedOrgunitId: '='
+            
+        },
+        link: function (scope, element, attrs) {
+
+        },
+        controller: function($scope, UsersService, OrgUnitFactory) {
+            
+            $scope.$watch("d2SelectedOrgunitId", function(newValue, oldValue){
+                $scope.allUsers = [];        
+                $scope.temp = UsersService.getAll().then(function(users){
+                    var temp = [];
+                    if($scope.d2SelectedOrgunitId) {
+                        var relatedOrgunits = OrgUnitFactory.get($scope.d2SelectedOrgunitId).then(function(selectedOrgUnit) {
+                            angular.forEach(users, function(user){
+                                //Hardcoded for Bangladesh (Checks if the user has a certain role).
+                                if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
+                                    angular.forEach(user.orgUnits, function(orgUnit){  
+                                        if(selectedOrgUnit.organisationUnits[0].id === orgUnit.id && $scope.allUsers.indexOf(user) === -1) {
+                                            $scope.allUsers.push(user);
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    //No OrgUnit selected.
+                    } else {
+                        //Hardcoded for Bangladesh (Checks if the user has a certain role).
+                        angular.forEach(users, function(user){  
+                            if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
+                                $scope.allUsers.push(user);
+                            }
+                        });
+                    }
+                });
+            });
+        }
+    };
+})
+
 .directive('handleDirty', [function(){
         return {
             restrict: 'A',            

@@ -37,7 +37,7 @@ eRegistry.controller('RegistrationController',
     $scope.assignedFields = [];
 
     //Placeholder till proper settings for time is implemented. Currently hard coded to 12h format.
-    $scope.timeFormat = '12h';
+    $scope.timeFormat = '24h';
     
     $scope.helpTexts = {};
     

@@ -69,7 +69,7 @@ eRegistry.controller('DataEntryController',
 
 
     //Placeholder till proper settings for time is implemented. Currently hard coded to 12h format.
-    $scope.timeFormat = '12h';
+    $scope.timeFormat = '24h';
     
     var eventLockHours = 744; //Number of hours before event is locked after completing. In this case 31 days.
 

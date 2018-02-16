@@ -6,7 +6,7 @@
 
 /* Directives */
 var d2Directives = angular.module('d2Directives')
-.factory('selectedOrgUnit', function ($timeout) {
+.directive('selectedOrgUnit', function ($timeout) {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
@@ -43,7 +43,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2SetFocus', function ($timeout) {
+.directive('d2SetFocus', function ($timeout) {
 
     return {        
         scope: { trigger: '@d2SetFocus' },
@@ -59,7 +59,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2LeftBar', function (DHIS2BASEURL) {
+.directive('d2LeftBar', function (DHIS2BASEURL) {
 
     return {
         restrict: 'E',
@@ -82,7 +82,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('blurOrChange', function () {
+.directive('blurOrChange', function () {
 
     return function (scope, elem, attrs) {
         elem.calendarsPicker({
@@ -96,7 +96,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2Enter', function () {
+.directive('d2Enter', function () {
     return function (scope, element, attrs) {
         element.bind("keydown keypress", function (event) {
             if (event.which === 13) {
@@ -109,7 +109,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2PopOver', function ($compile, $templateCache, $translate) {
+.directive('d2PopOver', function ($compile, $templateCache, $translate) {
 
     return {
         restrict: 'EA',
@@ -142,7 +142,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2Sortable', function ($timeout) {
+.directive('d2Sortable', function ($timeout) {
 
     return {
         restrict: 'A',
@@ -193,7 +193,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('serversidePaginator', function factory(DHIS2BASEURL) {
+.directive('serversidePaginator', function directive(DHIS2BASEURL) {
 
     return {
         restrict: 'E',
@@ -204,7 +204,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2CustomDataEntryForm', function ($compile) {
+.directive('d2CustomDataEntryForm', function ($compile) {
     return{
         restrict: 'E',
         link: function (scope, elm, attrs) {
@@ -218,7 +218,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2CustomRegistrationForm', function ($compile) {
+.directive('d2CustomRegistrationForm', function ($compile) {
     return{
         restrict: 'E',
         link: function (scope, elm, attrs) {
@@ -233,7 +233,7 @@ var d2Directives = angular.module('d2Directives')
 })
 
 /* TODO: this directive access an element #contextMenu somewhere in the document. Looks like it has to be rewritten */
-.factory('d2ContextMenu', function () {
+.directive('d2ContextMenu', function () {
 
     return {
         restrict: 'A',
@@ -282,7 +282,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2Date', function (CalendarService, $parse) {
+.directive('d2Date', function (CalendarService, $parse) {
     return {
         restrict: 'A',
         require: 'ngModel',
@@ -351,194 +351,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2Time', function() {
-    return {
-        restrict: 'E',            
-        templateUrl: "./views/time-input.html",
-        scope: {      
-            timeModel: '=',
-            timeModelId: '=',     
-            timeRequired: '=',
-            timeDisabled: '=',
-            timeSaveMethode: '&',
-            timeSaveMethodeParameter1: '=',
-            timeSaveMethodeParameter2: '=',
-            timeDisablePopup: '=',
-            timeUseNotification: '=',
-            timeElement: '=',
-            timeFormat: '='
-
-        },
-        link: function (scope, element, attrs) {
-            
-        },
-        controller: function($scope, ModalService) {
-            $scope.use24 = false;
-            $scope.base = {};            
-            
-            $scope.saveTime = function() {
-                if(!$scope.timeModel[$scope.timeModelId] || $scope.timeModel[$scope.timeModelId].match(/^(\d\d:\d\d)$/)) {
-                    $scope.timeSaveMethode()($scope.timeSaveMethodeParameter1, $scope.timeSaveMethodeParameter2);
-                } else if (!$scope.timeDisablePopup) {
-                    var modalOptions = {
-                        headerText: 'warning',
-                        bodyText: 'wrong_time_format'
-                    };
-                    
-                    ModalService.showModal({},modalOptions);
-                    return;
-                }
-               
-            };
-
-            $scope.save12hTime = function(){
-                $scope.timeModel[$scope.timeModelId] = $scope.convertTo24h($scope.base.temp12hTime);
-                $scope.saveTime();
-
-            }
-            
-            $scope.setFormat = function (format) {
-                if(format === 'AM') {
-                    $scope.timeFormat = 'AM';
-                } else if(format === 'PM') {
-                    $scope.timeFormat = 'PM';
-                } else if(format === '24h') {
-                    $scope.timeFormat = '24h';
-                }
-            };
-
-            $scope.convertTo24h = function(time) {
-                if(!time) {
-                    return;
-                }
-                var timeSplit = time.split(':');
-                
-                if($scope.timeFormat === 'PM') {
-                    timeSplit[0] = parseInt(timeSplit[0]) + 12 + '';
-                }
-
-                if($scope.timeFormat === 'AM' && timeSplit[0] === '12') {
-                    timeSplit[0] = '00';
-                }
-
-                if($scope.timeFormat === 'PM' && timeSplit[0] === '24') {
-                    timeSplit[0] = '12';
-                }
-                return timeSplit[0] + ':' + timeSplit[1];
-            };
-
-            $scope.convertFrom24h = function(time) {
-                if(!time) {
-                    $scope.setFormat('AM');
-                    return;
-                }
-                var timeSplit = time.split(':');
-                if(timeSplit[0] > 12) {
-                    $scope.setFormat('PM');
-                    var addZero = timeSplit[0]%12 < 10 ? '0' : '';
-                    return addZero + timeSplit[0]%12 + ':' + timeSplit[1];
-                } else if(timeSplit[0] === '12') {
-                    $scope.setFormat('PM');
-                    return time;
-                } else {
-                    if(timeSplit[0] === '00') {
-                        timeSplit[0] = '12';
-                    }
-                    $scope.setFormat('AM');
-                    return timeSplit[0] + ':' + timeSplit[1];
-                }
-            };
-
-            $scope.getInputNotifcationClass = function(id, event){
-                if($scope.timeModel[$scope.timeModelId] && !$scope.timeModel[$scope.timeModelId].match(/^(\d\d:\d\d)$/)) {
-                    return 'form-control input-pending';
-                }
-
-                if($scope.timeElement && $scope.timeElement.id === id && $scope.timeElement.event && $scope.timeElement.event === event.event) {
-                    if($scope.timeElement.pending) {
-                        return 'form-control input-pending';
-                    }
-                    
-                    if($scope.timeElement.saved) {
-                        return 'form-control input-success';
-                    } else {
-                        return 'form-control input-error';
-                    }            
-                }  
-                return 'form-control';
-            };
-
-            $scope.base.temp12hTime = $scope.convertFrom24h($scope.timeModel[$scope.timeModelId]);
-        }
-    };
-})
-
-//These two validation directives should be moved to dhis2.angular.validations.js
-.factory("d2TimeValidator", function() {
-    return {
-        restrict: "A",         
-        require: "ngModel",         
-        link: function(scope, element, attrs, ngModel) {        	
-           
-            var isRequired = attrs.ngRequired === 'true';
-        	
-            ngModel.$validators.timeValidator = function(value) {
-                if(!value){
-                    return !isRequired;
-                }
-                return /^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/.test(value);                
-            };
-        }
-    };
-})
-
-.factory("d2TimeAmPmValidator", function() {
-    return {
-        restrict: "A",         
-        require: "ngModel",         
-        link: function(scope, element, attrs, ngModel) {        	
-           
-            var isRequired = attrs.ngRequired === 'true';
-
-            ngModel.$validators.timeValidator = function(value) {
-                if(!value){
-                    return !isRequired;
-                }
-                return /^(0[1-9]|1[0-2]):[0-5][0-9]$/.test(value);                
-            };
-        }
-    };
-})
-
-.factory("d2TimeParser", function() {
-    return {
-        restrict: "A",         
-        require: "ngModel",         
-        link: function(scope, element, attrs, ngModel) {
-            ngModel.$parsers.push(function(value){
-                if( /^(\d\d\d)$/.test(value)){
-                    var convertedValue = value.substring(0, 2) + ":" + value.charAt(2);
-                    ngModel.$setViewValue(convertedValue);
-                    ngModel.$commitViewValue();
-                    ngModel.$render();
-                    return convertedValue;
-                }
-
-                if(value.length > 5){
-                    var convertedValue = value.substring(0, 5);
-                    ngModel.$setViewValue(convertedValue);
-                    ngModel.$commitViewValue();
-                    ngModel.$render();
-                    return convertedValue;
-                }
-
-                return value;                
-            });
-        }
-    };
-})
-
-.factory('d2FileInput', function($translate, DHIS2EventService, DHIS2EventFactory, FileService, NotificationService){
+.directive('d2FileInput', function($translate, DHIS2EventService, DHIS2EventFactory, FileService, NotificationService){
     return {
         restrict: "A",
         scope: {
@@ -587,7 +400,7 @@ var d2Directives = angular.module('d2Directives')
     };    
 })
 
-.factory('d2FileInputDelete', function($parse, $timeout, $translate, FileService, NotificationService){
+.directive('d2FileInputDelete', function($parse, $timeout, $translate, FileService, NotificationService){
     return {
         restrict: "A",
         link: function (scope, element, attrs) {
@@ -613,114 +426,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2UsersInput', function(){
-    return {
-        restrict: 'E',
-        templateUrl: 'views/users-input.html',
-        scope: {
-            d2Model: '=',
-            d2ModelId: '=',
-            d2Required: '=',
-            d2Disabled: '=',
-            d2SelectedOrgunitId: '=',
-            d2SaveMethode: '&',
-            d2SaveMethodeParameter1: '=',
-            d2SaveMethodeParameter2: '=',
-            d2MaxOptionSize: '=',
-            d2AttributeData: '@',
-            d2SelectedProgramId: '@',
-            d2SelectedTeiId: '@'
-            
-        },
-        link: function (scope, element, attrs) {
-
-        },
-        controller: function($scope, UsersService, OrgUnitFactory) {
-            $scope.$watch("d2SelectedOrgunitId", function(newValue, oldValue){
-                $scope.allUsers = [];        
-                $scope.temp = UsersService.getAll().then(function(users){
-                    var temp = [];
-                    if($scope.d2SelectedOrgunitId) {
-                        var relatedOrgunits = OrgUnitFactory.get($scope.d2SelectedOrgunitId).then(function(selectedOrgUnit) {
-                            angular.forEach(users, function(user){  
-                                //Hardcoded for Bangladesh (Checks if the user has a certain role).
-                                if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
-                                    angular.forEach(user.orgUnits, function(orgUnit){  
-                                        if(selectedOrgUnit.organisationUnits[0].id === orgUnit.id && $scope.allUsers.indexOf(user) === -1) {
-                                            $scope.allUsers.push(user);
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                    //No OrgUnit selected.
-                    } else {
-                        //Hardcoded for Bangladesh (Checks if the user has a certain role).
-                        angular.forEach(users, function(user){  
-                            if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
-                                $scope.allUsers.push(user);
-                            }
-                        });
-                    }
-                });
-            });
-
-            $scope.saveOption = function() {
-                $scope.d2SaveMethode()($scope.d2SaveMethodeParameter1, $scope.d2SaveMethodeParameter2);
-            };
-        }
-
-    };
-})
-
-.factory('d2UsersInputFind', function(){
-    return {
-        restrict: 'E',
-        templateUrl: 'views/find-user.html',
-        scope: {
-            d2Model: '=',
-            d2MaxOptionSize: '=',
-            d2SelectedOrgunitId: '='
-            
-        },
-        link: function (scope, element, attrs) {
-
-        },
-        controller: function($scope, UsersService, OrgUnitFactory) {
-            
-            $scope.$watch("d2SelectedOrgunitId", function(newValue, oldValue){
-                $scope.allUsers = [];        
-                $scope.temp = UsersService.getAll().then(function(users){
-                    var temp = [];
-                    if($scope.d2SelectedOrgunitId) {
-                        var relatedOrgunits = OrgUnitFactory.get($scope.d2SelectedOrgunitId).then(function(selectedOrgUnit) {
-                            angular.forEach(users, function(user){
-                                //Hardcoded for Bangladesh (Checks if the user has a certain role).
-                                if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
-                                    angular.forEach(user.orgUnits, function(orgUnit){  
-                                        if(selectedOrgUnit.organisationUnits[0].id === orgUnit.id && $scope.allUsers.indexOf(user) === -1) {
-                                            $scope.allUsers.push(user);
-                                        }
-                                    });
-                                }
-                            });
-                        });
-                    //No OrgUnit selected.
-                    } else {
-                        //Hardcoded for Bangladesh (Checks if the user has a certain role).
-                        angular.forEach(users, function(user){  
-                            if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
-                                $scope.allUsers.push(user);
-                            }
-                        });
-                    }
-                });
-            });
-        }
-    };
-})
-
-.factory('d2Audit', function (CurrentSelection, MetaDataFactory,DHIS2BASEURL ) {
+.directive('d2Audit', function (CurrentSelection, MetaDataFactory,DHIS2BASEURL ) {
     return {
         restrict: 'E',
         template: '<span class="hideInPrint audit-icon" title="{{\'audit_history\' | translate}}" data-ng-click="showAuditHistory()">' +
@@ -777,7 +483,7 @@ var d2Directives = angular.module('d2Directives')
         }
     };
 })
-.factory('d2RadioButton', function (DHIS2BASEURL){
+.directive('d2RadioButton', function (DHIS2BASEURL){
     return {
         restrict: 'E',
         templateUrl: DHIS2BASEURL+'/dhis-web-commons/angular-forms/radio-button.html',
@@ -905,7 +611,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('dhis2Deselect', function ($document) {
+.directive('dhis2Deselect', function ($document) {
     return {
         restrict: 'A',
         scope: {
@@ -963,7 +669,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2OrgUnitTree', function(DHIS2BASEURL){
+.directive('d2OrgUnitTree', function(DHIS2BASEURL){
     return {
         restrict: 'E',            
         templateUrl: DHIS2BASEURL+"/dhis-web-commons/angular-forms/orgunit-input.html",
@@ -1012,7 +718,7 @@ var d2Directives = angular.module('d2Directives')
     };
 })
 
-.factory('d2Map', function(DHIS2BASEURL){
+.directive('d2Map', function(DHIS2BASEURL){
     return {
         restrict: 'E',            
         templateUrl: DHIS2BASEURL+"/dhis-web-commons/angular-forms/coordinate-input.html",

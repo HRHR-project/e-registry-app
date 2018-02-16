@@ -25,10 +25,10 @@
                             </select>
                         </div>
                         <div ng-switch-when="USERNAME">
-                            <d2-users-input-find d2-model="attribute.value"
+                            <er-users-input-find d2-model="attribute.value"
                                                  d2-max-option-size="maxOptionSize"
                                                  d2-selected-orgunit-id="selectedSearchingOrgUnit.id">
-                            </d2-users-input-find>
+                            </er-users-input-find>
                         </div>
                         <div ng-switch-when="ORGANISATION_UNIT" ng-init="setSelectedSearchingOrgUnit(null)">
                             <div id="searchOuTree">
