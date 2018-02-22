@@ -424,11 +424,15 @@ eRegistry.controller('DataEntryController',
                                     WPgz41MctSW:true, HaOwL7bIdrs: true, MO39jKgz2VA: true, E8Jetf3Q90U: true};
             $scope.topLineStageFilter = {};
             $scope.headerStages = [];
-            if(!$scope.isBangladesh){
-                $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
-            }else{
-                $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", w0pwmNYugKX: "dqF3sxJKBls", FRSZV43y35y: "fSE8JyGdsV6"};
-            }
+            SystemSettingsService.getCountry().then(function(response){
+                if(response === 'bangladesh') {
+                    $scope.isBangladesh = true;
+                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", w0pwmNYugKX: "dqF3sxJKBls", FRSZV43y35y: "fSE8JyGdsV6"};
+                } else {
+                    $scope.isBangladesh = false;
+                    $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
+                }
+            });
         } else {
             $scope.bottomLineItems = $scope.mainMenuConfig.bottomLineItems;
             $scope.neverShowItems = $scope.mainMenuConfig.neverShowItems;
