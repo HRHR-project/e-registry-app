@@ -7,7 +7,7 @@
 <div class="row" ng-if="displayCustomForm !== 'TABLE' && displayCustomForm !== 'COMPARE' && !currentStage.periodType">
 
     <div ng-class="{true: 'col-md-12', false: 'col-md-6'} [currentStage.hideDueDate]">
-        {{currentEvent.excecutionDateLabel}}
+        {{currentEvent.executionDateLabel}}
         <input type="text"
                placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
                class="form-control hideInPrint" 

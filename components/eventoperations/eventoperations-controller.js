@@ -43,7 +43,7 @@ eRegistry.controller('EventOperationsController',
                               var newEvent = ev;
                               newEvent.orgUnitName = dummyEvent.orgUnitName;
                               newEvent.displayName = dummyEvent.displayName;
-                              newEvent.excecutionDateLabel = dummyEvent.excecutionDateLabel;
+                              newEvent.executionDateLabel = dummyEvent.executionDateLabel;
                               newEvent.sortingDate = ev.eventDate ? ev.eventDate : ev.dueDate,
                               newEvent.statusColor = EventUtils.getEventStatusColor(ev);
                               newEvent.eventDate = DateUtils.formatFromApiToUser(ev.eventDate);

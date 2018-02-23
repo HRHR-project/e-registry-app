@@ -5,10 +5,10 @@
         <div class="row" ng-if="!currentStage.periodType">
 
             <div class="col-md-6">
-                {{currentEvent.excecutionDateLabel}}
-                <a href ng-if="DescriptionTextForEventProperty(currentEvent, EventProperties.executionDate) !== ''" Title="{{currentEvent.excecutionDateLabelDescription}}" ng-init="showHelpText[currentEvent.excecutionDateLabel] = false;" ng-click="showHelpText[currentEvent.excecutionDateLabel] = !showHelpText[currentEvent.excecutionDateLabel]">
+                {{currentEvent.executionDateLabel}}
+                <a href ng-if="DescriptionTextForEventProperty(currentEvent, EventProperties.executionDate) !== ''" Title="{{currentEvent.executionDateLabelDescription}}" ng-init="showHelpText[currentEvent.executionDateLabel] = false;" ng-click="showHelpText[currentEvent.executionDateLabel] = !showHelpText[currentEvent.executionDateLabel]">
                         <span class="glyphicon glyphicon-info-sign" ></span>
-                        <span ng-show="showHelpText[currentEvent.excecutionDateLabel]" >{{currentEvent.excecutionDateLabelDescription}}</span>
+                        <span ng-show="showHelpText[currentEvent.executionDateLabel]" >{{currentEvent.executionDateLabelDescription}}</span>
                 </a>
                 <input type="text"
                        placeholder="{{dhis2CalendarFormat.keyDateFormat}}"

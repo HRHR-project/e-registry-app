@@ -44,7 +44,7 @@
             </div>
             <div ng-if="isNewEvent" class="form-group">
                 <div class="col-sm-11">
-                    <label class="col-sm-3 control-label" style="padding-left: 0px">{{model.selectedStage.excecutionDateLabel}}</label>
+                    <label class="col-sm-3 control-label" style="padding-left: 0px">{{model.selectedStage.executionDateLabel}}</label>
                     <div class="col-sm-9">
                         <input type="text" 
                                class="form-control" 
@@ -81,7 +81,7 @@
                 <div class="alert alert-warning" ng-if="orgUnitError"><span>Please select an organization unit</span></div>
                 <hr/>
                 <div class="input-group">
-                    <label for="referralDueDate"><strong>{{dhis2Event.excecutionDateLabel}}</strong></label>
+                    <label for="referralDueDate"><strong>{{dhis2Event.executionDateLabel}}</strong></label>
                     <input type="text" 
                        placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
                        id="referralDueDate"

@@ -73,7 +73,7 @@ eRegistry.controller('EventCreationController',
         dummyEvent = EventUtils.createDummyEvent(eventsByStage[stage.id], tei, program, stage, orgUnit, enrollment, $scope.scheduleDateDataElement);
         
         $scope.newEvent = {programStage: stage};
-        $scope.dhis2Event = {eventDate: $scope.isScheduleEvent ? '' : DateUtils.getToday(), dueDate: dummyEvent.dueDate, excecutionDateLabel : dummyEvent.excecutionDateLabel, displayName: dummyEvent.displayName, invalid: true};        
+        $scope.dhis2Event = {eventDate: $scope.isScheduleEvent ? '' : DateUtils.getToday(), dueDate: dummyEvent.dueDate, executionDateLabel : dummyEvent.executionDateLabel, displayName: dummyEvent.displayName, invalid: true};        
         
         ////custom code for folkehelsa. Set empty eventDate if selectedStage is previous pregnancies
         if($scope.model.selectedStage.id === 'PUZaKR0Jh2k' ||

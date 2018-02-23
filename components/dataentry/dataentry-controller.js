@@ -826,7 +826,7 @@ eRegistry.controller('DataEntryController',
                     var eventStage = $scope.stagesById[dhis2Event.programStage];
                     if (angular.isObject(eventStage)) {
                         dhis2Event.displayName = eventStage.displayName;
-                        dhis2Event.excecutionDateLabel = eventStage.excecutionDateLabel ? eventStage.excecutionDateLabel : $translate.instant('report_date');
+                        dhis2Event.executionDateLabel = eventStage.executionDateLabel ? eventStage.executionDateLabel : $translate.instant('report_date');
                         dhis2Event.dueDate = DateUtils.formatFromApiToUser(dhis2Event.dueDate);
                         dhis2Event.sortingDate = dhis2Event.dueDate;
 
@@ -1216,7 +1216,7 @@ eRegistry.controller('DataEntryController',
                             var newEvent = ev;
                             newEvent.orgUnitName = dummyEvent.orgUnitName;
                             newEvent.displayName = dummyEvent.displayName;
-                            newEvent.excecutionDateLabel = dummyEvent.excecutionDateLabel;
+                            newEvent.executionDateLabel = dummyEvent.executionDateLabel;
                             newEvent.sortingDate = ev.eventDate ? ev.eventDate : ev.dueDate,
                             newEvent.statusColor = EventUtils.getEventStatusColor(ev);
                             newEvent.eventDate = DateUtils.formatFromApiToUser(ev.eventDate);
@@ -3567,9 +3567,9 @@ eRegistry.controller('DataEntryController',
 
         if(angular.isDefined(event)){
             if(eventProperty === $scope.EventProperties.executionDate){
-                if(angular.isDefined(event.excecutionDateLabel) && event.excecutionDateLabel.toUpperCase() === "DOb/Ab".toUpperCase()){
-                    event.excecutionDateLabelDescription = "Date of birth/Date of Abortion";
-                    return event.excecutionDateLabelDescription;
+                if(angular.isDefined(event.executionDateLabel) && event.executionDateLabel.toUpperCase() === "DOb/Ab".toUpperCase()){
+                    event.executionDateLabelDescription = "Date of birth/Date of Abortion";
+                    return event.executionDateLabelDescription;
                 }
             }
         }        

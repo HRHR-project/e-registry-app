@@ -1816,7 +1816,7 @@ eRegistryServices.factory('ERStorageService', function(){
                               orgUnit: orgUnit.id,
                               orgUnitName: orgUnit.displayName,
                               displayName: programStage.displayName,
-                              excecutionDateLabel: programStage.excecutionDateLabel ? programStage.excecutionDateLabel : $translate.instant('report_date'),
+                              executionDateLabel: programStage.executionDateLabel ? programStage.executionDateLabel : $translate.instant('report_date'),
                               enrollmentStatus: 'ACTIVE',
                               enrollment: enrollment.enrollment,
                               status: 'SCHEDULED'};
