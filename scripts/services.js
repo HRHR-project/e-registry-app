@@ -849,6 +849,51 @@ eRegistryServices.factory('ERStorageService', function(){
             });
             return def.promise;    
         },
+        getByTrackedEntityType: function(trackedEntityType){
+            var def = $q.defer();
+            this.getAll().then(function(atts){
+
+                if(trackedEntityType && trackedEntityType.id){
+                    var attributes = [];
+                    var trackedEntityTypeAttributes = [];
+                    angular.forEach(atts, function(attribute){
+                        attributes[attribute.id] = attribute;
+                    });
+
+                    angular.forEach(trackedEntityType.trackedEntityTypeAttributes, function(teAttribute){
+                        var att = attributes[teAttribute.trackedEntityAttribute.id];
+                        if (att) {
+                            att.mandatory = teAttribute.mandatory;
+                            if (teAttribute.displayInList) {
+                                att.displayInListNoProgram = true;
+                            }
+                            if(teAttribute.renderOptionsAsRadio){
+                                att.renderOptionsAsRadio = teAttribute.renderOptionsAsRadio;
+                            }
+                            if(teAttribute.searchable)
+                            {
+                                att.searchable = teAttribute.searchable;
+                            }
+                            trackedEntityTypeAttributes.push(att);
+                        }
+                    });
+
+                    def.resolve(trackedEntityTypeAttributes);
+                }
+                else{
+                    var attributes = [];
+                    angular.forEach(atts, function(attribute){
+                        if (attribute.displayInListNoProgram) {
+                            attributes.push(attribute);
+                        }
+                    });
+
+                    attributes = orderByFilter(attributes, '-sortOrderInListNoProgram').reverse();
+                    def.resolve(attributes);
+                }
+            });
+            return def.promise;
+        },
         getWithoutProgram: function(){   
             
             var def = $q.defer();
@@ -1526,7 +1571,20 @@ eRegistryServices.factory('ERStorageService', function(){
 })
 
 .service('TEIGridService', function(OptionSetService, CurrentSelection, DateUtils, $translate, $filter, SessionStorageService){
-    
+    var setShowGridColumn = function(column, columnIndex, config, savedGridColumnsKeyMap){
+        if(config.showAll){
+            column.show = true;
+        }
+        else if(savedGridColumnsKeyMap && savedGridColumnsKeyMap[column.id]){
+            column.show = savedGridColumnsKeyMap[column.id].show;
+        }else if(config.defaultRange && config.defaultRange.start && config.defaultRange.end){
+            if(columnIndex >= config.defaultRange.start && columnIndex <= config.defaultRange.end){
+                column.show = true;
+            }
+        }else{
+            column.show = false;
+        }
+    }
     return {
         format: function(grid, map, optionSets, invalidTeis, isFollowUp){
             
@@ -1545,8 +1603,6 @@ eRegistryServices.factory('ERStorageService', function(){
             }
 
             var entityList = {own: [], other: []};
-            
-            var attributes = CurrentSelection.getAttributesById();
             
             angular.forEach(grid.rows, function(row){
                 if(invalidTeis.indexOf(row[0]) === -1 ){
@@ -1643,6 +1699,28 @@ eRegistryServices.factory('ERStorageService', function(){
                 }
             });
             return {columns: columns, filterTypes: filterTypes, filterText: filterText};
+        },
+        makeGridColumns: function(attributes,config, savedGridColumnsKeyMap){
+            var gridColumns = [
+                {id: 'orgUnitName', displayName: $translate.instant('registering_unit'), show: false, valueType: 'TEXT'},
+                {id: 'created', displayName: $translate.instant('registration_date'), show: false, valueType: 'DATE'},
+                {id: 'inactive', displayName: $translate.instant('inactive'), show: false, valueType: 'BOOLEAN'}
+            ];
+            setShowGridColumn(gridColumns[0],0, config, savedGridColumnsKeyMap);
+            setShowGridColumn(gridColumns[1],1, config, savedGridColumnsKeyMap);
+            setShowGridColumn(gridColumns[2],2, config, savedGridColumnsKeyMap);
+
+            var gridColumnIndex = 2;
+            
+            angular.forEach(attributes, function(attr){
+                if(attr.displayInListNoProgram){
+                    gridColumnIndex++;
+                    var gridColumn = {id: attr.id, displayName: attr.displayName, show: false, valueType: attr.valueType};
+                    setShowGridColumn(gridColumn,gridColumnIndex, config, savedGridColumnsKeyMap);
+                    gridColumns.push(gridColumn);
+                }
+            });
+            return gridColumns;
         },
         getData: function(rows, columns){
             var data = [];
@@ -1963,7 +2041,9 @@ eRegistryServices.factory('ERStorageService', function(){
     var programSearchConfigsById = {};
     var trackedEntityTypeSearchConfigsById = {};
     var defaultOperators = OperatorFactory.defaultOperators;
+    var searchScopes = { PROGRAM: "PROGRAM", TET: "TET"};
 
+    this.getSearchScopes = function(){ return searchScopes;}
     var makeSearchConfig = function(dimensionAttributes, minAttributesRequiredToSearch,orgUnitUniqueAsSearchGroup){
         var searchConfig = { searchGroups: [], searchGroupsByAttributeId: {}};
         if(dimensionAttributes){
@@ -1974,7 +2054,7 @@ eRegistryServices.factory('ERStorageService', function(){
                     searchConfig.searchGroupsByAttributeId[attr.id] = {};
                     if(attr.unique){
                         var uniqueAttr = attr.orgunitScope ? angular.copy(attr) : attr;
-                        uniqueAttr.operator = "Eq";
+                        uniqueAttr.operator = ["DATETIME", "NUMBER", "DATE"].includes(uniqueAttr.valueType) ? "Is" : "Eq";
                         var uniqueSearchGroup = {
                             id: dhis2.util.uid(),
                             uniqueGroup: true,
@@ -2002,7 +2082,7 @@ eRegistryServices.factory('ERStorageService', function(){
         return searchConfig;
     }
 
-    var getSearchParams = function(searchGroup, program,trackedEntityType, orgUnit,pager){
+    var getSearchParams = function(searchGroup, program,trackedEntityType, orgUnit,pager, searchScope){
         var uniqueSearch = false;
         var numberOfSetAttributes = 0;
         var query = {url: null, hasValue: false};
@@ -2115,12 +2195,8 @@ eRegistryServices.factory('ERStorageService', function(){
             });
         }
         if(query.hasValue &&(uniqueSearch || numberOfSetAttributes >= searchGroup.minAttributesRequiredToSearch)){
-            var programOrTETUrl = "";
-            if(program){
-                programOrTETUrl = "program="+program.id;
-            }else{
-                programOrTETUrl = "trackedEntityType="+trackedEntityType.id;
-            }
+            var programOrTETUrl = searchScope === searchScopes.PROGRAM ? "program="+program.id :"trackedEntityType="+trackedEntityType.id;
+
             var searchOrgUnit = searchGroup.orgUnit ? searchGroup.orgUnit : orgUnit;
             return { orgUnit: searchOrgUnit, ouMode: searchGroup.ouMode.name, programOrTETUrl: programOrTETUrl, queryUrl: query.url, pager: pager, uniqueSearch: uniqueSearch };
         }
@@ -2155,8 +2231,27 @@ eRegistryServices.factory('ERStorageService', function(){
         return def.promise;
     }
 
-    this.searchCount = function(searchGroup, program, trackedEntityType, orgUnit, pager){
-        var params = getSearchParams(searchGroup, program, trackedEntityType, orgUnit, pager);
+    this.programScopeSearchCount = function(searchGroup,tetSearchGroup, program, trackedEntityType, orgUnit, pager){
+        var params = getSearchParams(searchGroup, program, trackedEntityType, orgUnit, pager, searchScopes.PROGRAM);
+        if(params){
+            return TEIService.searchCount(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
+                if(response){
+                    return response;
+                }else{
+                    return tetScopeSearchCount(tetSearchGroup, program, trackedEntityType, orgUnit, pager);
+                }
+                return 0;
+            },function(error){
+                return 0;
+            });
+        }else{
+            var def = $q.defer();
+            def.resolve(0);
+            return def.promise;
+        }
+    }
+    var tetScopeSearchCount = this.tetScopeSearchCount = function(searchGroup,tetSearchGroup, program, trackedEntityType, orgUnit, pager){
+        var params = getSearchParams(searchGroup, program, trackedEntityType, orgUnit, pager, searchScopes.TET);
         if(params){
             return TEIService.searchCount(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
                 if(response){
@@ -2172,16 +2267,96 @@ eRegistryServices.factory('ERStorageService', function(){
             return def.promise;
         }
     }
-    this.search = function(searchGroup, program,trackedEntityType, orgUnit, pager){
-        var params = getSearchParams(searchGroup, program, trackedEntityType, orgUnit, pager);
-        if(params){
-            var searchOrgUnit = searchGroup.orgUnit ? searchGroup.orgUnit : orgUnit;
-            return TEIService.search(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
-                if(response && response.rows && response.rows.length > 0){
-                    if(params.uniqueSearch) return { status: "UNIQUE", data: response };
-                    return { status: "MATCHES", data: response };
+    this.findValidTetSearchGroup = function(programSeachGroup,tetSearchConfig, attributesById){
+        for(var sg = 0; sg < tetSearchConfig.searchGroups.length; sg++){
+            var searchGroup = tetSearchConfig.searchGroups[sg];
+            for(var a=0; a < tetSearchConfig.searchGroups[sg].attributes.length; a++){
+                var attr = tetSearchConfig.searchGroups[sg].attributes[a];
+                var value = programSeachGroup[attr.id];
+                if(value){
+                    searchGroup[attr.id] = value;
                 }
-                return { status: "NOMATCH"};
+            }
+            if(this.isValidSearchGroup(searchGroup, attributesById)){
+                return searchGroup;
+            }
+        }
+    }
+
+    this.isValidSearchGroup = function(searchGroup, attributesById){
+        var nrOfSetAttributes = 0;
+        for(var key in searchGroup){
+            var attr = attributesById[key];
+            if(attr){
+                if(attr.valueType === "TEXT" && searchGroup[key] && searchGroup[key].value !== "") nrOfSetAttributes++;
+                else if(attr.valueType !== "TEXT" && attr.valueType === "TRUE_ONLY") nrOfSetAttributes++;
+                else if(attr.valueType !== "TEXT" && attr.valueType !== "TRUE_ONLY" && searchGroup[key]) nrOfSetAttributes++;
+            }
+        }
+        if(searchGroup.minAttributesRequiredToSearch > nrOfSetAttributes){
+            return false;
+        }
+        return true;
+    }
+
+    this.programScopeSearch = function(programSearchGroup, tetSearchGroup, program, trackedEntityType, orgUnit, pager){
+        var params = getSearchParams(programSearchGroup, program, trackedEntityType, orgUnit, pager, searchScopes.PROGRAM);
+        if(params){
+
+        }
+        return TEIService.search(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
+                if(response && response.rows && response.rows.length > 0){
+                    var result = { data: response, callingScope: searchScopes.PROGRAM, resultScope: searchScopes.PROGRAM };
+                    var def = $q.defer();
+                    if(params.uniqueSearch){
+                        result.status = "UNIQUE";
+                    }else{
+                        result.status = "MATCHES";
+                    }
+                    def.resolve(result);
+                    return def.promise;
+                }else{
+                    if(tetSearchGroup){
+                        return tetScopeSearch(tetSearchGroup, program, trackedEntityType, orgUnit, pager).then(function(result){
+                            result.callingScope = searchScopes.PROGRAM;
+                            return result;
+                        },function(){
+                            return {status: "NOMATCH"};
+                        });
+                    }else{
+                        var def = $q.defer();
+                        def.resolve({status: "NOMATCH"});
+                        return def.promise;
+                    }
+
+                }
+            },function(error){
+                var d = $q.defer();
+                if(error && error.data && error.data.message === "maxteicountreached"){
+                    d.resolve({ status: "TOOMANYMATCHES", data: null});
+                } 
+                else {
+                    d.reject(error);
+                }
+                return d.promise;
+            });
+
+    }
+    var tetScopeSearch = this.tetScopeSearch = function(tetSearchGroup, program,trackedEntityType, orgUnit, pager){
+        var params = getSearchParams(tetSearchGroup, program, trackedEntityType, orgUnit, pager, searchScopes.TET);
+        if(params){
+            return TEIService.search(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
+                var result = {data: response, callingScope: searchScopes.TET, resultScope: searchScopes.TET };
+                if(response && response.rows && response.rows.length > 0){
+                    if(params.uniqueSearch){
+                        result.status = "UNIQUE";
+                    }else{
+                        result.status = "MATCHES";
+                    }
+                }else{
+                    result.status = "NOMATCH";
+                }
+                return result;
             },function(error){
                 var d = $q.defer();
                 if(error && error.data && error.data.message === "maxteicountreached"){
@@ -2198,5 +2373,5 @@ eRegistryServices.factory('ERStorageService', function(){
             return def.promise;
         }
     }
-})
+});
 

@@ -3072,8 +3072,9 @@ var d2Services = angular.module('d2Services');
     })
 
 /* Factory for fetching OrgUnit */
-.factory('OrgUnitFactory', function($http, SessionStorageService, DHIS2URL) {    
+.factory('OrgUnitFactory', function($http, SessionStorageService, DHIS2URL,$q) {    
     var orgUnit, orgUnitPromise, rootOrgUnitPromise,orgUnitTreePromise;
+    var cachedAllOrgUnits;
     return {
         get: function(uid){            
             if( orgUnit !== uid ){
@@ -3084,11 +3085,16 @@ var d2Services = angular.module('d2Services');
             }
             return orgUnitPromise;
         },
-        getAll: function(){            
-            orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?' + '&fields=id,name,displayName,&paging=false' ).then(function(response){
+        getAll: function(){    
+            if(cachedAllOrgUnits){
+                var def = $q.defer();
+                def.resolve(cachedAllOrgUnits);
+                return def.promise;
+            }       
+            return $http.get( DHIS2URL+'/organisationUnits.json?' + '&fields=id,name,displayName,&paging=false' ).then(function(response){
+                cachedAllOrgUnits = response.data;
                 return response.data;
             });
-            return orgUnitPromise;
         },
 
         //Gets all related orgunits, based on the root(uid) orgunit.

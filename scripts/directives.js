@@ -864,11 +864,21 @@ eRegistryDirectives.directive('stringToNumber', function () {
             sortColumn: "=?teiSortColumn",
             gridColumns: "=?teiGridColumns",
             refetchData: "&teiRefetchData",
-            onTeiClicked: "&onTeiClicked"
+            onTeiClicked: "&onTeiClicked",
         },
 
         
-        controller: function($scope, Paginator){
+        controller: function($scope, Paginator,TEIGridService, CurrentSelection, OrgUnitFactory){
+            OrgUnitFactory.getAll().then(function(allOrgUnits) {
+                var temp = {};
+                angular.forEach(allOrgUnits.organisationUnits, function(orgUnit){
+                    temp[orgUnit.id] = orgUnit;
+                });
+    
+                $scope.pageReady = true;
+                $scope.allOrgUnits = temp;
+            });
+            var attributesById = CurrentSelection.getAttributesById();
             $scope.$watch("pager", function(){
                 if($scope.pager){
                     Paginator.setPage($scope.pager.page);
@@ -884,14 +894,16 @@ eRegistryDirectives.directive('stringToNumber', function () {
 
             var setGridColumns = function(){
                 if($scope.data && !$scope.gridColumns){
-                    $scope.gridColumns = [];
-                    for(var key in $scope.data.headers){
-                        if($scope.data.headers.hasOwnProperty(key)){
-                            var column = $scope.data.headers[key];
-                            column.show = true;
-                            $scope.gridColumns.push(column);
+                    var columnAttributes = [];
+                    angular.forEach($scope.data.headers, function(header){
+                        if(attributesById[header.id]){
+                            var attr = angular.copy(attributesById[header.id]);
+                            attr.displayInListNoProgram = true;
+                            columnAttributes.push(attr);
                         }
-                    }
+                    });
+                    var gridColumnConfig = { showAll: true};
+                    $scope.gridColumns = TEIGridService.makeGridColumns(columnAttributes, gridColumnConfig);
                 }
             }
 

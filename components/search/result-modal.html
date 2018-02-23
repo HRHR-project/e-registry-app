@@ -21,13 +21,16 @@
                     {{translateWithTETName('large_number_of_search_results_warning')}}
             </span>
         </div>
+        <div ng-if="gridData && notInSameScope">
+                {{translateWithTETName('no_tracked_entity_instance_found_in_selected_program_showing_results_from_other_programs',true)}}
+        </div>
+        <br/>
         <div ng-if="gridData && !isUnique">
                 <tracker-tei-list
                     tei-data="gridData"
                     on-tei-clicked="openTei(tei)"
                     tei-refetch-data="refetchData(pager, sortColumn)"
                     tei-pager="pager"
-                    tei-grid-columns="gridColumns"
             >
             </tracker-tei-list>
         </div>

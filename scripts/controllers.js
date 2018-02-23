@@ -246,6 +246,11 @@ eRegistry.controller('SelectionController',
     $scope.getProgramAttributes = function(program){ 
         resetParams();
         $scope.selectedProgram = program;
+        if($scope.selectedProgram && $scope.selectedProgram.programStages){
+            angular.forEach($scope.selectedProgram.programStages, function(stage){
+                $scope.programStagesById[stage.id] = stage;
+            });
+        }
         $scope.trackedEntityList = null;
         $scope.searchText = null;
         $scope.processAttributes();              
