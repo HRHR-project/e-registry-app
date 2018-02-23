@@ -138,6 +138,14 @@
                                ng-blur="teiValueUpdated(selectedTei, attribute.id)"
                                ng-required="attribute.mandatory || attribute.unique"/>
                     </span>
+                    <span ng-switch-when="AGE">
+                        <d2-age name="foo" 
+                            id="{{attribute.id}}"                             
+                            d2-object="selectedTei" 
+                            d2-required="attribute.mandatory || mandatoryFields[attribute.id]"
+                            d2-disabled="attributeFieldDisabled(attribute)">
+                        </d2-age>
+                    </span>
                     <span ng-switch-when="EMAIL">
                         <input type="email" 
                                name="foo" 
@@ -194,7 +202,7 @@
                         </span>
                     </span>
                     <span ng-switch-when="USERNAME">
-                        <d2-users-input d2-model="selectedTei"
+                        <er-users-input d2-model="selectedTei"
                                         d2-model-id="attribute.id"
                                         d2-required="attribute.mandatory || attribute.unique"
                                         d2-disabled="attributeFieldDisabled(attribute)"
@@ -206,7 +214,7 @@
                                         d2-attribute-data={{attribute}}
                                         d2-selected-program-id={{selectedProgram.id}}
                                         d2-selected-tei-id={{selectedTei.trackedEntityInstance}}>
-                        </d2-users-input>
+                        </er-users-input>
                     </span>
                      <!--Required needs to be implemented-->
                     <div ng-switch-when="ORGANISATION_UNIT" ng-init="setSelectedSearchingOrgUnitFromId(selectedTei[attribute.id])">

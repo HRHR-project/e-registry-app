@@ -424,11 +424,15 @@ eRegistry.controller('DataEntryController',
                                     WPgz41MctSW:true, HaOwL7bIdrs: true, MO39jKgz2VA: true, E8Jetf3Q90U: true};
             $scope.topLineStageFilter = {};
             $scope.headerStages = [];
-            if(!$scope.isBangladesh){
-                $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
-            }else{
-                $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls"};
-            }
+            SystemSettingsService.getCountry().then(function(response){
+                if(response === 'bangladesh') {
+                    $scope.isBangladesh = true;
+                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", w0pwmNYugKX: "dqF3sxJKBls", FRSZV43y35y: "fSE8JyGdsV6"};
+                } else {
+                    $scope.isBangladesh = false;
+                    $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
+                }
+            });
         } else {
             $scope.bottomLineItems = $scope.mainMenuConfig.bottomLineItems;
             $scope.neverShowItems = $scope.mainMenuConfig.neverShowItems;
@@ -1098,6 +1102,14 @@ eRegistry.controller('DataEntryController',
             if(angular.isUndefined($scope.eventsByStage['w0pwmNYugKX']) || $scope.eventsByStage['w0pwmNYugKX'].length === 0){
                 stage = $scope.stagesById['w0pwmNYugKX'];
             }
+        } else if(stage.id === 'IlSUGDq9QDc' && $scope.isBangladesh) {
+            if(angular.isUndefined($scope.eventsByStage['piRv8jtcLQV']) || $scope.eventsByStage['piRv8jtcLQV'].length === 0){
+                stage = $scope.stagesById['piRv8jtcLQV'];
+            }
+        } else if(stage.id === 'fSE8JyGdsV6' && $scope.isBangladesh) {
+            if(angular.isUndefined($scope.eventsByStage['FRSZV43y35y']) || $scope.eventsByStage['FRSZV43y35y'].length === 0){
+                stage = $scope.stagesById['FRSZV43y35y'];
+            }
         }
         //-------------------------                
         
@@ -1462,9 +1474,15 @@ eRegistry.controller('DataEntryController',
                     //if the element it grouped, we only add a prStDe for the group element:
                     if( !$scope.currentStage.multiSelectGroups[dataElementGroup.id] ) {
                         $scope.currentStage.multiSelectGroups[dataElementGroup.id] = $scope.prStDes[dataElementGroup.id] =
-                            {dataElement:{valueType:'MULTI_SELECT_GROUP',displayName:dataElementGroup.displayName,id:dataElementGroup.id},
-                             dataElements: []};
-                        //-------------
+                        {dataElement:{valueType:'MULTI_SELECT_GROUP',displayName:dataElementGroup.displayName,id:dataElementGroup.id}, dataElements: []};
+                        
+                        //for folkehelsa                        
+                        if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "z2OCjflFLxa") {
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occured during this particular pregnancy or delivery.";
+                        } else if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "XKV79R3LG5J") {
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occurred during this particular postpartum period.";
+                        }
+                        
                         $scope.currentStage.programStageDataElements.splice(i+1+groupsAdded,0,$scope.currentStage.multiSelectGroups[dataElementGroup.id]);
                         groupsAdded++;
                     }                    

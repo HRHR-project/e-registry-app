@@ -9,7 +9,6 @@ import 'd2-tracker/lib/dhis2.angular.templates.js';
 
 // App files
 import '../scripts/dhis2.angular.services.js';
-import '../scripts/dhis2.angular.directives.js';
 import '../scripts/services.js';
 import '../scripts/filters.js';
 import '../scripts/directives.js';

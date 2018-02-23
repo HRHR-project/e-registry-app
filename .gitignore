@@ -11,3 +11,4 @@ coverage
 # Misc files
 npm-debug.log
 
+.DS_Store
