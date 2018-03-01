@@ -228,7 +228,39 @@ eRegistry.controller('DashboardController',
                                         }
                                     }
 
-                                    DHIS2EventFactory.getEventsByProgram($scope.selectedTeiId, null).then(function(events){                                        
+                                    DHIS2EventFactory.getEventsByProgram($scope.selectedTeiId, null).then(function(events){
+                                        var user = SessionStorageService.get('USER_PROFILE');
+                                        var userName = user.username;
+
+                                        var roles = SessionStorageService.get('USER_ROLES');
+                                        var userRoles = roles && roles.userCredentials && roles.userCredentials.userRoles ? roles.userCredentials.userRoles : [];
+
+                                        var tempEvents = [];
+                                        
+                                        //If user has "control data" role we need to filter events
+                                        //so that only events that that user has created are shown. gp38DrOrHhc
+                                        for(var i = 0; i < userRoles.length; i++) {
+                                            if(userRoles[i].id === 'gp38DrOrHhc' || userRoles[i].id === 'jfRj5BLaRC1') {
+                                                tempEvents = [];
+                                                for(var j = 0; j < events.length; j++) {
+                                                    if(userName === events[j].storedBy || events[j].programStage === 'Ty22Qt2u4QL' || events[j].programStage === 'oqzsvYWCX6w' || events[j].programStage === 'uD4lKVSbeyB') {
+                                                        tempEvents.push(events[j]);
+                                                    }
+                                                }
+                                                events = tempEvents;                                           
+                                            } else if(userRoles[i].id === 'cjL8PFkZUOO' || userRoles[i].id === 'KXhketBMNMq') {
+                                                tempEvents = [];
+                                                for(var j = 0; j < events.length; j++) {
+                                                    if(userName === events[j].storedBy && events[j].programStage === 'LlzpPQQq1cm') {
+                                                        tempEvents.push(events[j]);
+                                                    } else if(events[j].programStage !== 'LlzpPQQq1cm') {
+                                                        tempEvents.push(events[j]);
+                                                    }
+                                                }
+                                                events = tempEvents;
+                                            }
+                                        }
+                                        
                                         //prepare selected items for broadcast
                                         CurrentSelection.setSelectedTeiEvents(events);                                        
                                         CurrentSelection.set({tei: $scope.selectedTei, te: $scope.trackedEntityType, prs: $scope.programs, pr: $scope.selectedProgram, prNames: $scope.programNames, prStNames: $scope.programStageNames, enrollments: enrollments, selectedEnrollment: selectedEnrollment, optionSets: $scope.optionSets});                            

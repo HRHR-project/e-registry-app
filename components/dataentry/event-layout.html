@@ -5,7 +5,7 @@
                 &nbsp;<br/>
                 {{'previous'| translate}}
             </div>
-            <div style="float: left">
+            <div ng-hide="dhis2Event.hidden" style="float: left">
                 <div class="event-container" title="[{{'org_unit' | translate}}: {{dhis2Event.orgUnitName}}, {{'program_stage' | translate}}: {{dhis2Event.displayName}}]" ng-class="getEventStyle(dhis2Event)" ng-click="showDataEntry(dhis2Event, false)">                
                     <div class="event-container-item">
                         {{dhis2Event.sortingDate}}
