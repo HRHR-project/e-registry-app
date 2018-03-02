@@ -1868,7 +1868,7 @@ eRegistryServices.factory('ERStorageService', function(){
                     return 'alert-warning'; //'stage-executed';
                 }
                 else{
-                    if(moment(eventDate, calendarSetting.momentFormat).isAfter(dhis2Event.dueDate)){
+                    if(moment(eventDate, calendarSetting.momentFormat).isAfter(dhis2Event.dueDate) && eventDate !== dhis2Event.dueDate){
                         return 'alert-danger';//'stage-overdue';
                     }                
                     return 'alert-success';//'stage-on-time';
