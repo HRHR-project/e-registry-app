@@ -107,7 +107,7 @@ var d2Services = angular.module('d2Services');
             getSetting: function () {
 
                 var dhis2CalendarFormat = {keyDateFormat: 'yyyy-MM-dd', keyCalendar: 'gregorian', momentFormat: 'YYYY-MM-DD'};
-                var storedFormat = storage.get('CALENDAR_SETTING');
+                var storedFormat = storage.get('SYSTEM_SETTING');
                 if (angular.isObject(storedFormat) && storedFormat.keyDateFormat && storedFormat.keyCalendar) {
                     if (storedFormat.keyCalendar === 'iso8601') {
                         storedFormat.keyCalendar = 'gregorian';
