@@ -209,8 +209,8 @@ eRegistry.controller('SearchController',function(
         }
 
         var canOpenRegistration = function(){
-            if($scope.base.selectedProgram){
-                return $scope.base.selectedProgram.access.data.write;
+            if($scope.base.selectedProgram && $scope.trackedEntityTypes.selected){
+                return $scope.base.selectedProgram.access.data.write && $scope.trackedEntityTypes.selected.access.data.write;
             }
             return false; 
         }
