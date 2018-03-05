@@ -427,7 +427,7 @@ eRegistry.controller('DataEntryController',
             SystemSettingsService.getCountry().then(function(response){
                 if(response === 'bangladesh') {
                     $scope.isBangladesh = true;
-                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", w0pwmNYugKX: "dqF3sxJKBls", FRSZV43y35y: "fSE8JyGdsV6"};
+                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", w0pwmNYugKX: "dqF3sxJKBls", FRSZV43y35y: "fSE8JyGdsV6", WZbXY0S00lP: "edqlbukwRfQ"};
                 } else {
                     $scope.isBangladesh = false;
                     $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
