@@ -2663,6 +2663,7 @@ var d2Services = angular.module('d2Services');
                                 NotificationService.showNotifcationDialog(headerText, bodyText);
                                 if( effect.trackedEntityAttribute ) {
                                     currentTei[effect.trackedEntityAttribute.id] = teiOriginalValues[effect.trackedEntityAttribute.id];
+                                    effect.ineffect = false;
                                 }
                             }
                         } else if (effect.action === "SHOWWARNING" && effect.trackedEntityAttribute) {
