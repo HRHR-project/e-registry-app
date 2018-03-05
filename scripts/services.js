@@ -714,9 +714,9 @@ eRegistryServices.factory('ERStorageService', function(){
             else{
                 url = url + '&paging=false';
             }
-            
-            var promise = $http.get( url ).then(function(response){
-                return response.data;
+            var def = $q.defer();
+            $http.get( url ).then(function(response){
+                def.resolve(response.data);
             }, function(error){
                 if(error && error.status === 403){
                     var dialogOptions = {
@@ -724,9 +724,12 @@ eRegistryServices.factory('ERStorageService', function(){
                         bodyText: 'access_denied'
                     };		
                     DialogService.showDialog({}, dialogOptions);
+                    def.reject();
+                    return;
                 }
-            });            
-            return promise;
+                def.reject(error);
+            });    
+            return def.promise;
         },                
         update: function(tei, optionSets, attributesById){
             var formattedTei = angular.copy(tei);
