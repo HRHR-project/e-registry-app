@@ -129,77 +129,95 @@ eRegistry.controller('SelectionController',
     
     //watch for selection of org unit from tree
     $scope.$watch('selectedOrgUnit', function() {
-        if( angular.isObject($scope.selectedOrgUnit)){   
-            $scope.doSearch = true;
-            $scope.searchingOrgUnit = $scope.selectedOrgUnit;
-            SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);
-            
-            $scope.trackedEntityList = null;            
-            $scope.searchText = null;
-            
-            $scope.optionSets = CurrentSelection.getOptionSets();
-            
-            $scope.base.attributesById  = CurrentSelection.getAttributesById();
-            
-            if(!$scope.base.attributesById){
-                $scope.base.attributesById = [];
-                MetaDataFactory.getAll('attributes').then(function(atts){                    
-                    angular.forEach(atts, function(att){
-                        $scope.base.attributesById[att.id] = att;
+        if( angular.isObject($scope.selectedOrgUnit)){
+            loadOrgUnit().then(function(){
+                $scope.doSearch = true;
+                $scope.searchingOrgUnit = $scope.selectedOrgUnit;
+                SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);
+                
+                $scope.trackedEntityList = null;            
+                $scope.searchText = null;
+                
+                $scope.optionSets = CurrentSelection.getOptionSets();
+                
+                $scope.base.attributesById  = CurrentSelection.getAttributesById();
+                
+                if(!$scope.base.attributesById){
+                    $scope.base.attributesById = [];
+                    MetaDataFactory.getAll('attributes').then(function(atts){                    
+                        angular.forEach(atts, function(att){
+                            $scope.base.attributesById[att.id] = att;
+                        });
+                        CurrentSelection.setAttributesById($scope.base.attributesById);
                     });
-                    CurrentSelection.setAttributesById($scope.base.attributesById);
+                }
+                
+                if(!$scope.optionSets){
+                    $scope.optionSets = [];
+                    MetaDataFactory.getAll('optionSets').then(function(optionSets){
+                        angular.forEach(optionSets, function(optionSet){  
+                            $scope.optionSets[optionSet.id] = optionSet;
+                        });
+                        CurrentSelection.setOptionSets($scope.optionSets);
+                    });                
+                }
+                
+                //Labels
+                $scope.eRegistryLabel = $scope.selectedOrgUnit.displayName;
+                $scope.orgUnitLabel = $translate.instant('org_unit');
+                $scope.listAllLabel = $translate.instant('list_all');
+                $scope.registerLabel = $translate.instant('register');
+                $scope.searchOusLabel = $translate.instant('locate_organisation_unit_by_name');
+                $scope.printLabel = $translate.instant('print');
+                $scope.searchLabel = $translate.instant('search');
+                $scope.findLabel = $translate.instant('find');    
+                $scope.advancedSearchLabel = $translate.instant('advanced_search');
+                $scope.searchCriteriaLabel = $translate.instant('type_your_search_criteria_here');
+                $scope.programSelectLabel = $translate.instant('please_select_a_program');
+                $scope.settingsLabel = $translate.instant('settings');
+                $scope.showHideLabel = $translate.instant('show_hide_columns');
+                $scope.listProgramsLabel = $translate.instant('list_programs');
+                $scope.settingsLabel = $translate.instant('settings');
+                $scope.findPersonLabel = $translate.instant('search_register_patient');
+                $scope.todayLabel = $translate.instant('events_today_persons');
+                angular.forEach($scope.eventsTodayFilters, function(filter){
+                   filter.displayName = $translate.instant(filter.displayName); 
                 });
-            }
+                $scope.displayModeLabel = $translate.instant('display_mode');
+                
+                angular.forEach($scope.contentViews, function(view){
+                    view.title =$translate.instant(view.title);
+                });
+                
+                angular.forEach($scope.links, function(link){
+                    link.title = $translate.instant(link.title);
+                });
+                
+                resetParams();
+                //$scope.doSearch = true;
+                $scope.loadPrograms($scope.selectedOrgUnit);
+                if(!$scope.orgUnits){
+                    $scope.getOrgUnits();
+                }
+            }); 
             
-            if(!$scope.optionSets){
-                $scope.optionSets = [];
-                MetaDataFactory.getAll('optionSets').then(function(optionSets){
-                    angular.forEach(optionSets, function(optionSet){  
-                        $scope.optionSets[optionSet.id] = optionSet;
-                    });
-                    CurrentSelection.setOptionSets($scope.optionSets);
-                });                
-            }
-            
-            //Labels
-            $scope.eRegistryLabel = $scope.selectedOrgUnit.displayName;
-            $scope.orgUnitLabel = $translate.instant('org_unit');
-            $scope.listAllLabel = $translate.instant('list_all');
-            $scope.registerLabel = $translate.instant('register');
-            $scope.searchOusLabel = $translate.instant('locate_organisation_unit_by_name');
-            $scope.printLabel = $translate.instant('print');
-            $scope.searchLabel = $translate.instant('search');
-            $scope.findLabel = $translate.instant('find');    
-            $scope.advancedSearchLabel = $translate.instant('advanced_search');
-            $scope.searchCriteriaLabel = $translate.instant('type_your_search_criteria_here');
-            $scope.programSelectLabel = $translate.instant('please_select_a_program');
-            $scope.settingsLabel = $translate.instant('settings');
-            $scope.showHideLabel = $translate.instant('show_hide_columns');
-            $scope.listProgramsLabel = $translate.instant('list_programs');
-            $scope.settingsLabel = $translate.instant('settings');
-            $scope.findPersonLabel = $translate.instant('search_register_patient');
-            $scope.todayLabel = $translate.instant('events_today_persons');
-            angular.forEach($scope.eventsTodayFilters, function(filter){
-               filter.displayName = $translate.instant(filter.displayName); 
-            });
-            $scope.displayModeLabel = $translate.instant('display_mode');
-            
-            angular.forEach($scope.contentViews, function(view){
-                view.title =$translate.instant(view.title);
-            });
-            
-            angular.forEach($scope.links, function(link){
-                link.title = $translate.instant(link.title);
-            });
-            
-            resetParams();
-            //$scope.doSearch = true;
-            $scope.loadPrograms($scope.selectedOrgUnit);
-            if(!$scope.orgUnits){
-                $scope.getOrgUnits();
-            }
         }
     });
+
+    var loadOrgUnit = function(){
+        if($scope.selectedOrgUnit && !$scope.selectedOrgUnit.loaded){
+            return OrgUnitFactory.getShort($scope.selectedOrgUnit.id).then(function(orgUnit){
+                $scope.selectedOrgUnit = orgUnit;
+                $scope.selectedOrgUnit.loaded = true;
+            });
+        }
+        return resolvedEmptyPromise();
+    }
+    var resolvedEmptyPromise = function(){
+        var deferred = $q.defer();
+        deferred.resolve();
+        return deferred.promise;
+    }
     
     //watch for changes in ou mode - mode could be selected without notifcation to grid column generator
     $scope.$watch('selectedOuMode.displayName', function() {

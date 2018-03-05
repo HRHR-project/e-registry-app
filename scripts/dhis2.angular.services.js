@@ -2997,6 +2997,23 @@ var d2Services = angular.module('d2Services');
 .factory('OrgUnitFactory', function($http, SessionStorageService, DHIS2URL,$q) {    
     var orgUnit, orgUnitPromise, rootOrgUnitPromise,orgUnitTreePromise;
     var cachedAllOrgUnits;
+    var cachedShort ={};
+    var db = null;
+    function openStore(){
+        var deferred = $q.defer();
+        var request = indexedDB.open("dhis2ou");
+
+        request.onsuccess = function(e) {
+            db = e.target.result;
+            deferred.resolve();
+        };
+
+        request.onerror = function(){
+            deferred.reject();
+        };
+
+        return deferred.promise;
+    }
     return {
         get: function(uid){            
             if( orgUnit !== uid ){
@@ -3006,6 +3023,20 @@ var d2Services = angular.module('d2Services');
                 });
             }
             return orgUnitPromise;
+        },
+        getShort: function(uid){
+            if(cachedShort[uid]){
+                var def = $q.defer();
+                def.resolve(cachedShort[uid]);
+                return def.promise;
+            }else{
+                return $http.get(DHIS2URL+'/organisationUnits/'+uid+'.json?fields=id,name,displayName,code,level').then(function(response){
+                    if(response && response.data){
+                        cachedShort[uid] = response.data;
+                    }
+                    return cachedShort[uid];
+                });
+            }
         },
         getAll: function(){    
             if(cachedAllOrgUnits){
