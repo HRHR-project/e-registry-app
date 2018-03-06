@@ -39,37 +39,6 @@ var d2Services = angular.module('d2Services');
             hideHeaderMessage();
         };
     })
-
-    .service('AuthorityService', function () {
-        var getAuthorities = function (roles) {
-            var authority = {};
-            if (roles && roles.userCredentials && roles.userCredentials.userRoles) {
-                angular.forEach(roles.userCredentials.userRoles, function (role) {
-                    angular.forEach(role.authorities, function (auth) {
-                        authority[auth] = true;
-                    });
-                });
-            }
-            return authority;
-        };
-
-        return {
-            getUserAuthorities: function (roles) {
-                var auth = getAuthorities(roles);
-                var authority = {};
-                authority.canDeleteEvent = auth['F_TRACKED_ENTITY_DATAVALUE_DELETE'] || auth['ALL'] ? true : false;
-                authority.canAddOrUpdateEvent = auth['F_TRACKED_ENTITY_DATAVALUE_ADD'] || auth['ALL'] ? true : false;
-                authority.canSearchTei = auth['F_TRACKED_ENTITY_INSTANCE_SEARCH'] || auth['ALL'] ? true : false;
-                authority.canDeleteTei = auth['F_TRACKED_ENTITY_INSTANCE_DELETE'] || auth['ALL'] ? true : false;
-                authority.canRegisterTei = auth['F_TRACKED_ENTITY_INSTANCE_ADD'] || auth['ALL'] ? true : false;
-                authority.canEnrollTei = auth['F_PROGRAM_ENROLLMENT'] || auth['ALL'] ? true : false;
-                authority.canUnEnrollTei = auth['F_PROGRAM_UNENROLLMENT'] || auth['ALL'] ? true : false;
-                authority.canAdministerDashboard = auth['F_PROGRAM_DASHBOARD_CONFIG_ADMIN'] || auth['ALL'] ? true : false;
-                return authority;
-            }
-        };
-    })
-
     /* Factory for loading external data */
     .factory('ExternalDataFactory', function ($http) {
 

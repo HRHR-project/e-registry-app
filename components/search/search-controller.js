@@ -20,14 +20,22 @@ eRegistry.controller('SearchController',function(
     TEService,
     SearchGroupService,
     OperatorFactory,
-    TEIGridService) {
+    TEIGridService,
+    SessionStorageService,
+    AuthorityService) {
         var searchScopes = SearchGroupService.getSearchScopes();
         var currentSearchScope = searchScopes.TRACKEDENTITYTYPE;
         $scope.trackedEntityTypes = {};
         $scope.tetSearchConfig = {};
         $scope.searchConfig = {};
         $scope.defaultOperators = OperatorFactory.defaultOperators;
-        $scope.selectedProgramTET
+        $scope.userAuthority = AuthorityService.getUserAuthorities(SessionStorageService.get('USER_PROFILE'));
+
+        if(!$scope.userAuthority.ALL){
+            SearchGroupService.forceMaxTeiCount();
+        }
+
+        
 
 
         $scope.$watch('base.selectedProgram', function() {

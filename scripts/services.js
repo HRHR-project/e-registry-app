@@ -2045,9 +2045,14 @@ eRegistryServices.factory('ERStorageService', function(){
     var trackedEntityTypeSearchConfigsById = {};
     var defaultOperators = OperatorFactory.defaultOperators;
     var searchScopes = { PROGRAM: "PROGRAM", TET: "TET"};
+    var checkMaxTeiCount = false;
+
+    this.forceMaxTeiCount = function(){
+        checkMaxTeiCount = true;
+    };
 
     this.getSearchScopes = function(){ return searchScopes;}
-    var makeSearchConfig = function(dimensionAttributes, minAttributesRequiredToSearch,orgUnitUniqueAsSearchGroup){
+    var makeSearchConfig = function(dimensionAttributes, settings,orgUnitUniqueAsSearchGroup){
         var searchConfig = { searchGroups: [], searchGroupsByAttributeId: {}};
         if(dimensionAttributes){
             var defaultSearchGroup = { id: dhis2.util.uid(), attributes: [], ouMode: {name: 'ACCESSIBLE'}, orgunitUnique: false};
@@ -2064,7 +2069,8 @@ eRegistryServices.factory('ERStorageService', function(){
                             orgunitUnique: uniqueAttr.orgunitScope,
                             attributes: [uniqueAttr],
                             ouMode: {name: 'ACCESSIBLE'},
-                            minAttributesRequiredToSearch: 1
+                            minAttributesRequiredToSearch: 1,
+                            maxTeiCountToReturn: 1,
                         }
                         if(uniqueAttr.orgunitScope) uniqueSearchGroup.ouMode = {name: 'SELECTED'};
                         searchConfig.searchGroups.push(uniqueSearchGroup);
@@ -2079,7 +2085,8 @@ eRegistryServices.factory('ERStorageService', function(){
                 }
             });
             if(defaultSearchGroup.attributes.length !== 0){
-                defaultSearchGroup.minAttributesRequiredToSearch = minAttributesRequiredToSearch;
+                defaultSearchGroup.minAttributesRequiredToSearch = settings.minAttributesRequiredToSearch;
+                defaultSearchGroup.maxTeiCountToReturn = settings.maxTeiCountToReturn;
                 searchConfig.searchGroups.push(defaultSearchGroup);
             }
         }
@@ -2211,7 +2218,8 @@ eRegistryServices.factory('ERStorageService', function(){
         if(!programSearchConfigsById[program.id]){
             return AttributesFactory.getByProgram(program).then(function(attributes)
             {
-                var searchConfig = makeSearchConfig(attributes, program.minAttributesRequiredToSearch,orgUnitUniqueAsSearchGroup);
+                var settings = { minAttributesRequiredToSearch: program.minAttributesRequiredToSearch, maxTeiCountToReturn: program.maxTeiCountToReturn};
+                var searchConfig = makeSearchConfig(attributes, settings,orgUnitUniqueAsSearchGroup);
                 programSearchConfigsById[program.id] = searchConfig;
                 def.resolve(angular.copy(searchConfig));
                 return def.promise;
@@ -2225,7 +2233,8 @@ eRegistryServices.factory('ERStorageService', function(){
         if(!trackedEntityTypeSearchConfigsById[trackedEntityType.id]){
             return AttributesFactory.getByTrackedEntityType(trackedEntityType).then(function(attributes)
             {
-                var searchConfig = makeSearchConfig(attributes, trackedEntityType.minAttributesRequiredToSearch,orgUnitUniqueAsSearchGroup);
+                var settings = { minAttributesRequiredToSearch: trackedEntityType.minAttributesRequiredToSearch, maxTeiCountToReturn: trackedEntityType.maxTeiCountToReturn};
+                var searchConfig = makeSearchConfig(attributes, settings, orgUnitUniqueAsSearchGroup);
                 trackedEntityTypeSearchConfigsById[trackedEntityType.id] = searchConfig;
                 def.resolve(angular.copy(searchConfig));
                 return def.promise;
@@ -2310,14 +2319,18 @@ eRegistryServices.factory('ERStorageService', function(){
         }
         return TEIService.search(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
                 if(response && response.rows && response.rows.length > 0){
-                    var result = { data: response, callingScope: searchScopes.PROGRAM, resultScope: searchScopes.PROGRAM };
                     var def = $q.defer();
-                    if(params.uniqueSearch){
-                        result.status = "UNIQUE";
+                    if(checkMaxTeiCount && programSearchGroup.maxTeiCountToReturn > 0 && response.rows.length > programSearchGroup.maxTeiCountToReturn){
+                        def.resolve({ status: "TOOMANYMATCHES", data: null});
                     }else{
-                        result.status = "MATCHES";
+                        var result = { data: response, callingScope: searchScopes.PROGRAM, resultScope: searchScopes.PROGRAM };
+                        if(params.uniqueSearch){
+                            result.status = "UNIQUE";
+                        }else{
+                            result.status = "MATCHES";
+                        }
+                        def.resolve(result);
                     }
-                    def.resolve(result);
                     return def.promise;
                 }else{
                     if(tetSearchGroup){
@@ -2352,6 +2365,9 @@ eRegistryServices.factory('ERStorageService', function(){
             return TEIService.search(params.orgUnit.id, params.ouMode,null, params.programOrTETUrl, params.queryUrl, params.pager, true).then(function(response){
                 var result = {data: response, callingScope: searchScopes.TET, resultScope: searchScopes.TET };
                 if(response && response.rows && response.rows.length > 0){
+                    if(checkMaxTeiCount && tetSearchGroup.maxTeiCountToReturn > 0 && response.rows.length > tetSearchGroup.maxTeiCountToReturn){
+                       return { status: "TOOMANYMATCHES", data: null};
+                    }
                     if(params.uniqueSearch){
                         result.status = "UNIQUE";
                     }else{
