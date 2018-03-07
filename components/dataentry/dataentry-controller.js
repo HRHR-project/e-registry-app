@@ -643,7 +643,7 @@ eRegistry.controller('DataEntryController',
                 }
             }
         }
-        allSorted = orderByFilter(allSorted, '-sortingDate').reverse();
+        allSorted = orderByFilter(allSorted, ['-sortingDate','-created']).reverse();
         
         var evs = {all: allSorted, byStage: $scope.eventsByStage};
         var flag = {debug: true, verbose: true};
@@ -874,7 +874,7 @@ eRegistry.controller('DataEntryController',
             });
             
             $scope.fileNames = CurrentSelection.getFileNames();            
-            $scope.allEventsSorted = orderByFilter($scope.allEventsSorted, '-sortingDate').reverse();
+            $scope.allEventsSorted = orderByFilter($scope.allEventsSorted, ['-sortingDate','-created']).reverse();
             sortEventsByStage(null);
             $scope.showDataEntry($scope.currentEvent, true);
             $scope.eventsLoaded = true;
@@ -1217,10 +1217,10 @@ eRegistry.controller('DataEntryController',
                             newEvent.orgUnitName = dummyEvent.orgUnitName;
                             newEvent.displayName = dummyEvent.displayName;
                             newEvent.executionDateLabel = dummyEvent.executionDateLabel;
-                            newEvent.sortingDate = ev.eventDate ? ev.eventDate : ev.dueDate,
                             newEvent.statusColor = EventUtils.getEventStatusColor(ev);
                             newEvent.eventDate = DateUtils.formatFromApiToUser(ev.eventDate);
                             newEvent.dueDate = DateUtils.formatFromApiToUser(ev.dueDate);
+                            newEvent.sortingDate = newEvent.eventDate ? newEvent.eventDate : newEvent.dueDate;
                             newEvent.enrollmentStatus = dummyEvent.enrollmentStatus;
 
                             if (dummyEvent.coordinate) {
@@ -2666,14 +2666,16 @@ eRegistry.controller('DataEntryController',
     var sortStageEvents = function(stage){        
         var key = stage.id;
         if ($scope.eventsByStage.hasOwnProperty(key)){
-            var sortedEvents = $filter('orderBy')($scope.eventsByStage[key], function (event) {
+            var sortedEvents = $filter('orderBy')($scope.eventsByStage[key], [function (event) {
                     if(angular.isDefined(stage.displayEventsInTable) && stage.displayEventsInTable === true){
                         return DateUtils.getDate(event.eventDate);
                     }
                     else{
                         return DateUtils.getDate(event.sortingDate);
                     }                    
-                }, false);
+                },function(event){
+                    return event.created;
+                }], false);
             $scope.eventsByStage[key] = sortedEvents;
             $scope.eventsByStageDesc[key] = [];
             
@@ -2752,7 +2754,7 @@ eRegistry.controller('DataEntryController',
                 $rootScope.$broadcast('tei-report-widget', {});
             }, 200);
         }        
-        $scope.allEventsSorted = orderByFilter($scope.allEventsSorted, '-sortingDate').reverse();         
+        $scope.allEventsSorted = orderByFilter($scope.allEventsSorted, ['-sortingDate','-created']).reverse();         
     };
 
     $scope.showLastEventInStage = function (stageId) {
