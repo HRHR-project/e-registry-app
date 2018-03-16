@@ -247,7 +247,13 @@ eRegistry.controller('SelectionController',
             
             ProgramFactory.getProgramsByOu($scope.selectedOrgUnit,true, $scope.selectedProgram).then(function(response){
                 $scope.programs = response.programs;
-                $scope.selectedProgram = response.selectedProgram;
+                angular.forEach($scope.programs, function(program){
+                    if(program.id === 'ZBIqxwVixn8' && $scope.isBangladesh) {
+                        $scope.selectedProgram = program;
+                    }
+                });
+
+                $scope.selectedProgram = $scope.selectedProgram ? $scope.selectedProgram : response.selectedProgram;
                 if($scope.selectedProgram && $scope.selectedProgram.programStages){
                     angular.forEach($scope.selectedProgram.programStages, function(stage){
                         $scope.programStagesById[stage.id] = stage;
