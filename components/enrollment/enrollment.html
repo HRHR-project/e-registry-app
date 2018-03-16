@@ -33,7 +33,7 @@
                         <ul class="nav nav-tabs">
                             <li ng-show="selectedProgram && currentEnrollment && currentEnrollment !== selectedEnrollment" ng-class="{'active': activeTab === 0}" style="font-size: 12px"><a ng-click="loadEnrollmentDetails(currentEnrollment); switchTab(0)">{{'current'| translate}}</a></li>
                             <li ng-show="selectedProgram && !currentEnrollment && !selectedTei.inactive" ng-class="{'active': activeTab === 1}" style="font-size: 12px"><a ng-click="showNewEnrollment(); switchTab(1)"><i class="fa fa-plus-circle"></i> {{'new_enrollment'| translate}}</a></li>
-                            <li ng-show="hasEnrollmentHistory" ng-class="{'active': activeTab === 2}" style="font-size: 12px"><a ng-click="showEnrollmentHistory(); switchTab(2)"><i class="fa fa-history"></i> {{'history'| translate}}</a></li>
+                            <li ng-class="{'active': activeTab === 2}" style="font-size: 12px"><a ng-click="showEnrollmentHistory(); switchTab(2)"><i class="fa fa-history"></i> {{'history'| translate}}</a></li>
                         </ul>
                     </div>
                     <div class="vertical-spacing">
