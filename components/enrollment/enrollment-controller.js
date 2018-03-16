@@ -29,7 +29,7 @@ eRegistry.controller('EnrollmentController',
         $scope.historicalEnrollments = [];
         $scope.showEnrollmentDiv = false;
         $scope.showEnrollmentHistoryDiv = false;
-        $scope.showOtherPrograms = false;
+        $scope.showOtherPrograms = true;
         $scope.showCurrent = false;
         $scope.hasEnrollmentHistory = false;
         $scope.selectedEnrollment = null;
@@ -165,7 +165,7 @@ eRegistry.controller('EnrollmentController',
         $scope.hideCompleteIncompleteButton = true;
         // end custom code
         
-        if($scope.selectedEnrollment.enrollment && $scope.selectedEnrollment.orgUnit){            
+        if($scope.selectedEnrollment && $scope.selectedEnrollment.enrollment && $scope.selectedEnrollment.orgUnit){            
             $scope.broadCastSelections('dashboardWidgets');
         }
     };
