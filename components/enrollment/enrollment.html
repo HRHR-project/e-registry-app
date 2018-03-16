@@ -30,11 +30,18 @@
             <div class="row equal-height-columns">
                 <div ng-class="!showEnrollmentDiv && hasOtherPrograms ? 'col-sm-8' : 'col-sm-12'">                
                     <div class="title small-vertical-spacing">
-                        <ul class="nav nav-tabs">
-                            <li ng-show="selectedProgram && currentEnrollment && currentEnrollment !== selectedEnrollment" ng-class="{'active': activeTab === 0}" style="font-size: 12px"><a ng-click="loadEnrollmentDetails(currentEnrollment); switchTab(0)">{{'current'| translate}}</a></li>
-                            <li ng-show="selectedProgram && !currentEnrollment && !selectedTei.inactive" ng-class="{'active': activeTab === 1}" style="font-size: 12px"><a ng-click="showNewEnrollment(); switchTab(1)"><i class="fa fa-plus-circle"></i> {{'new_enrollment'| translate}}</a></li>
-                            <li ng-show="hasEnrollmentHistory" ng-class="{'active': activeTab === 2}" style="font-size: 12px"><a ng-click="showEnrollmentHistory(); switchTab(2)"><i class="fa fa-history"></i> {{'history'| translate}}</a></li>
-                        </ul>
+                        <span ng-if="hasOtherPrograms">
+                            {{'selected_program'| translate}}:                           
+                        </span>
+                        <span class="nav-pills" ng-show="selectedProgram && currentEnrollment && currentEnrollment !== selectedEnrollment">
+                            <button type="button" class="btn btn-default" ng-click="loadEnrollmentDetails(currentEnrollment)">{{'current'| translate}}</button>
+                        </span>
+                        <span class="nav-pills" ng-show="selectedProgram && !currentEnrollment && !selectedTei.inactive">
+                            <button type="button" class="btn btn-primary" ng-click="showNewEnrollment()"><i class="fa fa-plus-circle"></i> {{'new_enrollment'| translate}}</button>
+                        </span>
+                        <span class="nav-pills" ng-show="hasEnrollmentHistory">
+                            <button type="button" class="btn btn-warning" ng-click="showEnrollmentHistory()"><i class="fa fa-history"></i> {{'history'| translate}}</button>
+                        </span>
                     </div>
                     <div class="vertical-spacing">
                         <div ng-if="selectedEnrollment.enrollment">                    
