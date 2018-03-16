@@ -20,6 +20,7 @@ eRegistry.controller('EnrollmentController',
     $scope.today = DateUtils.getToday();
     $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU'); 
     $scope.dashboardReady = false;
+    $scope.activeTab = 2;
     
     //listen for the selected items
     var selections = {};
@@ -335,6 +336,10 @@ eRegistry.controller('EnrollmentController',
             }
         }        
         return true;        
+    };
+
+    $scope.switchTab = function(tab){
+        $scope.activeTab = tab;
     };
     
     var completeEnrollmentAllowed = function(ignoreEventId){
