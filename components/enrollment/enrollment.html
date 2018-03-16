@@ -30,17 +30,14 @@
             <div class="row equal-height-columns">
                 <div ng-class="!showEnrollmentDiv && hasOtherPrograms ? 'col-sm-8' : 'col-sm-12'">                
                     <div class="title small-vertical-spacing">
-                        <span ng-if="hasOtherPrograms">
-                            {{'selected_program'| translate}}:                           
-                        </span>
                         <span class="nav-pills" ng-show="selectedProgram && currentEnrollment && currentEnrollment !== selectedEnrollment">
-                            <button type="button" class="btn btn-default" ng-click="loadEnrollmentDetails(currentEnrollment)">{{'current'| translate}}</button>
+                            <a href ng-click="loadEnrollmentDetails(currentEnrollment)" title="{{'current'| translate}}"><span ng-class="{true: 'widget-link-active', false: 'widget-link'} [showEnrollmentDiv]">{{'current'| translate}}</span></a>
                         </span>
                         <span class="nav-pills" ng-show="selectedProgram && !currentEnrollment && !selectedTei.inactive">
-                            <button type="button" class="btn btn-primary" ng-click="showNewEnrollment()"><i class="fa fa-plus-circle"></i> {{'new_enrollment'| translate}}</button>
+                            <span ng-show="selectedProgram && currentEnrollment && currentEnrollment !== selectedEnrollment">|</span> <button type="button" class="btn btn-primary" ng-click="showNewEnrollment()"><i class="fa fa-plus-circle"></i> {{'new_enrollment'| translate}}</button>
                         </span>
                         <span class="nav-pills" ng-show="hasEnrollmentHistory">
-                            <button type="button" class="btn btn-warning" ng-click="showEnrollmentHistory()"><i class="fa fa-history"></i> {{'history'| translate}}</button>
+                            | <a href ng-click="showEnrollmentHistory()" title="{{'history'| translate}}"><span ng-class="{true: 'widget-link-active', false: 'widget - link'} [showEnrollmentHistoryDiv]">{{'history'| translate}}</span></a>
                         </span>
                     </div>
                     <div class="vertical-spacing">
