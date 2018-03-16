@@ -20,7 +20,7 @@ eRegistry.controller('EnrollmentController',
     $scope.today = DateUtils.getToday();
     $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU'); 
     $scope.dashboardReady = false;
-    $scope.activeTab = 2;
+    $scope.activeTab = 3;
     
     //listen for the selected items
     var selections = {};
@@ -29,6 +29,8 @@ eRegistry.controller('EnrollmentController',
         $scope.historicalEnrollments = [];
         $scope.showEnrollmentDiv = false;
         $scope.showEnrollmentHistoryDiv = false;
+        $scope.showOtherPrograms = false;
+        $scope.showCurrent = false;
         $scope.hasEnrollmentHistory = false;
         $scope.selectedEnrollment = null;
         $scope.currentEnrollment = null;
@@ -92,7 +94,6 @@ eRegistry.controller('EnrollmentController',
             }
             else{
                 $scope.selectedEnrollment = null;
-                $scope.showEnrollmentHistoryDiv = true;
                 $scope.broadCastSelections('dashboardWidgets');
             }
             
@@ -155,7 +156,9 @@ eRegistry.controller('EnrollmentController',
  
     });
     $scope.loadEnrollmentDetails = function(enrollment){
+        $scope.showCurrent = true;
         $scope.showEnrollmentHistoryDiv = false;
+        $scope.showOtherPrograms = false;
         $scope.selectedEnrollment = enrollment;
         
         //Palestine
@@ -177,6 +180,8 @@ eRegistry.controller('EnrollmentController',
         if($scope.showEnrollmentDiv){
             
             $scope.showEnrollmentHistoryDiv = false;
+            $scope.showOtherPrograms = false;
+            $scope.showCurrent = false;
             
             //load new enrollment details
             $scope.selectedEnrollment = {orgUnitName: $scope.selectedOrgUnit.displayName};            
@@ -193,13 +198,27 @@ eRegistry.controller('EnrollmentController',
        
     $scope.showEnrollmentHistory = function(){
         
-        $scope.showEnrollmentHistoryDiv = !$scope.showEnrollmentHistoryDiv;
+        $scope.showEnrollmentHistoryDiv = true;
         
         if($scope.showEnrollmentHistoryDiv){
             $scope.selectedEnrollment = null;
             $scope.showEnrollmentDiv = false;
+            $scope.showOtherPrograms = false;
+            $scope.showCurrent = false;
             
             $scope.broadCastSelections('dashboardWidgets');
+        }
+    };
+
+    $scope.showOtherProgramsToggle = function(){
+        
+        $scope.showOtherPrograms = true;
+        
+        if($scope.showOtherPrograms){
+            $scope.selectedEnrollment = null;
+            $scope.showEnrollmentDiv = false;
+            $scope.showEnrollmentHistoryDiv = false;
+            $scope.showCurrent = false;
         }
     };
     

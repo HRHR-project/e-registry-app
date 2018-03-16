@@ -28,16 +28,17 @@
             
             <!-- operations on selected enrollment begins -->
             <div class="row equal-height-columns">
-                <div ng-class="!showEnrollmentDiv && hasOtherPrograms ? 'col-sm-8' : 'col-sm-12'">                
+                <div ng-class="col-sm-12" style="max-width: 100%; width: 100%;">
                     <div class="title small-vertical-spacing">
                         <ul class="nav nav-tabs">
-                            <li ng-show="selectedProgram && currentEnrollment && currentEnrollment !== selectedEnrollment" ng-class="{'active': activeTab === 0}" style="font-size: 12px"><a ng-click="loadEnrollmentDetails(currentEnrollment); switchTab(0)">{{'current'| translate}}</a></li>
+                            <li ng-show="selectedEnrollment.enrollment || currentEnrollment" ng-class="{'active': activeTab === 0}" style="font-size: 12px"><a ng-click="loadEnrollmentDetails(currentEnrollment); switchTab(0)">{{'current'| translate}}</a></li>
                             <li ng-show="selectedProgram && !currentEnrollment && !selectedTei.inactive" ng-class="{'active': activeTab === 1}" style="font-size: 12px"><a ng-click="showNewEnrollment(); switchTab(1)"><i class="fa fa-plus-circle"></i> {{'new_enrollment'| translate}}</a></li>
                             <li ng-show="hasEnrollmentHistory" ng-class="{'active': activeTab === 2}" style="font-size: 12px"><a ng-click="showEnrollmentHistory(); switchTab(2)"><i class="fa fa-history"></i> {{'history'| translate}}</a></li>
+                            <li ng-class="{'active': activeTab === 3}" style="font-size: 12px"><a ng-click="showOtherProgramsToggle(); switchTab(3)">{{'other_programs'| translate}}</a></li>
                         </ul>
                     </div>
                     <div class="vertical-spacing">
-                        <div ng-if="selectedEnrollment.enrollment">                    
+                        <div ng-if="selectedEnrollment.enrollment && showCurrent" style="margin: 10px">                    
                             <table class="dhis2-list-table-striped dhis2-table-hover">
                                 <tr>
                                     <td>
@@ -101,16 +102,16 @@
                         </div>
 
                         <!-- various alerts begin -->
-                        <div ng-if="selectedProgram && !selectedEnrollment && !showEnrollmentDiv && !hasEnrollmentHistory">
+                        <div ng-if="selectedProgram && !selectedEnrollment && !showEnrollmentDiv && !hasEnrollmentHistory" style="margin: 10px">
                             <div class="alert alert-warning">{{'not_yet_enrolled_enrollment'| translate}}</div>
                         </div>
-                        <div ng-if="selectedProgram && !selectedEnrollment && !showEnrollmentDiv && !showEnrollmentHistoryDiv && hasEnrollmentHistory">
+                        <div ng-if="selectedProgram && !selectedEnrollment && !showEnrollmentDiv && !showEnrollmentHistoryDiv && hasEnrollmentHistory" style="margin: 10px">
                             <div class="alert alert-warning">{{'no_active_enrollment_exists'| translate}}</div>
                         </div>
-                        <div ng-if="!selectedProgram && programExists">
+                        <div ng-if="!selectedProgram && programExists" style="margin: 10px">
                             <div class="alert alert-danger">{{'please_select_a_program_for_enrollment'| translate}}</div> 
                         </div>
-                        <div ng-if="!programExists">
+                        <div ng-if="!programExists" style="margin: 10px">
                             <div class="alert alert-danger">{{'no_program_exists_enrollment'| translate}}</div> 
                         </div>
                         <!-- various alerts end -->
@@ -148,30 +149,25 @@
                                 </tr>
                             </table>
                         </div>
+                        <div ng-if="!showEnrollmentDiv && hasOtherPrograms && showOtherPrograms" style="margin: 10px;">
+                                <div ng-if="activeEnrollments.length > 0">
+                                    <table class="table table-striped dhis2-table-hover table-bordered">
+                                        <tr ng-repeat="activeEnrollment in activeEnrollments">
+                                            <td ng-if="selectedProgram && selectedProgram.id !== activeEnrollment.program || !selectedProgram" title="{{'set_as_current'| translate}}" ng-click="changeProgram(activeEnrollment.program)">
+                                                {{programNames[activeEnrollment.program].displayName}}
+                                            </td>
+                                        </tr>
+                                    </table> 
+                                </div>
+                                <div ng-if="activeEnrollments.length === 0">
+                                    <div class="alert alert-warning">{{'no_active_enrollments_exist'| translate}}</div>
+                                </div>                                    
+                            </div>
+                        </div>        
                         <!-- operations on historical enrollment ends -->
                     </div>
                     
                 </div>
-                
-                <div class="col-sm-4 border-left" ng-if="!showEnrollmentDiv && hasOtherPrograms">
-                    <div class="title small-vertical-spacing">{{'other_programs'| translate}}</div>
-                    <div class="vertical-spacing">
-                        <div ng-if="activeEnrollments.length > 0">
-                            <table class="table table-striped dhis2-table-hover table-bordered">
-                                <tr ng-repeat="activeEnrollment in activeEnrollments">
-                                    <td ng-if="selectedProgram && selectedProgram.id !== activeEnrollment.program || !selectedProgram" title="{{'set_as_current'| translate}}" ng-click="changeProgram(activeEnrollment.program)">
-                                        {{programNames[activeEnrollment.program].displayName}}
-                                    </td>
-                                </tr>
-                            </table> 
-                        </div>
-                        <div ng-if="activeEnrollments.length === 0">
-                            <div class="alert alert-warning">{{'no_active_enrollments_exist'| translate}}</div>
-                        </div>
-                    </div>
-                                    
-                </div>
-            </div>        
             <!-- operations on selected enrollment ends -->
 
             <!-- new enrollment registration form begins -->
