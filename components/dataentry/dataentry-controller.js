@@ -1481,6 +1481,8 @@ eRegistry.controller('DataEntryController',
                             $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occured during this particular pregnancy or delivery.";
                         } else if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "XKV79R3LG5J") {
                             $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occurred during this particular postpartum period.";
+                        } else if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "ET2aesZVpHo") {
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Any congenital defect, single or multiple, present at birth and are severe enough to impact an infant`s health, development and/or survival.";
                         }
                         
                         $scope.currentStage.programStageDataElements.splice(i+1+groupsAdded,0,$scope.currentStage.multiSelectGroups[dataElementGroup.id]);
