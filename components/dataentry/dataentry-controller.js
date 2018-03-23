@@ -613,7 +613,12 @@ eRegistry.controller('DataEntryController',
     $scope.showPreviousValue = function (id) {
         //Hidden values for Bangladesh.
         var hiddenValues = ['OsaG5OsIJw9', 'Kb2LvjqXHfi', 'M4HEOoEFTAT', 'dyYdfamSY2Z', 'A4i1iD8Askw', 'ql1h1eXRbJ2', 'V454TVtRUVM', 'pHNanCbrioZ',
-                            'achoX4owMl2'];
+                            'achoX4owMl2', 'pthOcD3pgmH', 'YioY92h7fHk', 'sBk3iOdp5vS', 'mtQD6phlBwY', 'srTBtL6nbWM', 'DWGXGJ7dGZ7', 'x0hRYXnnmxP', 
+                            'U5jDJTJUss0', 'J1oYUR8QvYo', 'DkK2EN7d526', 'oy6bZRZanZr', 'ciuVqP8Ag19', 'Cnq43Bere4w', 'ZLqKqxqjOaH', 'EiJ5aU0QWvK',
+                            'l2YTYbF5d7v', 'A9GkQjPcFtd', 'oGDVvNyI7Ot', 'CaLpgtzBySB', 'lwleHI2dbvT', 'nBy3gXhHGZ9', 'm4ZCH1uGGh7', 'TAtUnu1BiUp',
+                            'J6N7R7hpShG', 'BX0Y5BS757I', 'oFNziXTsM56', 'PSNI8yP2bQ6','dthg8E3NqCS' , 'UvPeKLdARcu', 'H9vEFl0W1EL', 'yakmemTH1Vz',
+                            'koBfHoIgNcy', 'FdKZReGBvWN', 'LR4XATl5Wmd', 'RRWteHFKHCX', 'wpgZQxjAl5v', 'gaQRDpt9vHr', 'Z1uSMcd9ugj', 'e87QQTwrvYL',
+                            'yprnwvYFFoA', 'XwdAiW8b1Fe', 'a1E5SbsPOZf', 'b9xA0ZD9B4S', 'WkIkkhN88Jo', 'aYnlkPFbUNx', 'ulNe9l82LIQ'];
 
         if(hiddenValues.indexOf(id) >= 0) {
             return false;
@@ -1597,6 +1602,8 @@ eRegistry.controller('DataEntryController',
             $scope.setPreviousValuesTable('WZbXY0S00lP');          
         } else if($scope.currentStage.id === 'dqF3sxJKBls' && $scope.isBangladesh) {
             $scope.setPreviousValuesTable('w0pwmNYugKX');
+        } else if($scope.currentStage.id === 'fSE8JyGdsV6' && $scope.isBangladesh) {
+            $scope.setPreviousValuesTable('FRSZV43y35y');
         }
 
     };
