@@ -342,6 +342,10 @@ eRegistry.controller('SearchController',function(
             }
         }
 
+        $scope.setSelectedOrgUnitUnion = function(orgUnit){
+            $scope.selectedSearchingOrgUnit = orgUnit;
+        }
+
         $scope.setOuModeAccessible = function(searchGroup){
             searchGroup.orgUnit = null;
         }

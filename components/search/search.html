@@ -105,7 +105,37 @@
                             <div class="col-xs-6 no-padding"><input type="number" placeholder="{{'to'| translate}}" class="form-control" ng-model="searchGroup[attribute.id].endValue"/></div>
                     </div>
                 </span>
-
+                <div ng-switch-when="USERNAME">
+                    <er-users-input-find d2-model="searchGroup[attribute.id].value"
+                                         d2-max-option-size="maxOptionSize"
+                                         d2-selected-orgunit-id="selectedSearchingOrgUnit.id">
+                    </er-users-input-find>
+                </div>
+                <div ng-switch-when="ORGANISATION_UNIT" ng-init="setSelectedOrgUnitUnion(null)">
+                    <div id="searchOuTree">
+                        <accordion>
+                            <accordion-group is-open="searchOuTree.open">
+                                <accordion-heading>
+                                    <span ng-if="!selectedSearchingOrgUnit.displayName"> {{'please_select'| translate}} <i class="pull-right" ng-class="{'fa fa-chevron-up vertical-center': searchOuTree.open, 'fa fa-chevron-down vertical-center': !searchOuTree.open}"></i></span>
+                                    <span ng-if="selectedSearchingOrgUnit.displayName">{{selectedSearchingOrgUnit.displayName}} <i class="pull-right" ng-class="{'fa fa-chevron-up vertical-center': searchOuTree.open, 'fa fa-chevron-down vertical-center': !searchOuTree.open}"></i></span>
+                                </accordion-heading>
+                                <div class="org-unit-tree row" data-stop-propagation="true" style="max-height: 250px;">
+                                    <script type="text/ng-template" id="orgUnitTreeUnion.html">
+                                        <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
+                                        <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="(!orgUnit.show && orgUnit.children.length > 0) || (!orgUnit.show && orgUnit.hasChildren)"><i class="fa fa-plus-square-o"></i></span>
+                                        <span class="org-unit-tree-button" ng-click="setSelectedOrgUnitUnion(orgUnit); searchGroup[attribute.id].value = selectedSearchingOrgUnit.id" ng-class="{'selected-org-unit' : orgUnit.id === selectedSearchingOrgUnit.id}">{{orgUnit.displayName}}</span>
+                                        <ul class="tree" id="tree" ng-show="orgUnit.show">
+                                            <li ng-repeat="orgUnit in orgUnit.children | orderBy:'name'" ng-include="'orgUnitTreeUnion.html'"></li>
+                                        </ul>
+                                    </script>
+                                    <ul class="tree" id="tree">
+                                        <li ng-repeat="orgUnit in orgUnits | orderBy:'name'" ng-include="'orgUnitTreeUnion.html'"></li>
+                                    </ul>
+                                </div>
+                            </accordion-group> 
+                        </accordion>
+                    </div>
+                </div>
                 <span ng-switch-default>
                     <input type="text" class="form-control" ng-model="searchGroup[attribute.id].value" /> 
                 </span>

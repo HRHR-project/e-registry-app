@@ -2985,6 +2985,15 @@ var d2Services = angular.module('d2Services');
         return deferred.promise;
     }
     return {
+        getChildren: function(uid){
+            if( orgUnit !== uid ){
+                orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '.json?fields=id,path,level,children[id,displayName,level,children[id]]&paging=false' ).then(function(response){
+                    orgUnit = uid;
+                    return response.data;
+                });
+            }
+            return orgUnitPromise;
+        },
         get: function(uid){            
             if( orgUnit !== uid ){
                 orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?filter=id:eq:' + uid + '&fields=id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]&paging=false' ).then(function(response){
