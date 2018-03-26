@@ -3842,7 +3842,8 @@ eRegistry.controller('DataEntryController',
 .filter('hideSummaryTableColumns', function () {
     //Custom function for hiding table columns in bangladesh:
     var hiddenSummaryTableColumns = ['aEJoLljIb1y', 'bHVKBPptXae', 'sw0XvIjlcjM', 'S8Yeg0x8Vpy', 'CfIy79NnUSY',
-                'XKV79R3LG5J', 'vjMvkCTew8A'];
+    'XKV79R3LG5J', 'vjMvkCTew8A', 'PUZaKR0Jh2k', 'ENbZrRzZgnh', 'z2OCjflFLxa', 'ET2aesZVpHo'];
+    
     return function (items) {
         var filtered = [];
         for (var i = 0; i < items.length; i++) {

@@ -71,7 +71,7 @@
                             <span ng-show="showHelpText[prStDe.dataElement.id]" ><br>{{prStDe.dataElement.displayDescription ? prStDe.dataElement.displayDescription : prStDe.dataElement.description}}</span>
                         </a>
                     </th>
-                    <th class="" style="text-align: right">Status</th>
+                    <th ng-if="!isBangladesh" class="" style="text-align: right">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -408,7 +408,7 @@
                     </div>
                     <!--<span ng-show="dataEntryOuterForm.submitted && innerform.foo.$invalid" class="error">{{'required'| translate}}</span>-->
                 </td>
-                <td class="min-possible-width prevent-text-selection-on-double-click" ng-class="{'current-event-td': currentEvent === eventRow}">
+                <td class="min-possible-width prevent-text-selection-on-double-click" ng-class="{'current-event-td': currentEvent === eventRow}" ng-if="!isBangladesh">
                     <div class="statuscol" ng-controller="EventOptionsInTableController">
                         <div class="hideInPrint pull-right" ng-show="eventRow === currentEvent && tableEditMode !== tableEditModes.form && tableRowStatusButtonsEnabled(eventRow)">
                             <div class="btn-group event-table-options-dropdown dropup"
