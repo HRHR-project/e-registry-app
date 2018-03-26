@@ -3074,7 +3074,7 @@ var d2Services = angular.module('d2Services');
             return rootOrgUnitPromise;
         },
         getSearchTreeRootBangladesh: function(){
-            var url = DHIS2URL+'/organisationUnits.json?filter=level:eq:3&fields=id,name, displayName,level,children[id,name, displayName, children[id,name, displayName]]&paging=false';
+            var url = DHIS2URL+'/organisationUnits.json?filter=level:eq:4&fields=id,name, displayName,level,children[id,name, displayName, children[id,name, displayName]]&paging=false';
             rootOrgUnitPromise = $http.get( url ).then(function(response){
                 return response.data;
             });
