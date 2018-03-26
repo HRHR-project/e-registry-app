@@ -64,7 +64,7 @@
                                     <span>Gest.Age at visit</span>
                                 </td>
                                 <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
-                                    <span ng-bind="prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>                                
+                                    <span ng-bind="prStDes[de.dataElement.id].dataElement.displayShortName ? prStDes[de.dataElement.id].dataElement.displayShortName : prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>                                
                                 </td>
                             </tr>
                         </thead>
@@ -117,7 +117,7 @@
                                 </td>
                                 <!--This is where the labels for the previous values are displayed.-->
                                 <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
-                                    <span ng-bind="prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>    
+                                    <span ng-bind="prStDes[de.dataElement.id].dataElement.displayShortName ? prStDes[de.dataElement.id].dataElement.displayShortName : prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>    
                                 </td>
                             </tr>
                         </thead>
@@ -166,7 +166,7 @@
                                     </td>
                                     <!--This is where the labels for the previous values are displayed.-->
                                     <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
-                                        <span ng-bind="prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>    
+                                        <span ng-bind="prStDes[de.dataElement.id].dataElement.displayShortName ? prStDes[de.dataElement.id].dataElement.displayShortName : prStDes[de.dataElement.id].dataElement.displayFormName ? prStDes[de.dataElement.id].dataElement.displayFormName : prStDes[de.dataElement.id].dataElement.displayName"></span>    
                                     </td>
                                 </tr>
                             </thead>
