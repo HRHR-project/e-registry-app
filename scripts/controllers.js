@@ -835,7 +835,8 @@ eRegistry.controller('SelectionController',
             angular.forEach($scope.orgUnits, function(ou, index){
                 ou.show = true;
                 angular.forEach(ou.children, function(o){                    
-                    o.hasChildren = o.children && o.children.length > 0 ? true : false;
+                    o.hasChildren = false;
+                    o.children = null;
                 });            
             });
         });
