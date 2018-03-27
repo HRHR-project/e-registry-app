@@ -134,16 +134,16 @@
                                 </div>
                                 <!-- Custom code for Bangladesh -->
                                 <div ng-if="isBangladesh" class="org-unit-tree row" data-stop-propagation="true" style="max-height: 250px;" ng-init="getBangladeshOrgUnits()">
-                                    <script type="text/ng-template" id="orgUnitTree.html">
-                                        <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="orgUnit.level !== 5 && orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
-                                        <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="(orgUnit.level !== 5 && !orgUnit.show && orgUnit.children.length > 0) || orgUnit.level !== 5 && (!orgUnit.show && orgUnit.hasChildren)"><i class="fa fa-plus-square-o"></i></span>
+                                    <script type="text/ng-template" id="orgUnitTreeUnion.html">
+                                        <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
+                                        <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="(!orgUnit.show && orgUnit.hasChildren)"><i class="fa fa-plus-square-o"></i></span>
                                         <span class="org-unit-tree-button" ng-click="setSelectedOrgUnitUnion(orgUnit); searchGroup[attribute.id].value = selectedSearchingOrgUnit.id" ng-class="{'selected-org-unit' : orgUnit.id === selectedSearchingOrgUnit.id}" ng-if="orgUnit.children.length > 0">{{orgUnit.displayName}}</span>
                                         <ul class="tree" id="tree" ng-show="orgUnit.show">
-                                            <li ng-repeat="orgUnit in orgUnit.children | orderBy:'name'" ng-include="'orgUnitTree.html'"></li>
+                                            <li ng-repeat="orgUnit in orgUnit.children | orderBy:'name'" ng-include="'orgUnitTreeUnion.html'"></li>
                                         </ul>
                                     </script>
                                     <ul class="tree" id="tree">
-                                        <li ng-repeat="orgUnit in orgUnits | orderBy:'name'" ng-include="'orgUnitTree.html'"></li>
+                                        <li ng-repeat="orgUnit in orgUnits | orderBy:'name'" ng-include="'orgUnitTreeUnion.html'"></li>
                                     </ul>
                                 </div>
                             </accordion-group> 

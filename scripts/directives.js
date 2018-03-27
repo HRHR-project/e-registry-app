@@ -803,15 +803,17 @@ eRegistryDirectives.directive('stringToNumber', function () {
                 $scope.temp = UsersService.getAll().then(function(users){
                     var temp = [];
                     if($scope.d2SelectedOrgunitId) {
-                        angular.forEach(users, function(user){  
-                            //Hardcoded for Bangladesh (Checks if the user has a certain role).
-                            if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
-                                angular.forEach(user.orgUnits, function(orgUnit){  
-                                    if($scope.d2SelectedOrgunitId === orgUnit.id && $scope.allUsers.indexOf(user) === -1) {
-                                        $scope.allUsers.push(user);
-                                    }
-                                });
-                            }
+                        var relatedOrgunits = OrgUnitFactory.getIdDown($scope.d2SelectedOrgunitId).then(function(selectedOrgUnits) {
+                            angular.forEach(users, function(user){  
+                                //Hardcoded for Bangladesh (Checks if the user has a certain role).
+                                if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
+                                    angular.forEach(user.orgUnits, function(orgUnit){  
+                                        if(selectedOrgUnits.indexOf(orgUnit.id) > -1 && $scope.allUsers.indexOf(user) === -1) {
+                                            $scope.allUsers.push(user);
+                                        }
+                                    });
+                                }
+                            });
                         });
                     //No OrgUnit selected.
                     } else {
@@ -853,12 +855,12 @@ eRegistryDirectives.directive('stringToNumber', function () {
                 $scope.temp = UsersService.getAll().then(function(users){
                     var temp = [];
                     if($scope.d2SelectedOrgunitId) {
-                        var relatedOrgunits = OrgUnitFactory.get($scope.d2SelectedOrgunitId).then(function(selectedOrgUnit) {
+                        var relatedOrgunits = OrgUnitFactory.getIdDown($scope.d2SelectedOrgunitId).then(function(selectedOrgUnits) {
                             angular.forEach(users, function(user){
                                 //Hardcoded for Bangladesh (Checks if the user has a certain role).
                                 if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
                                     angular.forEach(user.orgUnits, function(orgUnit){  
-                                        if(selectedOrgUnit.organisationUnits[0].id === orgUnit.id && $scope.allUsers.indexOf(user) === -1) {
+                                        if(selectedOrgUnits.indexOf(orgUnit.id) > -1 && $scope.allUsers.indexOf(user) === -1) {
                                             $scope.allUsers.push(user);
                                         }
                                     });
