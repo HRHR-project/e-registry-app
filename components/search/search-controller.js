@@ -343,7 +343,11 @@ eRegistry.controller('SearchController',function(
         }
 
         $scope.setSelectedOrgUnitUnion = function(orgUnit){
-            $scope.selectedSearchingOrgUnit = orgUnit;
+            if(orgUnit === $scope.selectedSearchingOrgUnit) {
+                $scope.selectedSearchingOrgUnit = null;
+            } else {
+                $scope.selectedSearchingOrgUnit = orgUnit;            
+            }
         }
 
         $scope.setOuModeAccessible = function(searchGroup){
