@@ -78,7 +78,9 @@ eRegistry.controller('EventCreationController',
         ////custom code for folkehelsa. Set empty eventDate if selectedStage is previous pregnancies
         if($scope.model.selectedStage.id === 'PUZaKR0Jh2k' ||
                 $scope.model.selectedStage.id === 'bO5aSsPeB4A' ||
-                $scope.model.selectedStage.id === 'uOGkguF3MCs'){
+                $scope.model.selectedStage.id === 'uD4lKVSbeyB' ||
+                $scope.model.selectedStage.id === 'uOGkguF3MCs' ||
+                $scope.model.selectedStage.id === 'uD4lKVSbeyB'){
             $scope.dhis2Event.eventDate = '';
         }
         

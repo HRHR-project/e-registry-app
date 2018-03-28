@@ -419,7 +419,7 @@ eRegistry.controller('DataEntryController',
         $scope.mainMenuConfig = response;
 
         if(!$scope.mainMenuConfig) {
-            $scope.bottomLineItems = {BjNpOxjvEj5:true,PUZaKR0Jh2k:true,uUHQw5KrZAL:true};
+            $scope.bottomLineItems = {BjNpOxjvEj5:true,PUZaKR0Jh2k:true,uD4lKVSbeyB:true,uUHQw5KrZAL:true};
             $scope.neverShowItems = {iXDSolqmauJ: true, tlzRiafqzgd: true, w9cPvMH5LaN: true,
                                     WPgz41MctSW:true, HaOwL7bIdrs: true, MO39jKgz2VA: true, E8Jetf3Q90U: true};
             $scope.topLineStageFilter = {};
@@ -820,7 +820,7 @@ eRegistry.controller('DataEntryController',
         if (angular.isObject(events)) {
             angular.forEach(events, function (dhis2Event) {                
                 var multiSelectsFound = [];
-                if ((dhis2Event.enrollment === $scope.selectedEnrollment.enrollment || dhis2Event.programStage ==='PUZaKR0Jh2k') && dhis2Event.orgUnit) {
+                if ((dhis2Event.enrollment === $scope.selectedEnrollment.enrollment || dhis2Event.programStage ==='PUZaKR0Jh2k' || dhis2Event.programStage ==='uD4lKVSbeyB') && dhis2Event.orgUnit) {
                     if (dhis2Event.notes) {
                         dhis2Event.notes = orderByFilter(dhis2Event.notes, '-storedDate');
                         angular.forEach(dhis2Event.notes, function (note) {
@@ -1241,7 +1241,7 @@ eRegistry.controller('DataEntryController',
                             $scope.showDataEntry(newEvent, true);
 
                             //custom code for folkehelsa. Open modal if event-stage is previous pregnancies and tableedit-mode is form only
-                            if(($scope.currentEvent.programStage === 'PUZaKR0Jh2k' || $scope.currentEvent.programStage === 'bO5aSsPeB4A'
+                            if(($scope.currentEvent.programStage === 'PUZaKR0Jh2k' || $scope.currentEvent.programStage === 'uD4lKVSbeyB' || $scope.currentEvent.programStage === 'bO5aSsPeB4A'
                                     || $scope.currentEvent.programStage === 'uOGkguF3MCs') 
                                     && $scope.tableEditMode === $scope.tableEditModes.form){
                                 $scope.openEventEditFormModal($scope.currentEvent);
@@ -1356,7 +1356,7 @@ eRegistry.controller('DataEntryController',
         setEventEditing(event, $scope.currentStage);     
         
         //palestine hardcoded
-        if(event.programStage === "PUZaKR0Jh2k"){
+        if(event.programStage === "PUZaKR0Jh2k" || event.programStage === "uD4lKVSbeyB"){
             $scope.modalOptions = {hideSkipped: true};
         }
         var modalInstance;
@@ -1571,6 +1571,7 @@ eRegistry.controller('DataEntryController',
         }
         else if ($scope.currentStage.displayEventsInTable 
                 || $scope.currentStage.id === 'PUZaKR0Jh2k'
+                || $scope.currentStage.id === 'uD4lKVSbeyB'
                  || $scope.currentStage.id === 'bO5aSsPeB4A'
                  || $scope.currentStage.id === 'uOGkguF3MCs') {
             if($scope.reSortStageEvents === true){
@@ -2190,6 +2191,7 @@ eRegistry.controller('DataEntryController',
                             && $scope.programStages[i].id !== 'w9cPvMH5LaN'
                             && $scope.programStages[i].id !== 'WPgz41MctSW'
                             && $scope.programStages[i].id !== 'PUZaKR0Jh2k'
+                            && $scope.programStages[i].id !== 'uD4lKVSbeyB'
                             && $scope.programStages[i].id !== 'E8Jetf3Q90U'
                             && $scope.programStages[i].id !== 'MO39jKgz2VA')
                     return false;
@@ -2474,7 +2476,7 @@ eRegistry.controller('DataEntryController',
     var eventIsLocked = function(){
         
         /* hardcode palestine */
-        if($scope.currentEvent.programStage === 'PUZaKR0Jh2k'){
+        if($scope.currentEvent.programStage === 'PUZaKR0Jh2k' || $scope.currentEvent.programStage === 'uD4lKVSbeyB'){
             return false;
         }
         
@@ -2539,7 +2541,8 @@ eRegistry.controller('DataEntryController',
                 //for folkehelsa
                 $scope.resetStageErrorInEventLayout();
                 if(angular.isDefined($scope.bottomLineItems) && angular.isDefined($scope.bottomLineItems[$scope.currentEvent.programStage]) 
-                        && $scope.currentEvent.programStage !== "PUZaKR0Jh2k" 
+                        && $scope.currentEvent.programStage !== "PUZaKR0Jh2k"
+                        && $scope.currentEvent.programStage !== "uD4lKVSbeyB" 
                         && $scope.currentEvent.programStage !== "bO5aSsPeB4A"
                         && $scope.currentEvent.programStage !== "uOGkguF3MCs"){
                     $scope.deSelectCurrentEvent();
@@ -3842,7 +3845,7 @@ eRegistry.controller('DataEntryController',
 .filter('hideSummaryTableColumns', function () {
     //Custom function for hiding table columns in bangladesh:
     var hiddenSummaryTableColumns = ['aEJoLljIb1y', 'bHVKBPptXae', 'sw0XvIjlcjM', 'S8Yeg0x8Vpy', 'CfIy79NnUSY',
-    'XKV79R3LG5J', 'vjMvkCTew8A', 'PUZaKR0Jh2k', 'ENbZrRzZgnh', 'z2OCjflFLxa', 'ET2aesZVpHo'];
+    'XKV79R3LG5J', 'vjMvkCTew8A', 'PUZaKR0Jh2k', 'uD4lKVSbeyB', 'ENbZrRzZgnh', 'z2OCjflFLxa', 'ET2aesZVpHo'];
     
     return function (items) {
         var filtered = [];

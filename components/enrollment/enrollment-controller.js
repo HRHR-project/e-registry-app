@@ -349,6 +349,7 @@ eRegistry.controller('EnrollmentController',
                             && programStages[i].id !== 'w9cPvMH5LaN'
                             && programStages[i].id !== 'WPgz41MctSW'
                             && programStages[i].id !== 'PUZaKR0Jh2k'
+                            && programStages[i].id !== 'uD4lKVSbeyB'
                             && programStages[i].id !== 'E8Jetf3Q90U'
                             && programStages[i].id !== 'MO39jKgz2VA')
                     return false;
