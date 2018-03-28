@@ -10,7 +10,7 @@
                 <a class="small-horizonal-spacing" href ng-click="removeWidget(this.widget)" title="{{removeLabel}}" ng-if="this.widget.showHideAllowed"><i class="fa fa-times-circle"></i></a>            
             </span>        
         </div>        
-        <div ng-show="this.widget.expand" class="panel-body dashboard-widget-container">
+        <div ng-show="this.widget.expand" class="panel-body dashboard-widget-container" style="overflow-x: scroll;">
                 <div ng-if="!dashboardReady">
                     <img id="ouwt_loader" ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'loading'| translate}}"/>
                 </div>
