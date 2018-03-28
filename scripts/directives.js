@@ -799,11 +799,11 @@ eRegistryDirectives.directive('stringToNumber', function () {
         },
         controller: function($scope, UsersService, OrgUnitFactory) {
             $scope.$watch("d2SelectedOrgunitId", function(newValue, oldValue){
-                $scope.allUsers = [];        
                 $scope.temp = UsersService.getAll().then(function(users){
                     var temp = [];
                     if($scope.d2SelectedOrgunitId) {
                         var relatedOrgunits = OrgUnitFactory.getIdDown($scope.d2SelectedOrgunitId).then(function(selectedOrgUnits) {
+                            $scope.allUsers = [];
                             angular.forEach(users, function(user){  
                                 //Hardcoded for Bangladesh (Checks if the user has a certain role).
                                 if(user.roles.map(function(user) { return user.id; }).indexOf('lItc9BR90WI') >= 0 || user.roles.map(function(user) { return user.id; }).indexOf('UUICdmkm35V') >= 0) {
