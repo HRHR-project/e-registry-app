@@ -1977,3 +1977,6 @@ a.disable-link-effects:focus {
     margin-top:10px;
     margin-bottom: 3px;
 }
+.app-modal-search .modal-dialog {
+    width: 850px;
+  }

@@ -232,6 +232,7 @@ eRegistry.controller('SearchController',function(
 
             return $modal.open({
                 templateUrl: 'components/search/result-modal.html',
+                windowClass: 'app-modal-search',
                 controller: function($scope,$modalInstance, TEIGridService,OrgUnitFactory, orgUnit, res, refetchDataFn, internalService, canOpenRegistration)
                 {
                     $scope.gridData = null;
