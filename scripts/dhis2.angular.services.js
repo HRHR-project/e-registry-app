@@ -1124,7 +1124,7 @@ var d2Services = angular.module('d2Services');
 
             //Append single quotation marks in case the variable is of text or date type:
             if(valueType === 'LONG_TEXT' || valueType === 'TEXT' || valueType === 'DATE' || valueType === 'OPTION_SET' ||
-                valueType === 'URL' || valueType === 'DATETIME' || valueType === 'TIME' || valueType === 'PHONE_NUMBER' || valueType === 'ORGANISATION_UNIT') {
+                valueType === 'URL' || valueType === 'DATETIME' || valueType === 'TIME' || valueType === 'PHONE_NUMBER' || valueType === 'ORGANISATION_UNIT' || valueType === 'AGE') {
                 if(processedValue) {
                     processedValue = "'" + processedValue + "'";
                 } else {
