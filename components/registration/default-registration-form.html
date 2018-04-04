@@ -143,7 +143,8 @@
                             id="{{attribute.id}}"                             
                             d2-object="selectedTei" 
                             d2-required="attribute.mandatory || mandatoryFields[attribute.id]"
-                            d2-disabled="attributeFieldDisabled(attribute)">
+                            d2-disabled="attributeFieldDisabled(attribute)"
+                            d2-function="teiValueUpdated(selectedTei, attribute.id)">
                         </d2-age>
                     </span>
                     <span ng-switch-when="EMAIL">
