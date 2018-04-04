@@ -141,7 +141,7 @@ var d2Services = angular.module('d2Services');
 })
 
 /* service for common utils */
-    .service('CommonUtils', function(DateUtils, OptionSetService, CurrentSelection, FileService){
+    .service('CommonUtils', function(DateUtils, OptionSetService, CurrentSelection, FileService, $translate) {
 
         return {
             formatDataValue: function(event, val, obj, optionSets, destination){
@@ -202,10 +202,10 @@ var d2Services = angular.module('d2Services');
             displayBooleanAsYesNo: function(value, dataElement){
                 if(angular.isUndefined(dataElement) || dataElement.valueType === "BOOLEAN"){
                     if(value === "true" || value === true){
-                        return "Yes";
+                        return $translate.instant('yes');;
                     }
                     else if(value === "false" || value === false){
-                        return "No";
+                        return $translate.instant('no');;
                     }
                 }
                 return value;
