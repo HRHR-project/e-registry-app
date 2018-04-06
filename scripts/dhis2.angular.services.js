@@ -1566,7 +1566,7 @@ var d2Services = angular.module('d2Services');
     })
 
     /* service for executing tracker rules and broadcasting results */
-    .service('TrackerRulesExecutionService', function($translate, VariableService, DateUtils, NotificationService, DHIS2EventFactory, RulesFactory, CalendarService, OptionSetService, $rootScope, $q, $log, $filter, orderByFilter){
+    .service('TrackerRulesExecutionService', function($translate, SessionStorageService, VariableService, DateUtils, NotificationService, DHIS2EventFactory, RulesFactory, CalendarService, OptionSetService, $rootScope, $q, $log, $filter, orderByFilter){
         var NUMBER_OF_EVENTS_IN_SCOPE = 10;
 
         //Variables for storing scope and rules in memory from rules execution to rules execution:
@@ -1689,6 +1689,7 @@ var d2Services = angular.module('d2Services');
                     {name:"d2:ceil",parameters:1},
                     {name:"d2:round",parameters:1},
                     {name:"d2:hasValue",parameters:1},
+                    {name:"d2:hasUserRole",parameters:1},
                     {name:"d2:lastEventDate",parameters:1},
                     {name:"d2:validatePattern",parameters:2},
                     {name:"d2:validatePalestineID",parameters:1},
@@ -1962,6 +1963,20 @@ var d2Services = angular.module('d2Services');
                                 {
                                     $log.warn("could not find variable to check if has value: " + variableName);
                                 }
+
+                                //Replace the end evaluation of the dhis function:
+                                expression = expression.replace(callToThisFunction, valueFound);
+                                expressionUpdated = true;
+                            } 
+                            else if(dhisFunction.name === "d2:hasUserRole") {
+                                var userRole = parameters[0];
+                                var user = SessionStorageService.get('USER_PROFILE');
+                                var valueFound = false;
+                                angular.forEach(user.userCredentials.userRoles, function(role){
+                                    if(role.id === userRole) {
+                                        valueFound = true;
+                                    }
+                                });
 
                                 //Replace the end evaluation of the dhis function:
                                 expression = expression.replace(callToThisFunction, valueFound);
