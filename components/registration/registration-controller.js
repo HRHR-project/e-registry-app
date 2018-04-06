@@ -314,10 +314,20 @@ eRegistry.controller('RegistrationController',
 
     OrgUnitFactory.getSearchTreeRoot().then(function(response) {  
         $scope.orgUnits = response.organisationUnits;
-        angular.forEach($scope.orgUnits, function(ou){
+        var hideOrgUnits = ['J0sGEmtFtWx', 'YzvydYMRQhN', 'eExam925GfS'];
+        
+        var temp = [];
+        angular.forEach($scope.orgUnits, function(ou){                    
+            if(hideOrgUnits.indexOf(ou.id) === -1) {
+                temp.push(ou);
+            }
+        });
+        $scope.orgUnits = temp;
+
+        angular.forEach($scope.orgUnits, function(ou, index){
             ou.show = true;
             angular.forEach(ou.children, function(o){                    
-                o.hasChildren = o.children && o.children.length > 0 ? true : false;
+                o.hasChildren = false;
             });            
         });
     });
