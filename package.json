@@ -20,7 +20,8 @@
     "d2-tracker": "29.0.23",
     "leaflet": "^0.7.7",
     "leaflet-contextmenu": "^1.1.0",
-    "leaflet-geocoder-mapzen": "1.4.1"
+    "leaflet-geocoder-mapzen": "1.4.1",
+    "mkdirp": "^0.5.1"
   },
   "devDependencies": {
     "babel-core": "^6.8.0",
