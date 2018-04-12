@@ -7,11 +7,15 @@
                         <i class="glyphicon glyphicon-asterisk"></i>
                         {{item.content | trimquotes}}
                 </span>
+                <span ng-if="item.content==='Advise facility birth'" style="color:red">
+                        <i class="glyphicon glyphicon-asterisk"></i>
+                        {{item.content | trimquotes}}
+                </span>
                 <span ng-if="item.content==='Unmanaged condition'" style="color:darkgoldenrod">
                         <i class="glyphicon glyphicon-asterisk"></i>
                         {{item.content | trimquotes}}
                 </span>
-                <span ng-if="item.content!=='High risk pregnancy'
+                <span ng-if="item.content!=='High risk pregnancy && item.content!=='Advise facility birth'
                       && item.content!=='Unmanaged condition'">
                     {{item.content | trimquotes}}{{item.data | trimquotes}}
                 </span>
