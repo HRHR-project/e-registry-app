@@ -254,7 +254,8 @@
                                             <span class="org-unit-tree-button" ng-click="expandCollapseOrgUnitTree(orgUnit)" ng-show="!orgUnit.show && orgUnit.hasChildren"><i class="fa fa-plus-square-o"></i></span>
                                             <span class="org-unit-tree-button"
                                                   ng-click="setSelectedSearchingOrgUnit(orgUnit); selectedTei[attribute.id] = selectedSearchingOrgUnit.id; teiValueUpdated(selectedTei, attribute.id)"
-                                                  ng-class="{'selected-org-unit' : orgUnit.id === selectedSearchingOrgUnit.id}">
+                                                  ng-class="{'selected-org-unit' : orgUnit.id === selectedSearchingOrgUnit.id}"
+                                                  ng-if="orgUnit.children.length > 0">
                                                 {{orgUnit.displayName}}
                                             </span>
                                             <ul class="tree" id="tree" ng-show="orgUnit.show">
