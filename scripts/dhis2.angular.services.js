@@ -2311,7 +2311,7 @@ var d2Services = angular.module('d2Services');
          * @param {*} optionSets all optionsets(matedata)
          * @param {*} flag execution flags
          */
-        var internalExecuteRules = function(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flag) {
+        var internalExecuteRules = function(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flag, stagesById) {
             if(allProgramRules) {
                 var variablesHash = {};
 
@@ -2435,7 +2435,8 @@ var d2Services = angular.module('d2Services');
                                 if($rootScope.ruleeffects[ruleEffectKey][action.id].action === "CREATEEVENT" && $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect){
                                     if(evs && evs.byStage){
                                         if($rootScope.ruleeffects[ruleEffectKey][action.id].programStage) {
-                                            var createdNow = performCreateEventAction($rootScope.ruleeffects[ruleEffectKey][action.id], selectedEntity, selectedEnrollment, evs.byStage[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id]);
+                                            var stage = stagesById && stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id]? stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id] : null;
+                                            var createdNow = performCreateEventAction($rootScope.ruleeffects[ruleEffectKey][action.id], selectedEntity, selectedEnrollment, evs.byStage[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id], executingEvent.event, stage);
                                             eventsCreated += createdNow;
                                         } else {
                                             $log.warn("No programstage defined for CREATEEVENT action: " + action.id);
@@ -2604,8 +2605,8 @@ var d2Services = angular.module('d2Services');
             }
         };
         return {
-            executeRules: function(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flags) {
-                return internalExecuteRules(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flags);
+            executeRules: function(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flags, stagesById) {
+                return internalExecuteRules(allProgramRules, executingEvent, evs, allDataElements, allTrackedEntityAttributes, selectedEntity, selectedEnrollment, optionSets, flags, stagesById);
             },
             loadAndExecuteRulesScope: function(currentEvent, programId, programStageId, programStageDataElements, allTrackedEntityAttributes, optionSets, orgUnitId, flags){
                 return internalGetOrLoadRules(programId).then(function(rules) {
