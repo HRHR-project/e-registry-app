@@ -1211,6 +1211,26 @@ var d2Services = angular.module('d2Services');
             }
             return highRisk;
         };
+
+        //Folkehelsa:
+        var getHighRiskPregnancyBangladesh = function(evs){
+            var highRisk = false;
+            if(evs && evs.byStage) {
+                angular.forEach(evs.byStage['tlzRiafqzgd'], function(stage) {
+                    //Management performed: RO9lM47fth5 - Management type: AcMrnleqHqc
+                    angular.forEach(stage.dataValues, function(dataValue){
+                        if(dataValue.dataElement === 'AcMrnleqHqc' &&
+                               (dataValue.value === "RefHighRisk" || dataValue.value === "RefHosp" || dataValue.value === "RefDiabetes" || dataValue.value === "RefNonUrgent" ||
+                                dataValue.value === "IronSupplements" || dataValue.value === "RefRiskFlag1" || dataValue.value === "RefRiskFlag2" || dataValue.value === "RefRiskFlag3" )) {
+                            if(stage['RO9lM47fth5'] !== "false") {
+                                highRisk = true;
+                            }
+                        }
+                    });
+                });
+            }
+            return highRisk;
+        };
             //Folkehelsa:
         var getUnManagedReferral = function(evs){
             var unManaged = false;
@@ -1545,6 +1565,7 @@ var d2Services = angular.module('d2Services');
                     variables = pushVariable(variables, 'pp_count', getPreviousPregnanciesCount(evs, programVariables), null, 'INTEGER', true, 'V', '');
                     variables = pushVariable(variables, 'cs_count', getPreviousPregnancyData(evs, [{id:"mrVkW9h2Rdp",value:"Alive"},{id:"W4zW3aPyS0G",value:"C-Section"}]), null, 'INTEGER', true, 'V', '');
                     variables = pushVariable(variables, 'highRiskPregnancy', getHighRiskPregnancy(evs), null, 'BOOLEAN', true, 'V', '');
+                    variables = pushVariable(variables, 'highRiskPregnancyBangladesh', getHighRiskPregnancyBangladesh(evs), null, 'BOOLEAN', true, 'V', '');
                     variables = pushVariable(variables, 'unManagedReferral', getUnManagedReferral(evs), null, 'BOOLEAN', true, 'V', '');
                 }
                 
