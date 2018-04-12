@@ -315,14 +315,15 @@ eRegistry.controller('SearchController',function(
             }, function(){return;});
         }
         $scope.expandCollapseOrgUnitTree = function(orgUnit) {
-            if( orgUnit.hasChildren ){
+            if( orgUnit.children && orgUnit.children.length > 0 ){
                 //Get children for the selected orgUnit
                 OrgUnitFactory.getChildren(orgUnit.id).then(function(ou) {
                     orgUnit.show = !orgUnit.show;
-                    orgUnit.hasChildren = false;
                     orgUnit.children = ou.children;
-                    angular.forEach(orgUnit.children, function(ou){
-                        ou.hasChildren = ou.children && ou.children.length > 0 ? true : false;
+                    orgUnit.hasChildren = orgUnit.children.length > 0 ? true : false;
+                    angular.forEach(orgUnit.children, function(o){
+                        //Hard coded for Bangladesh, we set children to false to stop rendring below these orgUnits.
+                        o.hasChildren = false;
                     });
                 });
             }

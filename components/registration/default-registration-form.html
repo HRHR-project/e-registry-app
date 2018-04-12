@@ -250,8 +250,8 @@
                                     
                                     <div ng-if="isBangladesh" class="org-unit-tree row" data-stop-propagation="true" style="max-height: 250px;">
                                         <script type="text/ng-template" id="orgUnitTree.html">
-                                            <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
-                                            <span class="org-unit-tree-button" ng-click="expandCollapse(orgUnit)" ng-show="(!orgUnit.show && orgUnit.children.length > 0) || (!orgUnit.show && orgUnit.hasChildren)"><i class="fa fa-plus-square-o"></i></span>
+                                            <span class="org-unit-tree-button" ng-click="expandCollapseOrgUnitTree(orgUnit)" ng-show="orgUnit.show && orgUnit.children.length > 0"><i class="fa fa-minus-square-o"></i></span>
+                                            <span class="org-unit-tree-button" ng-click="expandCollapseOrgUnitTree(orgUnit)" ng-show="!orgUnit.show && orgUnit.hasChildren"><i class="fa fa-plus-square-o"></i></span>
                                             <span class="org-unit-tree-button"
                                                   ng-click="setSelectedSearchingOrgUnit(orgUnit); selectedTei[attribute.id] = selectedSearchingOrgUnit.id; teiValueUpdated(selectedTei, attribute.id)"
                                                   ng-class="{'selected-org-unit' : orgUnit.id === selectedSearchingOrgUnit.id}">

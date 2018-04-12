@@ -3002,12 +3002,9 @@ var d2Services = angular.module('d2Services');
     }
     return {
         getChildren: function(uid){
-            if( orgUnit !== uid ){
-                orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '.json?fields=id,path,level,children[id,displayName,level,children[id]]&paging=false' ).then(function(response){
-                    orgUnit = uid;
-                    return response.data;
-                });
-            }
+            orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '.json?fields=id,path,level,children[id,displayName,level,children[id]]&paging=false' ).then(function(response){
+                return response.data;
+            });
             return orgUnitPromise;
         },
         get: function(uid){            
