@@ -6,7 +6,7 @@
             selected-tei-id=d2SelectedTeiId 
             ng-disabled="d2Disabled" 
             on-select="saveOption()"
-            ng-style="{'width': '100%'}"
+            ng-style="{'width': '100%', 'margin-top': '5px', 'margin-bottom': '5px'}"
             name="foo">
     <ui-select-match allow-clear="true"  class="form-control-ui-select"  placeholder="{{'select_or_search' | translate}}">{{$select.selected.displayName  || $select.selected.name ||  $select.selected}}</ui-select-match>
     <ui-select-choices  repeat="user.username as user in allUsers | filter: $select.search | limitTo:d2MaxOptionSize">
