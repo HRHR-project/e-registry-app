@@ -1980,3 +1980,6 @@ a.disable-link-effects:focus {
 .app-modal-search .modal-dialog {
     width: 850px;
   }
+.select2-choice {
+    border-radius: 5px;
+}

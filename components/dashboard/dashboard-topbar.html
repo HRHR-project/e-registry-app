@@ -15,8 +15,7 @@
                         <i class="glyphicon glyphicon-asterisk"></i>
                         {{item.content | trimquotes}}
                 </span>
-                <span ng-if="item.content!=='High risk pregnancy && item.content!=='Advise facility birth'
-                      && item.content!=='Unmanaged condition'">
+                <span ng-if="item.content!=='High risk pregnancy' && item.content!=='Advise facility birth' && item.content!=='Unmanaged condition'">
                     {{item.content | trimquotes}}{{item.data | trimquotes}}
                 </span>
             </li>
