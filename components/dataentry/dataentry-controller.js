@@ -685,6 +685,7 @@ eRegistry.controller('DataEntryController',
         $scope.prStDes = [];
         $scope.allProgramRules = [];
         $scope.allowProvidedElsewhereExists = [];
+        $scope.allowFutureDateArray = [];
         
         var selections = CurrentSelection.get();
         $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU');
@@ -728,14 +729,15 @@ eRegistry.controller('DataEntryController',
                     stage.autoCreateNewEvents = true;
                 }*/
                 //end for folkehelsa--------------------------------------------------------------------------------------------------------
-                
                 angular.forEach(stage.programStageDataElements, function (prStDe) {
                     $scope.prStDes[prStDe.dataElement.id] = prStDe;
+                    if($scope.prStDes[prStDe.dataElement.id].allowFutureDate) {
+                        $scope.allowFutureDateArray[prStDe.dataElement.id] = true;
+                    }
                     if(prStDe.allowProvidedElsewhere){
                         $scope.allowProvidedElsewhereExists[stage.id] = true;
                     }
                 });
-
                 $scope.stagesById[stage.id] = stage;
                 $scope.eventsByStage[stage.id] = [];
 

@@ -187,7 +187,7 @@
                        placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
                        d2-date
                        d2-date-validator
-                       max-date="prStDes[de.dataElement.id].allowFutureDate ? '' : 0"
+                       max-date="prStDes[de.dataElement.id].allowFutureDate || allowFutureDateArray[de.dataElement.id] ? '' : 0"
                        class="form-control"
                        ng-class="getInputNotifcationClass(prStDes[de.dataElement.id].dataElement.id,false, currentEvent)"
                        ng-model="currentEvent[prStDes[de.dataElement.id].dataElement.id]"
