@@ -63,7 +63,12 @@ module.exports = {
                 test: /\.css$/,
                 loader: 'style-loader!css-loader',
             },
+            {
+                test: /\.(gif|png|jpg)$/,
+                loader: 'file-loader'
+            },
         ],
+        noParse: /node_modules\/leaflet-control-geocoder\/dist\/Control.Geocoder.js/,
     },
     plugins: [
         new webpack.DefinePlugin({
@@ -82,7 +87,6 @@ module.exports = {
                 [`${dhisUrlPrefix}/dhis-web-core-resource/jquery.ui/1.11.4/themes/redmond/jquery-ui.css`],
                 [`${dhisUrlPrefix}/dhis-web-core-resource/jquery.calendars.package-1.2.1/ui-redmond.calendars.picker.css`],
                 [`${dhisUrlPrefix}/dhis-web-core-resource/leaflet/0.7.7/leaflet.css`],
-                [`${dhisUrlPrefix}/dhis-web-core-resource/leaflet-geocoder-mapzen/1.4.1/dist/leaflet-geocoder-mapzen.css`],
                 [`${dhisUrlPrefix}/dhis-web-core-resource/leaflet-contextmenu/1.1.0/dist/leaflet.contextmenu.css`],
                 [`${dhisUrlPrefix}/dhis-web-core-resource/fontawesome/4.7.0/css/font-awesome.min.css`, {media: 'screen'}],
                 [`${dhisUrlPrefix}/dhis-web-core-resource/dhis/css/widgets-2318061e45.css`, {media: 'screen'}],

@@ -3057,7 +3057,7 @@ eRegistry.controller('DataEntryController',
                 }                    
             }            
 
-            for(j = 0; j < $scope.maxCompareItemsInCompareView; j++){
+            for(var j = 0; j < $scope.maxCompareItemsInCompareView; j++){
                 var position = indexOfCurrent - 1 - j;
                 if(position < 0){
                     break;

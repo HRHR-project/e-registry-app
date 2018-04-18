@@ -18,7 +18,8 @@
   "homepage": "https://github.com/dhis2/e-registry-app#readme",
   "dependencies": {
     "d2-tracker": "29.0.31",
-    "leaflet": "^0.7.7",
+    "file-loader": "^1.1.11",
+    "leaflet": "^1.3.1",
     "leaflet-contextmenu": "^1.1.0",
     "leaflet-control-geocoder": "^1.5.8",
     "mkdirp": "^0.5.1"
