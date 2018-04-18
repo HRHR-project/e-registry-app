@@ -2577,6 +2577,10 @@ leaflet-contextmenu@^1.1.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/leaflet-contextmenu/-/leaflet-contextmenu-1.4.0.tgz#e2bda481af1026080eabaa32997e531fd44f605c"
 
+leaflet-control-geocoder@^1.5.8:
+  version "1.5.8"
+  resolved "https://registry.yarnpkg.com/leaflet-control-geocoder/-/leaflet-control-geocoder-1.5.8.tgz#c52dfbb9be5f6388d683346acb49bf017fd5b6a8"
+
 leaflet-geocoder-mapzen@1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/leaflet-geocoder-mapzen/-/leaflet-geocoder-mapzen-1.4.1.tgz#9469ad35ac68f5752a9000d3c7a94cfa211dac99"

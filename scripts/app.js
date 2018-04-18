@@ -41,7 +41,6 @@ import '../components/rulebound/rulebound-controller.js';
 import '../components/search/search-controller.js';
 
 import L from 'leaflet';
-import 'leaflet-geocoder-mapzen';
 import 'leaflet-contextmenu';
 import 'd2-tracker/lib/Google.js';
 
