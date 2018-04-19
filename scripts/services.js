@@ -131,7 +131,7 @@ eRegistryServices.factory('ERStorageService', function(){
             return promise;            
         },
         getMainMenuConfig: function(){
-            var promise = $http.get(DHIS2URL+'/systemSettings/eRegistryMainMenuConfig').then(function(response){
+            var promise = $http.get(DHIS2URL+'/dataStore/tracker/mainMenuConfig').then(function(response){
                 return response.data;
             }, function(){
                 return null;
