@@ -1105,15 +1105,15 @@ eRegistry.controller('DataEntryController',
             if(angular.isUndefined($scope.eventsByStage['WZbXY0S00lP']) || $scope.eventsByStage['WZbXY0S00lP'].length === 0){
                 stage = $scope.stagesById['WZbXY0S00lP'];
             } 
-        } else if(stage.id === 'dqF3sxJKBls' && $scope.isBangladesh) {
+        } else if(stage.id === 'dqF3sxJKBls') {
             if(angular.isUndefined($scope.eventsByStage['w0pwmNYugKX']) || $scope.eventsByStage['w0pwmNYugKX'].length === 0){
                 stage = $scope.stagesById['w0pwmNYugKX'];
             }
-        } else if(stage.id === 'IlSUGDq9QDc' && $scope.isBangladesh) {
+        } else if(stage.id === 'IlSUGDq9QDc') {
             if(angular.isUndefined($scope.eventsByStage['piRv8jtcLQV']) || $scope.eventsByStage['piRv8jtcLQV'].length === 0){
                 stage = $scope.stagesById['piRv8jtcLQV'];
             }
-        } else if(stage.id === 'fSE8JyGdsV6' && $scope.isBangladesh) {
+        } else if(stage.id === 'fSE8JyGdsV6') {
             if(angular.isUndefined($scope.eventsByStage['FRSZV43y35y']) || $scope.eventsByStage['FRSZV43y35y'].length === 0){
                 stage = $scope.stagesById['FRSZV43y35y'];
             }
