@@ -521,9 +521,7 @@ eRegistry.controller('SelectionController',
         if($scope.showRegistrationDiv){
             $scope.showTrackedEntityDiv = false;
             $scope.showSearchDiv = false;
-            $timeout(function() { 
-                $rootScope.$broadcast('registrationWidget', {registrationMode: 'REGISTRATION'});
-            }, 200);
+            $rootScope.$broadcast('registrationWidget', {registrationMode: 'REGISTRATION'});
         }
     };    
     
