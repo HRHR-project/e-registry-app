@@ -35,7 +35,17 @@ eRegistry.controller('SearchController',function(
             SearchGroupService.forceMaxTeiCount();
         }
 
-        
+        $scope.base.attributesById = CurrentSelection.getAttributesById();
+        if(!$scope.base.attributesById || $scope.base.attributesById.length < 1){
+            $scope.base.attributesById = [];
+            AttributesFactory.getAll().then(function(atts){
+                angular.forEach(atts, function(att){
+                    $scope.base.attributesById[att.id] = att;
+                });
+                
+                CurrentSelection.setAttributesById($scope.base.attributesById);
+            });
+        }
 
 
         $scope.$watch('base.selectedProgram', function() {
