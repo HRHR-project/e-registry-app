@@ -2,7 +2,9 @@
     <table class="dhis2-list-table-striped default-form-table dhis2-table-hover" ng-if='currentEvent && !currentStage.programStageSections.length'>
         <thead>
         <tr>
-            <th ng-bind="dataElementLabel">
+            <th ng-bind="dataElementLabel" ng-if="!isBangladesh">
+            </th>
+            <th ng-bind="dataElementLabel" ng-if="isBangladesh" class="col-md-7">
             </th>
             <th class="" ng-bind="valueLabel">
             </th>
