@@ -17,8 +17,6 @@
         "dhis": {
             "href": "*"
         }
-    }
-    "authorities": [
-         "E_REGISTRY_APP_ACCESS"
-    }
+    },
+    "authorities": []
 }
