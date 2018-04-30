@@ -331,6 +331,28 @@ eRegistry.controller('RegistrationController',
             });            
         });
     });
+    
+    $scope.getBangladeshOrgUnits = function(){
+        OrgUnitFactory.getSearchTreeRootBangladesh().then(function(response) {  
+            $scope.orgUnits = response.organisationUnits;
+            var hideOrgUnits = ['J0sGEmtFtWx', 'YzvydYMRQhN', 'eExam925GfS'];
+            
+            var temp = [];
+            angular.forEach($scope.orgUnits, function(ou){                    
+                if(hideOrgUnits.indexOf(ou.id) === -1) {
+                    temp.push(ou);
+                }
+            });
+            $scope.orgUnits = temp;
+
+            angular.forEach($scope.orgUnits, function(ou, index){
+                ou.show = true;
+                angular.forEach(ou.children, function(o){                    
+                    o.hasChildren = false;
+                });            
+            });
+        });
+    };
 
     $scope.expandCollapse = function(orgUnit) {
         if( orgUnit.hasChildren ){            
