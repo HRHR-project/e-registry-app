@@ -1882,7 +1882,19 @@ var d2Services = angular.module('d2Services');
                             }
                             else if(dhisFunction.name === "d2:validatePalestineID"){
                                 var id = parameters[0];
-                                var valid = dhis2.validation.isValidPalestineID(id);
+                                var valid = "false";
+                                
+                                var A;
+                                var B = 0;
+                                for (var i = 0; i <= 7; i++) {
+                                    A = parseInt(id.substring(i, i + 1));
+                                    if ((i + 1) % 2 == 0) { A = A * 2; }
+                                    if (A > 9) { A = A - 9; }
+                                    B = B + A;
+                                }
+                                B = B % 10;
+                                B = (10 - B) % 10;
+                                if (B == parseInt(id.substring(8))) { valid = "true"; }
 
                                 expression = expression.replace(callToThisFunction, valid);
                                 expressionUpdated = true;
