@@ -134,7 +134,7 @@ eRegistry.controller('SelectionController',
                 $scope.doSearch = true;
                 $scope.searchingOrgUnit = $scope.selectedOrgUnit;
                 SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);
-                
+                $rootScope.$broadcast('orgunitSet');                            
                 $scope.trackedEntityList = null;            
                 $scope.searchText = null;
                 
