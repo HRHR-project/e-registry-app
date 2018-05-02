@@ -122,15 +122,13 @@ eRegistry.controller('DataEntryController',
 
     //Code for Bangladesh, is used in default-form.html to set the col size of data elements to 7.
     $scope.isBangladesh = false;
-    $scope.setColSize = function() {
-        SystemSettingsService.getCountry().then(function(response){
-            if(response === 'bangladesh') {
-                $scope.isBangladesh = true;
-            } else {
-                $scope.isBangladesh = false;
-            }
-        });
-    };
+    SystemSettingsService.getCountry().then(function(response){
+        if(response === 'bangladesh') {
+            $scope.isBangladesh = true;
+        } else {
+            $scope.isBangladesh = false;
+        }
+    });
     
     $scope.filterLegend = function(){
         if($scope.mainMenuStageSelected()){
@@ -1562,7 +1560,7 @@ eRegistry.controller('DataEntryController',
         if ($scope.customForm) {
             $scope.displayCustomForm = "CUSTOM";
         }
-        else if($scope.currentStage.id === 'uUHQw5KrZAL' || $scope.currentStage.id === 'BjNpOxjvEj5' || $scope.currentStage.id === 'FRSZV43y35y'){ //custom code for folkehelsa            
+        else if($scope.currentStage.id === 'uUHQw5KrZAL' || $scope.currentStage.id === 'BjNpOxjvEj5' || $scope.currentStage.id === 'FRSZV43y35y' && !$scope.isBangladesh){ //custom code for folkehelsa            
             if($scope.displayCustomForm === "COMPARE"){
                 $scope.readyCompareDisplayForm();
             }
@@ -1572,8 +1570,8 @@ eRegistry.controller('DataEntryController',
             
         }
         else if ($scope.currentStage.displayEventsInTable 
-                || $scope.currentStage.id === 'PUZaKR0Jh2k'
-                || $scope.currentStage.id === 'uD4lKVSbeyB'
+                 || $scope.currentStage.id === 'PUZaKR0Jh2k'
+                 || $scope.currentStage.id === 'uD4lKVSbeyB'
                  || $scope.currentStage.id === 'bO5aSsPeB4A'
                  || $scope.currentStage.id === 'uOGkguF3MCs') {
             if($scope.reSortStageEvents === true){
