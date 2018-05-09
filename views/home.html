@@ -114,10 +114,9 @@
             <div class="alert alert-warning">{{'search_input_required'| translate}}</div>
         </div>
         <!-- END Was commented out -->
-            
-        <!--registration form begins -->
+        <div ng-if="selectedOrgUnit">
             <div class="col-sm-8 bordered-div" ng-show="showRegistrationDiv" ng-include="'components/registration/registration.html'"></div>
-        <!-- registration form ends -->        
+        </div>    
 
         <!-- entity grid begins -->
             <div class="row vertical-spacing" ng-if="model.selectedProgram">
