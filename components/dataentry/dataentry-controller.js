@@ -1100,19 +1100,23 @@ eRegistry.controller('DataEntryController',
     $scope.showCreateEventIfStageNeedsEvent = function(stage, eventCreationAction, requireStageEventsToBeCompleted, showModalOnNoEventsNeeded){
         //custom code for folkehelsa
         if(stage.id === 'edqlbukwRfQ'){
-            if(angular.isUndefined($scope.eventsByStage['WZbXY0S00lP']) && $scope.stagesById['WZbXY0S00lP'] || $scope.eventsByStage['WZbXY0S00lP'].length === 0 && $scope.stagesById['WZbXY0S00lP']){
+            //If stage WZbXY0S00lP exists and no event of stage WZbXY0S00lP exists
+            if($scope.stagesById['WZbXY0S00lP'] && (angular.isUndefined($scope.eventsByStage['WZbXY0S00lP']) || $scope.eventsByStage['WZbXY0S00lP'].length === 0)){
                 stage = $scope.stagesById['WZbXY0S00lP'];
-            } 
+            }
         } else if(stage.id === 'dqF3sxJKBls') {
-            if(angular.isUndefined($scope.eventsByStage['w0pwmNYugKX']) && $scope.stagesById['w0pwmNYugKX'] || $scope.eventsByStage['w0pwmNYugKX'].length === 0 && $scope.stagesById['w0pwmNYugKX']){
+            //If stage w0pwmNYugKX exists and no event of stage w0pwmNYugKX exists 
+            if($scope.stagesById['w0pwmNYugKX'] && (angular.isUndefined($scope.eventsByStage['w0pwmNYugKX']) || $scope.eventsByStage['w0pwmNYugKX'].length === 0)){
                 stage = $scope.stagesById['w0pwmNYugKX'];
             }
         } else if(stage.id === 'IlSUGDq9QDc') {
-            if(angular.isUndefined($scope.eventsByStage['piRv8jtcLQV']) && $scope.stagesById['piRv8jtcLQV'] || $scope.eventsByStage['piRv8jtcLQV'].length === 0 && $scope.stagesById['piRv8jtcLQV']){
+            //If stage piRv8jtcLQV exists and no event of stage piRv8jtcLQV exists 
+            if($scope.stagesById['piRv8jtcLQV'] && (angular.isUndefined($scope.eventsByStage['piRv8jtcLQV']) || $scope.eventsByStage['piRv8jtcLQV'].length === 0)){
                 stage = $scope.stagesById['piRv8jtcLQV'];
             }
         } else if(stage.id === 'fSE8JyGdsV6') {
-            if(angular.isUndefined($scope.eventsByStage['FRSZV43y35y']) && $scope.stagesById['FRSZV43y35y'] || $scope.eventsByStage['FRSZV43y35y'].length === 0 && $scope.stagesById['FRSZV43y35y']){
+            //If stage FRSZV43y35y exists and no event of stage FRSZV43y35y exists 
+            if($scope.stagesById['FRSZV43y35y'] && (angular.isUndefined($scope.eventsByStage['FRSZV43y35y']) || $scope.eventsByStage['FRSZV43y35y'].length === 0)){
                 stage = $scope.stagesById['FRSZV43y35y'];
             }
         }
