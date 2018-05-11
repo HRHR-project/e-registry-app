@@ -421,8 +421,8 @@ eRegistry.controller('EventCreationController',
     $scope.expandCollapse = function(orgUnit) {
         orgUnit.show = !orgUnit.show;
         if(!orgUnit.childrenLoaded){
-            OrgUnitFactory.get(orgUnit.id).then(function(data){
-                orgUnit.children = data.organisationUnits[0].children;
+            OrgUnitFactory.get(orgUnit.id).then(function(ou){
+                orgUnit.children = ou.children;
                 orgUnit.childrenLoaded = true;
                 
             });

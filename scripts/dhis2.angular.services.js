@@ -2405,6 +2405,11 @@ var d2Services = angular.module('d2Services');
                             }
 
                             angular.forEach(rule.programRuleActions, function(action){
+                                var ruletemp = rule;
+                                if(action && action.content && action.content === 'Unmanaged condition'){
+                                    var g = 1;
+                                    var u = g+1;
+                                }
                                 //In case the effect-hash is not populated, add entries
                                 if(angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey][action.id] )){
                                     $rootScope.ruleeffects[ruleEffectKey][action.id] =  {
@@ -3042,7 +3047,7 @@ var d2Services = angular.module('d2Services');
         },
         get: function(uid){            
             if( orgUnit !== uid ){
-                orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?filter=id:eq:' + uid + '&fields=id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]&paging=false' ).then(function(response){
+                orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits/'+uid+'.json?fields=id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]&paging=false' ).then(function(response){
                     orgUnit = response.data.id;
                     return response.data;
                 });

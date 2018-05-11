@@ -43,7 +43,7 @@ eRegistry.controller('MakeReferralController', function($scope, $modalInstance, 
             OrgUnitFactory.get(orgUnit.id).then(function(ou) {                
                 orgUnit.show = !orgUnit.show;
                 orgUnit.hasChildren = false;
-                orgUnit.children = ou.organisationUnits[0].children;                
+                orgUnit.children = ou.children;                
                 angular.forEach(orgUnit.children, function(ou){                    
                     ou.hasChildren = ou.children && ou.children.length > 0 ? true : false;
                 });                

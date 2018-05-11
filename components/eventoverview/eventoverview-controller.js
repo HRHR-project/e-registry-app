@@ -448,38 +448,48 @@ eRegistry.controller('EventOverViewController',
         }        
     };
     
-    var managementActionsWithLink = { highRiskClinic: "referral to high risk clinic" };
+    var managementActionsWithLink = { 
+        highRiskClinic: {
+            managements: ["referral to high risk clinic", "refer to high risk clinic"],
+            actionFunc: function(){ $scope.createReferraleventForProgramStage('edqlbukwRfQ')}
+        }
+    }
     
-    $scope.provideManagementLink = function(managementAction){ 
+    $scope.provideManagementLink = function(management){ 
         
-        if(!managementAction) {
+        if(!management) {
             return false;
         }
         
-        var managementActionLC = managementAction.toLowerCase();
-        
-        for(var key in managementActionsWithLink){
-            if(managementActionsWithLink[key] === managementActionLC){
+        var managementLC = management.toLowerCase();
+        var actions = managementActionsWithLink;
+        for(var key in actions){
+            if(containsActionForManagement(actions[key], managementLC)){
                 return true;
             }
         }
         return false;        
     };
     
-    $scope.managementAction = function(referText){
-        
+    $scope.managementAction = function(management){
+        var managementLC = management.toLowerCase();
         var actions = managementActionsWithLink;
-        
-        var referTextLC = referText.toLowerCase();
-       
-        switch(referTextLC){
-            case actions.highRiskClinic:
-                $scope.createReferraleventForProgramStage('edqlbukwRfQ');
-                break;
-            default:                
-                break;
-        }                
+
+        for(var key in actions){
+            if(containsActionForManagement(actions[key], managementLC) && actions[key].actionFunc){
+                actions[key].actionFunc();
+            }
+        }
     };
+
+    var containsActionForManagement = function(action, managementLC){
+        if(Array.isArray(action.managements) && action.managements.indexOf(managementLC) >= 0){
+            return true;
+        }
+        else if(action.managements === managementLC){
+            return true;
+        }
+    }
     
     $scope.createReferraleventForProgramStage = function(programStageId){
                 
