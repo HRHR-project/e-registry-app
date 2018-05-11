@@ -30,11 +30,14 @@ eRegistry.controller('SelectionController',
                 SystemSettingsService,
                 ModalService,$q,
                 DHIS2BASEURL,
-                DialogService) 
+                DialogService,
+                NotificationService) 
                  {
     $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.maxOptionSize = 30;
     $scope.base = {};
+    //Amount of notifications generated from Validation Rules.
+    $scope.amtNotifications = 0;
 
 
     $scope.contentViews = [
@@ -196,6 +199,7 @@ eRegistry.controller('SelectionController',
                 resetParams();
                 //$scope.doSearch = true;
                 $scope.loadPrograms($scope.selectedOrgUnit);
+                $scope.getNotificationAmt();
                 if(!$scope.orgUnits){
                     $scope.getOrgUnits();
                 }
@@ -294,6 +298,25 @@ eRegistry.controller('SelectionController',
             if($scope.selectedProgram){
               $scope.setContentView($scope.selectedContentView);              
             }
+        });
+    };
+
+    $scope.getNotificationAmt = function(){
+        var amt = 0;
+        NotificationService.getAll().then(function(notifications){
+            NotificationService.getAllInteracted().then(function(interactedNotifications){
+                amt = notifications.length;
+                
+                if(interactedNotifications && interactedNotifications.interactedActions.length > 0) {
+                    angular.forEach(interactedNotifications.interactedActions, function(action){
+                        if(notifications.indexOf(parseInt(action)) > -1) {
+                            amt--;
+                        }
+                    });
+                }
+
+                $scope.amtNotifications = amt;
+            });
         });
     };
     

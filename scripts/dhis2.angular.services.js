@@ -950,6 +950,33 @@ var d2Services = angular.module('d2Services');
         };
     })
 
+    /* Service for getting notifications */
+    .service('NotificationService', function ($http, DHIS2URL, SessionStorageService) {
+
+        return {
+            getAll: function () {
+                var promise = $http.get(DHIS2URL+'/validationResults?fields=id&paging=false').then(function (response) {
+                    var jsonToArray = [];
+
+                    angular.forEach(response.data.validationResults, function(result){
+                        jsonToArray.push(result.id);
+                    });
+
+                    return jsonToArray;
+                });
+                return promise;
+            },
+            getAllInteracted: function () {
+                var user = SessionStorageService.get('USER_PROFILE');
+                var promise = $http.get(DHIS2URL+'/dataStore/userInteractionActionFeedback/' + user.id).then(function (response) {
+                    return response.data;
+                }, function() {
+                });
+                return promise;
+            },
+        };
+    })
+
     /* Returns a function for getting rules for a specific program */
     .factory('RulesFactory', function($q,MetaDataFactory,$filter){
         var staticReplacements = 
