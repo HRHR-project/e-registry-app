@@ -41,7 +41,7 @@
 
 <div class="page" id="mainPage" ng-show="pageReady">
     <div ng-show="amtNotifications > 0" class="alert alert-warning">
-        <i class="glyphicon glyphicon-warning-sign"></i> You have <strong>{{amtNotifications}}</strong> feedbacks that needs to be managed. <a href="{{DHIS2BASEURL}}/dhis-web-dashboard/">Click here to go to Feedback Dashboard.</a>
+        <i class="glyphicon glyphicon-warning-sign"></i> {{'you_have'| translate}} <strong>{{amtNotifications}}</strong> {{'feedbacks_unmanaged'| translate}} <a href="{{DHIS2BASEURL}}/dhis-web-dashboard/">Click here to go to Feedback Dashboard.</a>
     </div>
     <div ng-if="treeLoaded && !selectedOrgUnit">
         <img ng-src="{{DHIS2BASEURL}}/images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/><br>
