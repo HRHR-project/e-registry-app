@@ -955,11 +955,11 @@ var d2Services = angular.module('d2Services');
 
         return {
             getAll: function () {
-                var promise = $http.get(DHIS2URL+'/validationResults?fields=id&paging=false').then(function (response) {
+                var promise = $http.get(DHIS2URL+'/validationResults?fields=id,organisationUnit,validationRule[validationRuleGroups[id]]&paging=false').then(function (response) {
                     var jsonToArray = [];
 
                     angular.forEach(response.data.validationResults, function(result){
-                        jsonToArray.push(result.id);
+                        jsonToArray.push({id: result.id, orgUnit: result.organisationUnit.id, group: result.validationRule.validationRuleGroups});
                     });
 
                     return jsonToArray;
@@ -3116,6 +3116,43 @@ var d2Services = angular.module('d2Services');
                     }                        
                 });
                 getAllRelated(rootOrgUnit);
+
+                //Recursive methode for finding all related orgUnits.
+                function getAllRelated(ou) {
+                    angular.forEach(allOrgUnits, function(orgUnit){
+                        if(orgUnit.id === ou.id){
+                            allDownId.push(orgUnit.id);                         
+                            if(!orgUnit.children) {
+                                return;
+                            } else {
+                                angular.forEach(orgUnit.children, function(child){
+                                    getAllRelated(child);                        
+                                });      
+                            }                         
+                        }                        
+                    });
+                }
+                return allDownId;
+            });
+
+            return orgUnitPromise;
+        },
+        getIdDownMulti: function(orgUnits){    
+            var allDownId = [];
+            var allOrgUnits = [];
+            var rootOrgUnit = null;
+
+            orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits.json?fields=id,level,children[id,level]&paging=false' ).then(function(response){
+                allOrgUnits = response.data.organisationUnits;
+                
+                angular.forEach(orgUnits, function(orgUnit){
+                    angular.forEach(allOrgUnits, function(allOrgUnit){
+                        if(allOrgUnit.id === orgUnit){
+                            rootOrgUnit = allOrgUnit;                               
+                        }                        
+                    });
+                    getAllRelated(rootOrgUnit);                
+                });
 
                 //Recursive methode for finding all related orgUnits.
                 function getAllRelated(ou) {

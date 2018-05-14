@@ -31,7 +31,8 @@ eRegistry.controller('SelectionController',
                 ModalService,$q,
                 DHIS2BASEURL,
                 DialogService,
-                NotificationService) 
+                NotificationService,
+                storage) 
                  {
     $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.maxOptionSize = 30;
@@ -303,19 +304,33 @@ eRegistry.controller('SelectionController',
 
     $scope.getNotificationAmt = function(){
         var amt = 0;
-        NotificationService.getAll().then(function(notifications){
-            NotificationService.getAllInteracted().then(function(interactedNotifications){
-                amt = notifications.length;
-                
-                if(interactedNotifications && interactedNotifications.interactedActions.length > 0) {
-                    angular.forEach(interactedNotifications.interactedActions, function(action){
-                        if(notifications.indexOf(parseInt(action)) > -1) {
-                            amt--;
-                        }
-                    });
-                }
+        var filteredNotifications = [];
 
-                $scope.amtNotifications = amt;
+        var roots = storage.get('ouRoots');
+
+        NotificationService.getAll().then(function(notifications){
+            OrgUnitFactory.getIdDownMulti(roots).then(function(orgUnits){
+                angular.forEach(notifications, function(notification){
+                    //Since the validation rules for dashboard is always in a group, we can exclude those who are not in one.
+                    //Down the line we want to know excactly which groups, so that all other can be excluded.
+                    if(orgUnits.indexOf(notification.orgUnit) > -1 && filteredNotifications.indexOf(notification.id) < 0 && notification.group.length > 0) {
+                        filteredNotifications.push(notification.id);
+                    }
+                });
+
+                NotificationService.getAllInteracted().then(function(interactedNotifications){
+                    amt = filteredNotifications.length;
+                    
+                    if(interactedNotifications && interactedNotifications.interactedActions.length > 0) {
+                        angular.forEach(interactedNotifications.interactedActions, function(action){
+                            if(filteredNotifications.indexOf(parseInt(action)) > -1) {
+                                amt--;
+                            }
+                        });
+                    }
+
+                    $scope.amtNotifications = amt;
+                });
             });
         });
     };
