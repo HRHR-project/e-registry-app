@@ -1197,7 +1197,8 @@ var d2Services = angular.module('d2Services');
         var getHighRiskPregnancy = function(evs){
             var highRisk = false;
             if(evs && evs.byStage) {
-                angular.forEach(evs.byStage['tlzRiafqzgd'], function(stage) {
+                var evsByStage = evs.byStage['tlzRiafqzgd'].concat(evs.notPersistedByStage['tlzRiafqzgd'] || []);
+                angular.forEach(evsByStage, function(stage) {
                     //Management performed: RO9lM47fth5 - Management type: AcMrnleqHqc
                     angular.forEach(stage.dataValues, function(dataValue){
                         if(dataValue.dataElement === 'AcMrnleqHqc' &&
@@ -1216,7 +1217,8 @@ var d2Services = angular.module('d2Services');
         var getHighRiskPregnancyBangladesh = function(evs){
             var highRisk = false;
             if(evs && evs.byStage) {
-                angular.forEach(evs.byStage['tlzRiafqzgd'], function(stage) {
+                var evsByStage = evs.byStage['tlzRiafqzgd'].concat(evs.notPersistedByStage['tlzRiafqzgd'] || []);
+                angular.forEach(evsByStage, function(stage) {
                     //Management performed: RO9lM47fth5 - Management type: AcMrnleqHqc
                     angular.forEach(stage.dataValues, function(dataValue){
                         if(dataValue.dataElement === 'AcMrnleqHqc' &&
@@ -1235,7 +1237,8 @@ var d2Services = angular.module('d2Services');
         var getUnManagedReferral = function(evs){
             var unManaged = false;
             if(evs && evs.byStage) {
-                angular.forEach(evs.byStage['tlzRiafqzgd'], function(stage) {
+                var evsByStage = evs.byStage['tlzRiafqzgd'].concat(evs.notPersistedByStage['tlzRiafqzgd'] || []);
+                angular.forEach(evsByStage, function(stage) {
                     //Management performed: RO9lM47fth5 - Management type: AcMrnleqHqc
                     angular.forEach(stage.dataValues, function(dataValue){
                         if(dataValue.dataElement === 'AcMrnleqHqc' &&
@@ -1378,6 +1381,9 @@ var d2Services = angular.module('d2Services');
             },
             getTrackedEntityValueOrCodeForValue: function(useCodeForOptionSet, value, trackedEntityAttributeId, allTeis, optionSets) {
                 return geTrackedEntityAttributeValueOrCodeForValueInternal(useCodeForOptionSet, value, trackedEntityAttributeId, allTeis, optionSets);
+            },
+            getHighRiskPregnancyBangladesh: function(evs) {
+                return getHighRiskPregnancyBangladesh(evs);
             },
             getHighRiskPregnancy: function(evs) {
                 return getHighRiskPregnancy(evs);
@@ -2406,10 +2412,6 @@ var d2Services = angular.module('d2Services');
 
                             angular.forEach(rule.programRuleActions, function(action){
                                 var ruletemp = rule;
-                                if(action && action.content && action.content === 'Unmanaged condition'){
-                                    var g = 1;
-                                    var u = g+1;
-                                }
                                 //In case the effect-hash is not populated, add entries
                                 if(angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey][action.id] )){
                                     $rootScope.ruleeffects[ruleEffectKey][action.id] =  {
@@ -2475,6 +2477,11 @@ var d2Services = angular.module('d2Services');
                                         if($rootScope.ruleeffects[ruleEffectKey][action.id].programStage) {
                                             var stage = stagesById && stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id]? stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id] : null;
                                             var createdNow = performCreateEventAction($rootScope.ruleeffects[ruleEffectKey][action.id], selectedEntity, selectedEnrollment, evs.byStage[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id], executingEvent.event, stage);
+                                            if(createdNow > 0){
+                                                variablesHash['highRiskPregnancyBangladesh'].variableValue = VariableService.getHighRiskPregnancyBangladesh(evs);
+                                                variablesHash['highRiskPregnancy'].variableValue = VariableService.getHighRiskPregnancy(evs);
+                                                variablesHash['unManagedReferral'].variableValue = VariableService.getUnManagedReferral(evs);
+                                            }
                                             eventsCreated += createdNow;
                                         } else {
                                             $log.warn("No programstage defined for CREATEEVENT action: " + action.id);
@@ -2525,6 +2532,10 @@ var d2Services = angular.module('d2Services');
                         });
                         var result = { event: ruleEffectKey, callerId:flag.callerId, eventsCreated:eventsCreated };
                         //Broadcast rules finished if there was any actual changes to the event.
+                        if(flag.rerun){
+                            flag.rerun = false;
+                            return internalExecuteRules(allProgramRules,executingEvent,evs,allDataElements,allTrackedEntityAttributes,selectedEntity,selectedEnrollment,optionSets,flag,stagesById);
+                        }
                         if(updatedEffectsExits){
                             $rootScope.$broadcast("ruleeffectsupdated", result);
                         }

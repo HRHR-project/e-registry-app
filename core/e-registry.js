@@ -269,8 +269,6 @@ function getProgramAccess(){
                 }
 
             });
-            var g = 1;
-            var u = 2;
             return dhis2.er.store.setAll('programAccess',programAccesses);
         });
     });

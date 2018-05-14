@@ -628,7 +628,9 @@ eRegistry.controller('DataEntryController',
     $scope.executeRules = function () {        
         //$scope.allEventsSorted cannot be used, as it is not reflecting updates that happened within the current session
         var allSorted = [];
+        var eventsNotPersistedByStage = {};
         for(var ps = 0; ps < $scope.programStages.length; ps++ ) {
+            eventsNotPersistedByStage[$scope.programStages[ps].id] = [];
             if($rootScope.eventsInProgramStageById[$scope.programStages[ps].id]){
                 //Remove not persisted events from rootScope
                 for(var e = $rootScope.eventsInProgramStageById[$scope.programStages[ps].id].length-1; e >= 0; e--) {
@@ -637,10 +639,11 @@ eRegistry.controller('DataEntryController',
                     }
                 }
             }
-            
             for(var e = $scope.eventsByStage[$scope.programStages[ps].id].length-1; e >=0; e--) {
                 if($scope.eventsByStage[$scope.programStages[ps].id][e].notPersisted){
-                   $scope.eventsByStage[$scope.programStages[ps].id].splice(e,1);
+                    var ev = $scope.eventsByStage[$scope.programStages[ps].id][e];
+                    eventsNotPersistedByStage[$scope.programStages[ps].id].push(ev);
+                    $scope.eventsByStage[$scope.programStages[ps].id].splice(e,1);
                 }else{
                     allSorted.push($scope.eventsByStage[$scope.programStages[ps].id][e]);
                 }
@@ -648,7 +651,7 @@ eRegistry.controller('DataEntryController',
         }
         allSorted = orderByFilter(allSorted, ['-sortingDate','-created']).reverse();
         
-        var evs = {all: allSorted, byStage: $scope.eventsByStage};
+        var evs = {all: allSorted, byStage: $scope.eventsByStage, notPersistedByStage: [] };
         var flag = {debug: true, verbose: true};
 
         //If the events is displayed in a table, it is necessary to run the rules for all visible events.        

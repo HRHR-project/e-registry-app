@@ -507,6 +507,7 @@ eRegistryServices.factory('ERStorageService', function(){
                 if(tei.trackedEntityInstance){
                     TEIService.update(tei, optionSets, attributesById).then(function(response){
                         def.resolve(response); 
+                    },function(error){
                     });
                 }
                 else{
@@ -2394,6 +2395,21 @@ eRegistryServices.factory('ERStorageService', function(){
             def.resolve({status: "NOMATCH"});
             return def.promise;
         }
+    }
+})
+.factory('offlineHttpInterceptor', function($q, $location) {
+    var service = {
+        responseError: responseError
+    };
+
+    return service;
+
+    function responseError(rejection) {
+        if (rejection.status === 0) {
+            $location.path('/error');
+            return $q(function () { return null; })
+        }
+        return $q.reject(rejection);
     }
 });
 
