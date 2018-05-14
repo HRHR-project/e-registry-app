@@ -116,6 +116,10 @@ module.exports = {
                 `${dhisUrlPrefix}/dhis-web-core-resource/jquery-ui/1.12.1/ui/widgets/sortable.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/jquery-ui/1.12.1/ui/widgets/droppable.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/jquery-ui/1.12.1/ui/widgets/draggable.js`,
+
+                `${dhisUrlPrefix}/dhis-web-core-resource/jquery-ui/1.12.1/ui/effect.js`,
+                `${dhisUrlPrefix}/dhis-web-core-resource/jquery-ui/1.12.1/ui/effects/effect-slide.js`,
+
                 `${dhisUrlPrefix}/dhis-web-core-resource/jquery-plugin/jquery-719d66b53f.plugin.min.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/jquery.calendars.package-1.2.1/jquery.calendars.min.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/jquery.calendars.package-1.2.1/jquery.calendars.picker.min.js`,
@@ -171,8 +175,9 @@ module.exports = {
                 `${dhisUrlPrefix}/dhis-web-core-resource/lodash/4.15.0/lodash.min.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/lodash-functional/1.0.1/lodash-functional.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/babel-polyfill/6.20.0/dist/polyfill.min.js`,
-                `${dhisUrlPrefix}/dhis-web-core-resource/d2-ui/25.5.4/dist/header-bar.js`,
+                `${dhisUrlPrefix}/dhis-web-core-resource/d2-ui/28.0.3/dist/header-bar.js`,
                 'core/e-registry.js',
+                `${dhisUrlPrefix}/main.js`,
                 `${dhisUrlPrefix}/api/files/script`,
             ]
             .map(script => {
