@@ -2397,19 +2397,45 @@ eRegistryServices.factory('ERStorageService', function(){
         }
     }
 })
-.factory('offlineHttpInterceptor', function($q, $location) {
-    var service = {
-        responseError: responseError
-    };
-
-    return service;
-
-    function responseError(rejection) {
-        if (rejection.status === 0) {
-            $location.path('/error');
-            return $q(function () { return null; })
+.service('TeiAuditService', function($q, $http,DHIS2URL){
+    this.add = function(teiId, userId, auditMessage){
+        var url = DHIS2URL+"/dataStore/E-Registry/teiaudit-"+dhis2.util.uid();
+        var auditobject = {
+            created: moment().utc().toJSON(),
+            trackedEntityInstance: teiId,
+            user: userId,
+            auditMessage: auditMessage
+        }
+        return $http.post(url, auditobject);
+    }
+})
+.factory('offlineHttpInterceptor', function($q, $location,$translate, $injector) {
+    var methods = ["PUT", "POST"];
+    var responseError = function(rejection) {
+        if (rejection.status === 0 && methods.indexOf(rejection.config.method) > -1 && !rejection.config.skipIntercept) {
+            var def = $q.defer();
+            var modal = $injector.get("$modal");
+            rejection.config.skipIntercept = true;
+            var modalInstance = modal.open({
+                template: '<div class="modal-header page">Network Error</div><div class="modal-body page"><span>Save failed due to network error. Please check you internet connection</span></div><div class="modal-footer"><button class="btn btn-default" data-ng-click="ok()">{{"ok"| translate}}</button></div>',
+                controller: function($scope,$modalInstance){
+                    $scope.ok = function(){
+                        $modalInstance.close();
+                    }
+                }
+            });
+            modalInstance.result.then(function(){
+                def.reject(rejection);
+            })
+            
+            return def;
         }
         return $q.reject(rejection);
     }
+
+    var service = {
+        responseError: responseError
+    };
+    return service;
 });
 

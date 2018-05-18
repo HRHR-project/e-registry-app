@@ -69,6 +69,8 @@ angular.module('eRegistry')
             
     $httpProvider.defaults.useXDomain = true;
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
+
+    $httpProvider.interceptors.push('offlineHttpInterceptor');
     
     $routeProvider.when('/', {
         templateUrl:'views/home.html',

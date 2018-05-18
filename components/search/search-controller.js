@@ -22,14 +22,16 @@ eRegistry.controller('SearchController',function(
     OperatorFactory,
     TEIGridService,
     SessionStorageService,
-    AuthorityService) {
+    AuthorityService,
+    TeiAuditService) {
         var searchScopes = SearchGroupService.getSearchScopes();
         var currentSearchScope = searchScopes.TRACKEDENTITYTYPE;
         $scope.trackedEntityTypes = {};
         $scope.tetSearchConfig = {};
         $scope.searchConfig = {};
         $scope.defaultOperators = OperatorFactory.defaultOperators;
-        $scope.userAuthority = AuthorityService.getUserAuthorities(SessionStorageService.get('USER_PROFILE'));
+        var userProfile = SessionStorageService.get('USER_PROFILE');
+        $scope.userAuthority = AuthorityService.getUserAuthorities(userProfile);
 
         if(!$scope.userAuthority.ALL){
             SearchGroupService.forceMaxTeiCount();
@@ -315,6 +317,13 @@ eRegistry.controller('SearchController',function(
                 var def = $q.defer();
                 def.resolve();
                 if(res.action === "OPENTEI"){
+                    if(res.tei.orgUnit !== $scope.selectedOrgUnit.id){
+                        return showFoundInOtherOrgUnitModal(res.tei).then(function(){
+                            openTei(res.tei);   
+                        }, function(){
+
+                        });
+                    }
                     openTei(res.tei);
                 }else if(res.action === "OPENREGISTRATION")
                 {
@@ -390,4 +399,52 @@ eRegistry.controller('SearchController',function(
 
 
         }
+
+        //AUDIT
+        var showFoundInOtherOrgUnitModal = function(tei){
+
+            return $modal.open({
+                templateUrl: 'components/search/audit-modal.html',
+                windowClass: '',
+                resolve: {
+                    tei: function(){ return tei; }
+                },
+                controller: function($scope,$modalInstance, $translate, tei){
+                    $scope.model = {};
+                    $scope.textAreaReasonID = 5;
+                    $scope.reasons = [
+                        { name: "change_place_of_residence", id: 1},
+                        { name: "visiting_family", id: 2},
+                        { name: "urgent_case", id: 3},
+                        { name: "desire_to_change_the_place_of_receiving_care", id: 4},
+                        { name: "specify_other", id: 5}
+                    ];
+                    angular.forEach($scope.reasons, function(r){ r.displayName = $translate.instant(r.name);});
+
+                    $scope.cancel = function(){
+
+                    }
+                    $scope.cancel = function(){
+                        $modalInstance.dismiss();
+                    }
+                    $scope.open = function(){
+                        $scope.openDisabled = true;
+                        $scope.form.$setSubmitted();
+                        if($scope.form.$valid){
+                            var reasonMessage = $scope.model.selectedReason.name;
+                            if($scope.model.selectedReason.id === $scope.textAreaReasonID){
+                                reasonMessage = $scope.model.specifiedReason;
+                            }
+                            TeiAuditService.add(tei.id, userProfile.id, reasonMessage).then(function(){
+                                $modalInstance.close();
+                            }, function(){
+                                $modalInstance.dismiss();
+                            });
+                        }else{
+                            $scope.openDisabled = false;
+                        }
+                    }
+                }
+            }).result;
+        };
 });
