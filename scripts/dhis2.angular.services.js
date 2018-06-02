@@ -1402,10 +1402,15 @@ var d2Services = angular.module('d2Services');
                 programVariables = programVariables.concat(allProgramRules.programIndicators.variables);
 
                 angular.forEach(programVariables, function(programVariable) {
+
+
                     var dataElementId = programVariable.dataElement;
+                
                     if(programVariable.dataElement && programVariable.dataElement.id) {
                         dataElementId = programVariable.dataElement.id;
                     }
+    
+                    var dataElementExists = dataElementId && allDes && allDes[dataElementId];
 
                     var trackedEntityAttributeId = programVariable.trackedEntityAttribute;
                     if(programVariable.trackedEntityAttribute && programVariable.trackedEntityAttribute.id) {
@@ -1419,7 +1424,7 @@ var d2Services = angular.module('d2Services');
 
                     var valueFound = false;
                     //If variable evs is not defined, it means the rules is run before any events is registered, skip the types that require an event
-                    if(programVariable.programRuleVariableSourceType === "DATAELEMENT_NEWEST_EVENT_PROGRAM_STAGE" && evs && evs.byStage){
+                    if(programVariable.programRuleVariableSourceType === "DATAELEMENT_NEWEST_EVENT_PROGRAM_STAGE" && evs && evs.byStage && dataElementExists){
                         if(programStageId) {
                             var allValues = [];
                             angular.forEach(evs.byStage[programStageId], function(event) {
@@ -1440,7 +1445,7 @@ var d2Services = angular.module('d2Services');
                                 + " despite that the variable has sourcetype DATAELEMENT_NEWEST_EVENT_PROGRAM_STAGE" );
                         }
                     }
-                    else if(programVariable.programRuleVariableSourceType === "DATAELEMENT_NEWEST_EVENT_PROGRAM" && evs){
+                    else if(programVariable.programRuleVariableSourceType === "DATAELEMENT_NEWEST_EVENT_PROGRAM" && evs && dataElementExists){
                         var allValues = [];
                         angular.forEach(evs.all, function(event) {
                             if(angular.isDefined(event[dataElementId])
@@ -1454,7 +1459,7 @@ var d2Services = angular.module('d2Services');
                             }
                         });
                     }
-                    else if(programVariable.programRuleVariableSourceType === "DATAELEMENT_CURRENT_EVENT" && evs){
+                    else if(programVariable.programRuleVariableSourceType === "DATAELEMENT_CURRENT_EVENT" && evs && dataElementExists){
                         if(angular.isDefined(executingEvent[dataElementId])
                             && executingEvent[dataElementId] !== null 
                             && executingEvent[dataElementId] !== ""){
@@ -1464,7 +1469,7 @@ var d2Services = angular.module('d2Services');
                             variables = pushVariable(variables, programVariable.displayName, value, null, allDes[dataElementId].dataElement.valueType, valueFound, '#', executingEvent.eventDate, programVariable.useCodeForOptionSet );
                         }
                     }
-                    else if(programVariable.programRuleVariableSourceType === "DATAELEMENT_PREVIOUS_EVENT" && evs){
+                    else if(programVariable.programRuleVariableSourceType === "DATAELEMENT_PREVIOUS_EVENT" && evs && dataElementExists){
                         //Only continue checking for a value if there is more than one event.
                         if(evs.all && evs.all.length > 1) {
                             var allValues = [];
@@ -2393,6 +2398,9 @@ var d2Services = angular.module('d2Services');
                         var eventsCreated = 0;
 
                         angular.forEach(rules, function(rule) {
+                            if(rule && rule.id==='NE18QeMkrHD'){
+                                var u = 12;
+                            }
                             var ruleEffective = false;
 
                             var expression = rule.condition;
@@ -2411,6 +2419,9 @@ var d2Services = angular.module('d2Services');
                             }
 
                             angular.forEach(rule.programRuleActions, function(action){
+                                if(action && action.dataElement && action.dataElement.id === 'Kb2LvjqXHfi'){
+                                    var g = 1;
+                                }
                                 var ruletemp = rule;
                                 //In case the effect-hash is not populated, add entries
                                 if(angular.isUndefined( $rootScope.ruleeffects[ruleEffectKey][action.id] )){
@@ -2507,8 +2518,9 @@ var d2Services = angular.module('d2Services');
                                         var updatedValue = $rootScope.ruleeffects[ruleEffectKey][action.id].data;
 
                                         var valueType = determineValueType(updatedValue);
-
-                                        if($rootScope.ruleeffects[ruleEffectKey][action.id].dataElement) {
+                                        var dataElementId = $rootScope.ruleeffects[ruleEffectKey][action.id].dataElement
+                                        var dataElementExists = dataElementId && allDataElements[dataElementId];
+                                        if(dataElementExists) {
                                             updatedValue = VariableService.getDataElementValueOrCodeForValue(variablesHash[variabletoassign].useCodeForOptionSet, updatedValue, $rootScope.ruleeffects[ruleEffectKey][action.id].dataElement.id, allDataElements, optionSets);
                                         }
                                         updatedValue = VariableService.processValue(updatedValue, valueType);

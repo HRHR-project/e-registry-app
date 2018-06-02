@@ -321,12 +321,12 @@ eRegistry.controller('DataEntryController',
                 if(affectedEvent.status !== 'SCHEDULE' &&
                         affectedEvent.status !== 'SKIPPED' &&
                         !affectedEvent.editingNotAllowed) {
-                    if(effect.ineffect && effect.dataElement) {
+                    if(effect.ineffect && effect.dataElement && $scope.prStDes[effect.dataElement.id]) {
                         //For "ASSIGN" actions where we have a dataelement, we save the calculated value to the dataelement:
                         //Blank out the value:
                         var processedValue = $filter('trimquotes')(effect.data);
 
-                        if($scope.prStDes[effect.dataElement.id].dataElement.optionSet) {
+                        if($scope.prStDes[effect.dataElement.id] && $scope.prStDes[effect.dataElement.id].dataElement.optionSet) {
                             processedValue = OptionSetService.getName(
                                     $scope.optionSets[$scope.prStDes[effect.dataElement.id].dataElement.optionSet.id].options, processedValue);
                         }
