@@ -1196,7 +1196,7 @@ var d2Services = angular.module('d2Services');
         //Folkehelsa:
         var getHighRiskPregnancy = function(evs){
             var highRisk = false;
-            if(evs && evs.byStage) {
+            if(evs && evs.byStage && evs.byStage['tlzRiafqzgd']) {
                 var evsByStage = evs.byStage['tlzRiafqzgd'].concat(evs.notPersistedByStage['tlzRiafqzgd'] || []);
                 angular.forEach(evsByStage, function(stage) {
                     //Management performed: RO9lM47fth5 - Management type: AcMrnleqHqc
@@ -1216,7 +1216,7 @@ var d2Services = angular.module('d2Services');
         //Folkehelsa:
         var getHighRiskPregnancyBangladesh = function(evs){
             var highRisk = false;
-            if(evs && evs.byStage) {
+            if(evs && evs.byStage && evs.byStage['tlzRiafqzgd']) {
                 var evsByStage = evs.byStage['tlzRiafqzgd'].concat(evs.notPersistedByStage['tlzRiafqzgd'] || []);
                 angular.forEach(evsByStage, function(stage) {
                     //Management performed: RO9lM47fth5 - Management type: AcMrnleqHqc
@@ -1236,7 +1236,7 @@ var d2Services = angular.module('d2Services');
             //Folkehelsa:
         var getUnManagedReferral = function(evs){
             var unManaged = false;
-            if(evs && evs.byStage) {
+            if(evs && evs.byStage && evs.byStage['tlzRiafqzgd']) {
                 var evsByStage = evs.byStage['tlzRiafqzgd'].concat(evs.notPersistedByStage['tlzRiafqzgd'] || []);
                 angular.forEach(evsByStage, function(stage) {
                     //Management performed: RO9lM47fth5 - Management type: AcMrnleqHqc
