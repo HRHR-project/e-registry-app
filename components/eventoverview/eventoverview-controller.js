@@ -14,8 +14,9 @@ eRegistry.controller('EventOverViewController',
                 CurrentSelection,
                 DateUtils,
                 EventCreationService,                
-                $rootScope) {
-    
+                $rootScope,
+                DHIS2BASEURL) {
+    $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.widget = $scope.$parent.$parent.biggerWidget ? $scope.$parent.$parent.biggerWidget
     : $scope.$parent.$parent.smallerWidget ? $scope.$parent.$parent.smallerWidget : null;
     $scope.widgetTitle = $scope.widget.title;
