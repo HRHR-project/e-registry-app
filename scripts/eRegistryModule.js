@@ -7,6 +7,7 @@ export default angular.module('eRegistry', [
     'eRegistryServices',
     'eRegistryFilters',
     'eRegistryDirectives',
+    'd2Controllers',
     'd2Directives',
     'd2Filters',
     'd2Services',

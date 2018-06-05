@@ -3015,7 +3015,7 @@ var d2Services = angular.module('d2Services');
         };
     })    
 
-    .service('AuditHistoryDataService', function( $http, $translate, DialogService) {
+    .service('AuditHistoryDataService', function( $http, $translate, DialogService,DHIS2URL) {
         this.getAuditHistoryData = function(dataId, dataType ) {
             var url="";
             if (dataType === "attribute") {
