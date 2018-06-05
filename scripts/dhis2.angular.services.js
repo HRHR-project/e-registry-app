@@ -1351,7 +1351,7 @@ var d2Services = angular.module('d2Services');
                 i++;               
 
                 if(angular.isUndefined(connectedEventIds[srcEvent.event])){
-                    for(j = i; j < prevPregEvents.length; j++){
+                    for(var j = i; j < prevPregEvents.length; j++){
                         var compareEvent = prevPregEvents[j];
                         var srcDate = new Date(srcEvent.eventDate);
                         var compareDate = new Date(compareEvent.eventDate);
