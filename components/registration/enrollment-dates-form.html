@@ -26,6 +26,7 @@
                    class="form-control hideInPrint" 
                    d2-date 
                    ng-model="selectedEnrollment.enrollmentDate" 
+                   ng-init="selectedEnrollment.enrollmentDate = selectedEnrollment.enrollmentDate || today"
                    max-date="selectedProgram.selectEnrollmentDatesInFuture ? '' : 0"
                    min-date=""
                    ng-required="true"/>
