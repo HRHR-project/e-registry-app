@@ -47,7 +47,7 @@ eRegistry.controller('EventCreationController',
     $scope.scheduleDateDataElement = "";
     $scope.daysPregAtSchedDate = -1;
 
-    if(currentEvent) {
+    if(currentEvent && stage) {
         for(var i = 0; i < stage.programStageDataElements.length; i++) {
             if(stage.programStageDataElements[i].dataElement.code === "DAYSPREGNANTATSCHEDULEDDDATE") {
                 var id = stage.programStageDataElements[i].dataElement.id;
