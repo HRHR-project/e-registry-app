@@ -105,7 +105,7 @@ eRegistry.controller('SelectionController',
     $scope.optionSets = null;
     $scope.doSearch = true;
     $scope.programStagesById ={};
-    $scope.eventsTodayProgramStageFilter = ["BjNpOxjvEj5","FRSZV43y35y","WZbXY0S00lP","dqF3sxJKBls","edqlbukwRfQ","uUHQw5KrZAL"];
+    $scope.eventsTodayProgramStageFilter = ["BjNpOxjvEj5","FRSZV43y35y","WZbXY0S00lP","dqF3sxJKBls","edqlbukwRfQ","uUHQw5KrZAL","conX3sS9XMc", "NZek6PU2wbX"];
     $scope.showProgramStageInEventsToday = true;
        
     function resetParams(goToPage){
