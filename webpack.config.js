@@ -161,7 +161,6 @@ module.exports = {
                 `${dhisUrlPrefix}/dhis-web-core-resource/dhis/dhis2-storage-04afdd4f4c.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/dhis/dhis2-contextmenu-67ed866cc1.js`,
                 `${dhisUrlPrefix}/dhis-web-commons/ouwt/ouwt.js`,
-                `${dhisUrlPrefix}/dhis-web-core-resource/dhis/dhis2-tracker-metadata-01fa829255.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/angular-plugins/select-01349cd337.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/angular-ui-select2/0.0.5/src/select2.js`,
                 `${dhisUrlPrefix}/dhis-web-core-resource/angularjs.nvd3-directives/v0.0.7/angularjs-nvd3-directives.min.js`,
