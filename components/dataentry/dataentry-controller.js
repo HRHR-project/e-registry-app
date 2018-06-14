@@ -1215,7 +1215,11 @@ eRegistry.controller('DataEntryController',
                 return;
             }
         }
-        if(stage && !stage.access.data.write){
+        if(stage && userProfile.id === 'mCO71s3Y9Oq' 
+            && ["conX3sS9XMc","NZek6PU2wbX"].indexOf(stage.id) >=0  
+            && eventCreationAction === $scope.eventCreationActions.referral){
+
+        }else if(stage && !stage.access.data.write){
             var sharingDialogOptions = {
                 headerText: $translate.instant("write_access_required"),
                 bodyText: $translate.instant("you_need_write_access_to")+" "+stage.displayName+" "+$translate.instant("to_be_able_to_create_event")

@@ -263,9 +263,14 @@ function getProgramAccess(){
             programAccessesById[programAccess.id] = programAccess;
         });
         return dhis2.tracker.getTrackerObjects('programStageAccess','programStages', BASEAPIURL+'/programStages.json', 'paging=false&fields=id,program,access[data[read,write]]','temp', dhis2.er.store).then(function(programStageAccesses){
+            var SessionStorageService = angular.element('body').injector().get('SessionStorageService');
+            var userProfile = SessionStorageService.get('USER_PROFILE');
             _.each(_.values(programStageAccesses), function(programStageAccess){
                 if(programStageAccess.program && programAccessesById[programStageAccess.program.id]){
                     if(hasAllAccess) programStageAccess.access.data = {read : true, write: true};
+                    if(userProfile.id === 'mCO71s3Y9Oq' && ["conX3sS9XMc","NZek6PU2wbX"].indexOf(programStageAccess.id) >=0 ){
+                        programStageAccess.access.data = {read: true, write:false};
+                    }
                     programAccessesById[programStageAccess.program.id].programStages.push(programStageAccess);
                 }
 
