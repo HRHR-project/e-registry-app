@@ -268,8 +268,11 @@ function getProgramAccess(){
             _.each(_.values(programStageAccesses), function(programStageAccess){
                 if(programStageAccess.program && programAccessesById[programStageAccess.program.id]){
                     if(hasAllAccess) programStageAccess.access.data = {read : true, write: true};
-                    if(userProfile.id === 'mCO71s3Y9Oq' && ["conX3sS9XMc","NZek6PU2wbX"].indexOf(programStageAccess.id) >=0 ){
+                    if(userProfile.id === 'mCO71s3Y9Oq' && programStageAccess.id === "NZek6PU2wbX"){
                         programStageAccess.access.data = {read: true, write:false};
+                    }
+                    if(userProfile.id === 'mCO71s3Y9Oq' && programStageAccess.id === "conX3sS9XMc"){
+                        programStageAccess.access.data = {read: false, write:false};
                     }
                     programAccessesById[programStageAccess.program.id].programStages.push(programStageAccess);
                 }

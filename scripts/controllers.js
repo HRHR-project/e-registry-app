@@ -404,7 +404,7 @@ eRegistry.controller('SelectionController',
                 if(result.eventRows){
                     if($scope.showProgramStageInEventsToday){
                         angular.forEach(result.eventRows, function(eventRow){
-                            if($scope.eventsTodayProgramStageFilter.indexOf(eventRow.programStage) > -1){
+                            if($scope.eventsTodayProgramStageFilter.indexOf(eventRow.programStage) > -1 && $scope.programStagesById[eventRow.programStage]){
                                 var programStage = $scope.programStagesById[eventRow.programStage].displayName;
                                 if(trackedEntitiesById[eventRow.trackedEntityInstance] && trackedEntitiesById[eventRow.trackedEntityInstance].programStages.indexOf(programStage) === -1){
                                     trackedEntitiesById[eventRow.trackedEntityInstance].programStages.push(programStage);
