@@ -1176,7 +1176,6 @@ eRegistry.controller('DataEntryController',
         
         var availableStages = [];
         if(!stage){
-            
             //get applicable events
             var allApplicableEvents = [];
             if(!$scope.allEventsSorted || $scope.allEventsSorted.length === 0){
@@ -1215,6 +1214,14 @@ eRegistry.controller('DataEntryController',
                 
                 return;
             }
+        }
+        if(stage && !stage.access.data.write){
+            var sharingDialogOptions = {
+                headerText: $translate.instant("write_access_required"),
+                bodyText: $translate.instant("you_need_write_access_to")+" "+stage.displayName+" "+$translate.instant("to_be_able_to_create_event")
+            };
+            DialogService.showDialog({}, sharingDialogOptions);
+            return;
         }
         var autoCreate = !!(stage && stage.autoCreateNewEvents);
         EventCreationService.showModal($scope.eventsByStage, stage, availableStages, $scope.programStages, $scope.selectedEntity, $scope.selectedProgram, $scope.selectedOrgUnit, $scope.selectedEnrollment, autoCreate, eventCreationAction, allApplicableEvents,suggestedStage, $scope.currentEvent)
