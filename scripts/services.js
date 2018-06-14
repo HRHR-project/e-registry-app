@@ -1885,7 +1885,7 @@ eRegistryServices.factory('ERStorageService', function(){
             var dhis2Events = {events: []};
             if(teiId && program && orgUnit && enrollment){
                 angular.forEach(program.programStages, function(stage){
-                    if(stage.autoGenerateEvent){
+                    if(stage.autoGenerateEvent && stage.access.data.write){
                         var newEvent = {
                                 trackedEntityInstance: teiId,
                                 program: program.id,
