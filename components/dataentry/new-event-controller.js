@@ -6,6 +6,7 @@ eRegistry.controller('EventCreationController',
                 $modalInstance,
                 $timeout,
                 $rootScope,
+                $location,
                 DateUtils,
                 DHIS2EventFactory,
                 OrgUnitFactory,
@@ -283,6 +284,9 @@ eRegistry.controller('EventCreationController',
 
             RegistrationService.registerOrUpdate($scope.tei, $scope.optionSets, $scope.attributesById).then(function (regResponse) {
                 $scope.save();
+                //reload OU tree
+                selection.load();
+                $location.path('/').search({program: $scope.selectedProgramId});   
             });
         });
     };

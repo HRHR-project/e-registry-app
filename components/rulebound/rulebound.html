@@ -24,7 +24,8 @@
                 <table class="table table-striped dashboard-element-container" ng-if="showTextSection">
                     <tr ng-repeat="(key,item) in displayTextEffects" ng-if="item.ineffect" ng-class="getItemStyle(item.content)">
                         <td>
-                            <div ng-if="item.content!=='High risk pregnancy' && item.content!=='Unmanaged condition'">
+                            <div ng-if="item.content!=='High risk pregnancy' && item.content!=='Unmanaged condition'
+                            && item.content!=='Ebola patient'">
                                 {{item.content | trimquotes}}{{item.data | trimquotes}}
                             </div>
                         </td>

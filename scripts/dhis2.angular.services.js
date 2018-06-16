@@ -2519,7 +2519,7 @@ var d2Services = angular.module('d2Services');
 
                                         var valueType = determineValueType(updatedValue);
                                         var dataElementId = $rootScope.ruleeffects[ruleEffectKey][action.id].dataElement
-                                        var dataElementExists = dataElementId && allDataElements[dataElementId];
+                                        var dataElementExists = dataElementId && allDataElements && allDataElements[dataElementId];
                                         if(dataElementExists) {
                                             updatedValue = VariableService.getDataElementValueOrCodeForValue(variablesHash[variabletoassign].useCodeForOptionSet, updatedValue, $rootScope.ruleeffects[ruleEffectKey][action.id].dataElement.id, allDataElements, optionSets);
                                         }

@@ -1,7 +1,6 @@
 <div ng-controller="RuleBoundController" ng-init="widgetTitle = 'indicators'">
     <div class="dashboard-info-box" ng-if="dashboardReady">
         <ul class="list-inline-fullwidth">
-
             <li ng-repeat="(key,item) in displayTextEffects" ng-if="item.ineffect">
                 <span ng-if="item.content==='High risk pregnancy'" style="color:red">
                         <i class="glyphicon glyphicon-asterisk"></i>
@@ -11,11 +10,12 @@
                         <i class="glyphicon glyphicon-asterisk"></i>
                         {{item.content | trimquotes}}
                 </span>
-                <span ng-if="item.content==='Unmanaged condition'" style="color:darkgoldenrod">
+                <span ng-if="item.content==='Unmanaged condition' || item.content==='Ebola patient'" style="color:darkgoldenrod">
                         <i class="glyphicon glyphicon-asterisk"></i>
                         {{item.content | trimquotes}}
                 </span>
-                <span ng-if="item.content!=='High risk pregnancy' && item.content!=='Advise facility birth' && item.content!=='Unmanaged condition'">
+                <span ng-if="item.content!=='High risk pregnancy' && item.content!=='Advise facility birth' && 
+                item.content!==' condition' && item.content !== 'Ebola patient'">
                     {{item.content | trimquotes}}{{item.data | trimquotes}}
                 </span>
             </li>
