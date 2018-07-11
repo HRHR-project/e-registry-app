@@ -74,14 +74,15 @@ eRegistry.controller('DataEntryController',
     var eventLockHours = 744; //Number of hours before event is locked after completing. In this case 31 days.
 
     
-    $scope.useMainMenu = CurrentSelection.get().pr.id === "WSGAb5XwJ3Y" ? true : false;
+    $scope.useMainMenu = (CurrentSelection.get().pr.id === "WSGAb5XwJ3Y" 
+        || CurrentSelection.get().pr.id === "ZBIqxwVixn8") ? true : false;
     $scope.mainMenuStages = [];
     $scope.useBottomLine = false; 
     
     //hideTopLineEventsForFormTypes is only used with main menu
     $scope.hideTopLineEventsForFormTypes = {TABLE: true, COMPARE: true};
     
-    $scope.visibleWidgetsInMainMenu = {enrollment: true, dataentry: true, close_file: true};    
+    $scope.visibleWidgetsInMainMenu = {enrollment: true, dataentry: true, close_file: (CurrentSelection.get().pr.id === "WSGAb5XwJ3Y") ? true : false};    
     $rootScope.$broadcast('DataEntryMainMenuVisibilitySet', {visible: $scope.useMainMenu, visibleItems: $scope.visibleWidgetsInMainMenu});
     
 
