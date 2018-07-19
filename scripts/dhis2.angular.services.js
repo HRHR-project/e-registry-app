@@ -1892,7 +1892,7 @@ var d2Services = angular.module('d2Services');
                                 expressionUpdated = true;
                             }
                             else if(dhisFunction.name === "d2:validatePalestineID"){
-                                var id = parameters[0];
+                                var id = "" + parameters[0];
                                 var valid = "false";
                                 
                                 var A;
