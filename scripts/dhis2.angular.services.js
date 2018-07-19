@@ -1948,6 +1948,11 @@ var d2Services = angular.module('d2Services');
                                 var variableName = parameters[0];
                                 var variableObject = variablesHash[variableName];
 
+                                if(!variableObject) {
+                                    $log.warn("could not find variable to countifzeropos: " + variableName);
+                                }
+
+
                                 var valueToCompare = VariableService.processValue(parameters[1],variableObject.variableType);
 
                                 var count = 0;
