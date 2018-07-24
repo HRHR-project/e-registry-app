@@ -3073,6 +3073,12 @@ var d2Services = angular.module('d2Services');
             });
             return orgUnitPromise;
         },
+        getParents: function(uid){
+            orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '/ancestors.json?fields=id,displayName,level,children[*]&paging=false' ).then(function(response){
+                return response.data;
+            });
+            return orgUnitPromise;
+        },
         get: function(uid){            
             if( orgUnit !== uid ){
                 orgUnitPromise = $http.get( DHIS2URL+'/organisationUnits/'+uid+'.json?fields=id,name,displayName,level,children[id,name,displayName,level,children[id,name,displayName,level]]&paging=false' ).then(function(response){
