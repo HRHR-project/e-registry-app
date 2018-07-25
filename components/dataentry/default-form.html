@@ -59,10 +59,10 @@
                     <table class="dhis2-table-striped-border">
                         <thead>
                             <tr>
-                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                <td ng-if="showPreviousValueDateAndGestAge(section.id)">
                                     <span>{{currentEvent.executionDateLabel}}</span>
                                 </td>
-                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                <td ng-if="showPreviousValueDateAndGestAge(section.id)">
                                     <span>Gest.Age at visit</span>
                                 </td>
                                 <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
@@ -72,10 +72,10 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                <td ng-if="showPreviousValueDateAndGestAge(section.id)">
                                     <span>{{previousEvents.first.eventDate}}</span>
                                 </td>
-                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                <td ng-if="showPreviousValueDateAndGestAge(section.id)">
                                     <span>{{previousEvents.first['Kb2LvjqXHfi']}}</span>
                                 </td>
                                 <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
@@ -88,10 +88,10 @@
                                 </td>
                             </tr>
                             <tr ng-repeat="prevEvent in previousEvents.other">
-                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                <td ng-if="showPreviousValueDateAndGestAge(section.id)">
                                     <span>{{prevEvent.eventDate}}</span>
                                 </td>
-                                <td ng-if="section.id === 'Of9gtm4Hr2Y'">
+                                <td ng-if="showPreviousValueDateAndGestAge(section.id)">
                                     <span>{{prevEvent['Kb2LvjqXHfi']}}</span>
                                 </td>
                                 <td ng-repeat="de in section.programStageDataElements" ng-if="showPreviousValue(de.dataElement.id)">
