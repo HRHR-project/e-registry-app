@@ -1,6 +1,6 @@
 {
     "version": "0.1",
-    "name": "E-Registry Test",
+    "name": "E-Registry",
     "description": "E-Registry App",
     "launch_path": "index.html",
     "icons": {
