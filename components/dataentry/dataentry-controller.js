@@ -1894,6 +1894,13 @@ eRegistry.controller('DataEntryController',
             
             $scope.currentElement = {id: "eventDate", event: eventToSave.event, saved: true};
             $scope.executeRules();
+            if($scope.currentStage.id === 'edqlbukwRfQ'){
+                $scope.setPreviousValuesTable('WZbXY0S00lP');          
+            } else if($scope.currentStage.id === 'dqF3sxJKBls' && $scope.isBangladesh) {
+                $scope.setPreviousValuesTable('w0pwmNYugKX');
+            } else if($scope.currentStage.id === 'fSE8JyGdsV6' && $scope.isBangladesh) {
+                $scope.setPreviousValuesTable('FRSZV43y35y');
+            }
             //$scope.getEventPageForEvent($scope.currentEvent);
         }, function(error){
             
