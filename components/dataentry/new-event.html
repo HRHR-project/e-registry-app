@@ -4,7 +4,7 @@
     <h3 ng-if="isReferralEvent">{{'referral' | translate}}<span ng-if="model.selectedStage"> - {{model.selectedStage.displayName}}</span></h3>
 </div>
 <div class="modal-body page">    
-    <form name="eventCreationForm" class="form-horizontal" role="form" novalidate>
+    <form ng-if="hasWriteableStages(stages)" name="eventCreationForm" class="form-horizontal" role="form" novalidate>
         <div ng-if="!stageSpecifiedOnModalOpen">
             <div class="form-group">
                 <div class="col-sm-11">
@@ -14,7 +14,7 @@
                     <div class="col-sm-9">
                         <select class="form-control-program" 
                                 ng-model="model.selectedStage"                                
-                                ng-options="stage.displayName for stage in stages">                    
+                                ng-options="stage.displayName for stage in stages | filter:{access: {data: {write: true}}}">                    
                         </select>
                     </div>                
                 </div>         
@@ -113,11 +113,15 @@
         
             </div>            
         </div>
-    </form>  
+    </form>
+    <div ng-if="!hasWriteableStages(stages)" style="text-align: center">
+            <h1>{{'no_programstages_available'| translate}}</h1>
+            <span>{{'no_programstages_available_text'| translate}}</span>
+    </div>
 </div>
 <div class="modal-footer page">
-    <button class="btn btn-primary" data-ng-click="save()" ng-if="!isReferralEvent">{{'save'| translate}}</button>
-    <button class="btn btn-primary" data-ng-click="onetimeReferral()" ng-if="isReferralEvent">{{'onetime_referral'| translate}}</button>
-    <button class="btn btn-primary" data-ng-click="movePermanently()" ng-if="isReferralEvent">{{'move_permanently'| translate}}</button>
+    <button class="btn btn-primary" data-ng-click="save()" ng-if="!isReferralEvent" ng-disabled="!hasWriteableStages(stages)">{{'save'| translate}}</button>
+    <button class="btn btn-primary" data-ng-click="onetimeReferral()" ng-if="isReferralEvent" ng-disabled="!hasWriteableStages(stages)">{{'onetime_referral'| translate}}</button>
+    <button class="btn btn-primary" data-ng-click="movePermanently()" ng-if="isReferralEvent" ng-disabled="!hasWriteableStages(stages)">{{'move_permanently'| translate}}</button>
     <button class="btn btn-default" data-ng-click="cancel()">{{'cancel'| translate}}</button>
 </div>

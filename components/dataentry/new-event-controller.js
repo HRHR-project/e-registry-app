@@ -403,6 +403,16 @@ eRegistry.controller('EventCreationController',
         return false;
     }
 
+    $scope.hasWriteableStages = function(stages) {
+        var hasAvailableStage = false;
+        stages.forEach(function(stage) {
+            if(stage.access.data.write) {
+                hasAvailableStage = true;
+            }
+        });
+        return hasAvailableStage;
+    }
+
     $scope.calcGestAge = function(date) {
         var originalDate = $scope.scheduleDateDataElement;
         var newDate = date;
