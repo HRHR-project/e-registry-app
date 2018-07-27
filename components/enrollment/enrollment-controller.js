@@ -67,7 +67,7 @@ eRegistry.controller('EnrollmentController',
                 if(enrollment.orgUnit !== $scope.selectedOrgUnit.id) {
                     OrgUnitService.get(enrollment.orgUnit).then(function(ou){
                         if(ou){
-                            enrollment.orgUnitName = $scope.selectedOrgUnit.displayName;
+                            enrollment.orgUnitName = ou.name;
                         }                                                       
                     });
                 }
