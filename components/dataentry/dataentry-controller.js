@@ -425,7 +425,7 @@ eRegistry.controller('DataEntryController',
             SystemSettingsService.getCountry().then(function(response){
                 if(response === 'bangladesh') {
                     $scope.isBangladesh = true;
-                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", w0pwmNYugKX: "dqF3sxJKBls", FRSZV43y35y: "fSE8JyGdsV6", WZbXY0S00lP: "edqlbukwRfQ"};
+                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", FRSZV43y35y: "fSE8JyGdsV6", WZbXY0S00lP: "edqlbukwRfQ"};
                 } else {
                     $scope.isBangladesh = false;
                     $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
@@ -536,8 +536,10 @@ eRegistry.controller('DataEntryController',
                 });
                 
                 angular.forEach(filterStages, function(filterStage){
-                    var stageEvents = $scope.eventsByStage[filterStage.id];                    
-                    $scope.topLineEvents = $scope.topLineEvents.concat(stageEvents);                    
+                    if(filterStage && filterStage.id) {
+                        var stageEvents = $scope.eventsByStage[filterStage.id];                    
+                        $scope.topLineEvents = $scope.topLineEvents.concat(stageEvents);  
+                    }                  
                 });            
             }
             else {
@@ -989,6 +991,19 @@ eRegistry.controller('DataEntryController',
                 return false;
             }
 
+            if(!stage.access.data.write) {
+                if($scope.headerCombineStages) {
+                    for(var key in $scope.headerCombineStages){
+                        if($scope.headerCombineStages[key] === stage.id){
+                            if($scope.stagesById[key].access.data.write) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+
             //In case the event is a table, we sould always allow adding more events(rows)
             if (stage.displayEventsInTable) {
                 return true;
@@ -1009,15 +1024,6 @@ eRegistry.controller('DataEntryController',
                             return false;
                         }                            
                     }
-                    //folkehelsa, allowing more than one scheduled event
-                    /*
-                    else if (!$scope.eventsByStage[stage.id][j].eventDate && $scope.eventsByStage[stage.id][j].status !== 'SKIPPED') {
-                        if(angular.isDefined(errorResponseContainer)){
-                            errorResponseContainer.errorCode = $scope.stageNeedsEventErrors.scheduledFound;
-                        }
-                        return false;
-                    }
-                    */
                 }
                 return true;
             }
@@ -1175,7 +1181,7 @@ eRegistry.controller('DataEntryController',
                 }
                 var dialogOptions = {
                     headerText: $translate.instant('visit_cant_be_created'),
-                    bodyText: errorMessage
+                    bodyText: errorMessage ? errorMessage : $translate.instant('no_programstages_available_text'),
                 };
                     
                 DialogService.showDialog({}, dialogOptions);
@@ -3314,7 +3320,10 @@ eRegistry.controller('DataEntryController',
         
         var eventsForStages = [];
         angular.forEach(stages, function(stage){
-            eventsForStages = eventsForStages.concat($scope.eventsByStage[stage.id]);
+            if(stage && stage.id) {
+                eventsForStages = eventsForStages.concat($scope.eventsByStage[stage.id]);
+            }
+            
         });
         
         return $scope.getEventFromEventCollection(eventsForStages);
