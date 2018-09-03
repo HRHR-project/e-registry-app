@@ -63,7 +63,7 @@
                                         <div ng-messages="form{{event.event}}.eventDate.$error" class="error-text" ng-messages-include="{{DHIS2BASEURL}}/dhis-web-commons/angular-forms/error-messages.html"></div>                                        
                                     </div>
                                     <div ng-if="!eventDateIsEditable || currentEvent !== event">
-                                        {{event.eventDate}}
+                                        {{formatDate(event.eventDate)}}
                                     </div>                                                                
                                 </td>            
                                 <td class="" ng-repeat="elementForProgramStage in dataElementsForProgramStage" ng-class="{'current-event-td': currentEvent === event}">                            
