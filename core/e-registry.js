@@ -495,7 +495,7 @@ function getTrackedEntityAttributes( data )
                 var _attributesInPromise = attributesInPromise.toString();
                 _attributesInPromise = '[' + _attributesInPromise + ']';
                 
-                var filter = 'fields=id,name,generated,displayName,code,version,description, displayDescription, valueType,optionSetValue,confidential,inherit,sortOrderInVisitSchedule,sortOrderInListNoProgram,displayOnVisitSchedule,displayInListNoProgram,unique,programScope,orgunitScope,confidential,optionSet[id,version],trackedEntityType[id,name,displayName]';
+                var filter = 'fields=id,access,name,generated,displayName,code,version,description, displayDescription, valueType,optionSetValue,confidential,inherit,sortOrderInVisitSchedule,sortOrderInListNoProgram,displayOnVisitSchedule,displayInListNoProgram,unique,programScope,orgunitScope,confidential,optionSet[id,version],trackedEntityType[id,name,displayName]';
                 filter = filter + '&filter=id:in:' + _attributesInPromise + '&paging=false';
                 
                 var url = BASEAPIURL+'/trackedEntityAttributes';
