@@ -401,7 +401,7 @@ eRegistry.controller('SelectionController',
             var trackedEntitiesById = {};
             var ids =[];
             angular.forEach(data, function(result){
-                if(result && result.eventRows){
+                if(result.eventRows){
                     if($scope.showProgramStageInEventsToday){
                         angular.forEach(result.eventRows, function(eventRow){
                             if($scope.eventsTodayProgramStageFilter.indexOf(eventRow.programStage) > -1){

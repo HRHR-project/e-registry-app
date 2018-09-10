@@ -826,9 +826,6 @@ eRegistryServices.factory('ERStorageService', function(){
                     });
 
                     angular.forEach(program.programTrackedEntityAttributes, function(pAttribute){
-                        if(!attributes[pAttribute.trackedEntityAttribute.id]) {
-                            return;
-                        }
                         var att = attributes[pAttribute.trackedEntityAttribute.id];
                         att.mandatory = pAttribute.mandatory;
                         if(pAttribute.displayInList){
