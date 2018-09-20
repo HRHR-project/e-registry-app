@@ -3751,16 +3751,16 @@ eRegistry.controller('DataEntryController',
 
 
     $scope.dataElementEditable = function(prStDe){
-        if($scope.eventEditable()){
+        if($scope.eventEditable(true)){
             if($scope.assignedFields[$scope.currentEvent.event] && $scope.assignedFields[$scope.currentEvent.event][prStDe.dataElement.id]) return false;
             return true;
         }
         return false;
     }
 
-    $scope.eventEditable = function(){
+    $scope.eventEditable = function(isDataElement){
         if(!$scope.currentStage || !$scope.currentStage.access.data.write) return false;
-        if($scope.selectedOrgUnit.closedStatus || $scope.selectedEnrollment.status !== 'ACTIVE' || $scope.currentEvent.editingNotAllowed) return false;
+        if($scope.selectedOrgUnit.closedStatus || $scope.selectedEnrollment.status !== 'ACTIVE' || $scope.currentEvent.editingNotAllowed && isDataElement) return false;
         if($scope.currentEvent.expired && !$scope.userAuthority.canEditExpiredStuff) return false;
         return true;
     }
