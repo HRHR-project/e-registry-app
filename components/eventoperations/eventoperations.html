@@ -23,11 +23,10 @@
                         <button ng-class="openEventButton.class" ng-click="openEvent()">{{openEventButton.text | translate}}</button>
                     </span>
                 </span>
-            </div>
-            
-            
-            
-            
+                <span ng-if="noStageMessage">
+                    <div class="alert alert-danger" role="alert"> {{'no_stage_message' | translate}} </div>  
+                </span>
+            </div>   
         </div>    
     </div>
 </div>

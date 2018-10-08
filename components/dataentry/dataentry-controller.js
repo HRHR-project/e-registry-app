@@ -2514,7 +2514,7 @@ eRegistry.controller('DataEntryController',
             return false;
         }
         
-        if(userRoles.some(function(role){return role.authorities ? 
+        if(userRoles && userRoles.some(function(role){return role.authorities ? 
             role.authorities.some( function(authority){return authority === 'ALL';}) :
             false;})) {
             return false;

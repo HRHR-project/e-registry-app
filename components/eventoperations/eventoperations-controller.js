@@ -121,6 +121,11 @@ eRegistry.controller('EventOperationsController',
                $scope.showEventButtons = true;
            }
 
+        } else {
+            $scope.showButtons = false;
+            $scope.noStageMessage = true;
+            $scope.dashboardReady = true;
+            return;
         }
         $scope.dashboardReady = true;
         $scope.showButtons = true;
