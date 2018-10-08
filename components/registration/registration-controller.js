@@ -212,12 +212,14 @@ eRegistry.controller('RegistrationController',
     };
     
     var performRegistration = function(destination){
+        $scope.saving = true;
         RegistrationService.registerOrUpdate($scope.tei, $scope.optionSets, $scope.attributesById).then(function(regResponse){
             var reg = regResponse.response.responseType ==='ImportSummaries' ? regResponse.response.importSummaries[0] : regResponse.response.responseType === 'ImportSummary' ? regResponse.response : {};
             if(reg.reference && reg.status === 'SUCCESS'){                
                 $scope.tei.trackedEntityInstance = reg.reference;
                 
                 if( $scope.registrationMode === 'PROFILE' ){
+                    $scope.saving = false;
                     reloadProfileWidget();
                     $rootScope.$broadcast('teiupdated', {});
                     if(destination==='newOrgUnit'){
@@ -247,13 +249,16 @@ eRegistry.controller('RegistrationController',
                                 var dhis2Events = EventUtils.autoGenerateEvents($scope.tei.trackedEntityInstance, $scope.selectedProgram, $scope.selectedOrgUnit, enrollment);
                                 if(dhis2Events.events.length > 0){
                                     DHIS2EventFactory.create(dhis2Events).then(function(){
+                                        $scope.saving = false;
                                         notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
                                     });
                                 }else{
+                                    $scope.saving = false;
                                     notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
                                 } 
                             }
                             else{
+                                $scope.saving = false;
                                 //enrollment has failed
                                 var dialogOptions = {
                                         headerText: 'enrollment_error',
