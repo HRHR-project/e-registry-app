@@ -9,12 +9,10 @@
                 <div class="event-container" title="[{{'org_unit' | translate}}: {{dhis2Event.orgUnitName}}, {{'program_stage' | translate}}: {{dhis2Event.displayName}}]" ng-class="getEventStyle(dhis2Event)" ng-click="showDataEntry(dhis2Event, false)">                
                     <div class="event-container-item">
                         {{dhis2Event.sortingDate}}
-                        <!--for folkehelsa----->
                         {{getGestAgeForANCEventContainer(dhis2Event)}}
-                        <!--------------------->
                         <br/>
-                    {{dhis2Event.orgUnitName.length > 15 ? dhis2Event.orgUnitName.substring(0,15).concat('...') : dhis2Event.orgUnitName}}<br/>
-                    {{dhis2Event.displayName.length > 15 ? dhis2Event.displayName.substring(0,15).concat('...') : dhis2Event.displayName}}
+                        {{dhis2Event.orgUnitName.length > 15 ? dhis2Event.orgUnitName.substring(0,15).concat('...') : dhis2Event.orgUnitName}}<br/>
+                        {{dhis2Event.displayName.length > 15 ? dhis2Event.displayName.substring(0,15).concat('...') : dhis2Event.displayName}}
                     </div>
                     <div class="event-container-footer">{{getEventStyleLabel(dhis2Event)}}</div>
                 </div>
@@ -59,7 +57,7 @@
                         </div>
                     </div>  
                     <div class="col-md-3" style="text-align: center">
-                        <!----for folkehelsa---->            
+                        <!--for folkehelsa-->            
                         <div ng-if="!useBottomLine && fetusMenu && fetusMenu.display === true && currentStage.id === 'uUHQw5KrZAL' && currentEvent.status === EVENTSTATUSCOMPLETELABEL">  
                             <div>
                                 <div ng-bind="prStDes['gpKuJcONaoW'].dataElement.shortname ? prStDes['gpKuJcONaoW'].dataElement.shortname : prStDes['gpKuJcONaoW'].dataElement.displayName" class="bold"></div>

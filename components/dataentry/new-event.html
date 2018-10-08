@@ -3,8 +3,8 @@
     <h3 ng-if="isScheduleEvent && !isReferralEvent">{{'schedule'| translate}}<span ng-if="model.selectedStage"> - {{model.selectedStage.displayName}}</span></h3>
     <h3 ng-if="isReferralEvent">{{'referral' | translate}}<span ng-if="model.selectedStage"> - {{model.selectedStage.displayName}}</span></h3>
 </div>
-<div class="modal-body page">    
-    <form name="eventCreationForm" class="form-horizontal" role="form" novalidate>
+<div class="modal-body page">
+    <form  name="eventCreationForm" class="form-horizontal" role="form" novalidate>
         <div ng-if="!stageSpecifiedOnModalOpen">
             <div class="form-group">
                 <div class="col-sm-11">
@@ -14,7 +14,7 @@
                     <div class="col-sm-9">
                         <select class="form-control-program" 
                                 ng-model="model.selectedStage"                                
-                                ng-options="stage.displayName for stage in stages">                    
+                                ng-options="stage.displayName for stage in stages | filter:{access: {data: {write: true}}}">                    
                         </select>
                     </div>                
                 </div>         
@@ -113,7 +113,7 @@
         
             </div>            
         </div>
-    </form>  
+    </form>
 </div>
 <div class="modal-footer page">
     <button class="btn btn-primary" data-ng-click="save()" ng-if="!isReferralEvent">{{'save'| translate}}</button>

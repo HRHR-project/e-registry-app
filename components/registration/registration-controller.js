@@ -444,7 +444,7 @@ eRegistry.controller('RegistrationController',
                 $scope.allProgramRules, 
                 eventExists ? $scope.currentEvent : 'registration', 
                 evs,
-                $scope.prStDes, 
+                $scope.prStDes ? $scope.prStDes : {}, 
                 $scope.attributesById,
                 $scope.selectedTei, 
                 $scope.selectedEnrollment, 
@@ -473,7 +473,7 @@ eRegistry.controller('RegistrationController',
             $scope.errorMessages = {};
             $scope.hiddenSections = [];
 
-            var effectResult = TrackerRulesExecutionService.processRuleEffectAttribute(args.event, $scope.selectedTei, $scope.tei, $scope.currentEvent, {}, $scope.currentEvent, $scope.attributesById, $scope.prStDes, $scope.hiddenFields, $scope.hiddenSections, $scope.warningMessages, $scope.assignedFields, $scope.optionSets);
+            var effectResult = TrackerRulesExecutionService.processRuleEffectAttribute(args.event, $scope.selectedTei, $scope.tei, $scope.currentEvent, {}, $scope.currentEvent, $scope.attributesById, $scope.prStDes ? $scope.prStDes : {}, $scope.hiddenFields, $scope.hiddenSections, $scope.warningMessages, $scope.assignedFields, $scope.optionSets);
             $scope.selectedTei = effectResult.selectedTei;
             $scope.currentEvent = effectResult.currentEvent;
             $scope.hiddenFields = effectResult.hiddenFields;

@@ -1892,7 +1892,7 @@ var d2Services = angular.module('d2Services');
                                 expressionUpdated = true;
                             }
                             else if(dhisFunction.name === "d2:validatePalestineID"){
-                                var id = parameters[0];
+                                var id = "" + parameters[0];
                                 var valid = "false";
                                 
                                 var A;
@@ -1947,6 +1947,11 @@ var d2Services = angular.module('d2Services');
                             else if(dhisFunction.name === "d2:countIfValue") {
                                 var variableName = parameters[0];
                                 var variableObject = variablesHash[variableName];
+
+                                if(!variableObject) {
+                                    $log.warn("could not find variable to countifzeropos: " + variableName);
+                                }
+
 
                                 var valueToCompare = VariableService.processValue(parameters[1],variableObject.variableType);
 
@@ -3064,6 +3069,12 @@ var d2Services = angular.module('d2Services');
     return {
         getChildren: function(uid){
             orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '.json?fields=id,path,level,children[id,displayName,level,children[id]]&paging=false' ).then(function(response){
+                return response.data;
+            });
+            return orgUnitPromise;
+        },
+        getParents: function(uid){
+            orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '/ancestors.json?fields=id,displayName,level,children[*]&paging=false' ).then(function(response){
                 return response.data;
             });
             return orgUnitPromise;

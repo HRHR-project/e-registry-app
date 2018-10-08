@@ -425,7 +425,7 @@ eRegistry.controller('DataEntryController',
             SystemSettingsService.getCountry().then(function(response){
                 if(response === 'bangladesh') {
                     $scope.isBangladesh = true;
-                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", w0pwmNYugKX: "dqF3sxJKBls", FRSZV43y35y: "fSE8JyGdsV6", WZbXY0S00lP: "edqlbukwRfQ"};
+                    $scope.headerCombineStages = {w0pwmNYugKX: "dqF3sxJKBls", piRv8jtcLQV: "IlSUGDq9QDc", FRSZV43y35y: "fSE8JyGdsV6", WZbXY0S00lP: "edqlbukwRfQ"};
                 } else {
                     $scope.isBangladesh = false;
                     $scope.headerCombineStages = {WZbXY0S00lP: "edqlbukwRfQ"};
@@ -536,8 +536,10 @@ eRegistry.controller('DataEntryController',
                 });
                 
                 angular.forEach(filterStages, function(filterStage){
-                    var stageEvents = $scope.eventsByStage[filterStage.id];                    
-                    $scope.topLineEvents = $scope.topLineEvents.concat(stageEvents);                    
+                    if(filterStage && filterStage.id) {
+                        var stageEvents = $scope.eventsByStage[filterStage.id];                    
+                        $scope.topLineEvents = $scope.topLineEvents.concat(stageEvents);  
+                    }                  
                 });            
             }
             else {
@@ -609,19 +611,33 @@ eRegistry.controller('DataEntryController',
     
     //Contains an array of dataelements that should not be displayed in "Previous values".
     $scope.showPreviousValue = function (id) {
-        //Hidden values for Bangladesh.
-        var hiddenValues = ['OsaG5OsIJw9', 'Kb2LvjqXHfi', 'M4HEOoEFTAT', 'dyYdfamSY2Z', 'A4i1iD8Askw', 'ql1h1eXRbJ2', 'V454TVtRUVM', 'pHNanCbrioZ',
-                            'achoX4owMl2', 'pthOcD3pgmH', 'YioY92h7fHk', 'sBk3iOdp5vS', 'mtQD6phlBwY', 'srTBtL6nbWM', 'DWGXGJ7dGZ7', 'x0hRYXnnmxP', 
-                            'U5jDJTJUss0', 'J1oYUR8QvYo', 'DkK2EN7d526', 'oy6bZRZanZr', 'ciuVqP8Ag19', 'Cnq43Bere4w', 'ZLqKqxqjOaH', 'EiJ5aU0QWvK',
-                            'l2YTYbF5d7v', 'A9GkQjPcFtd', 'oGDVvNyI7Ot', 'CaLpgtzBySB', 'lwleHI2dbvT', 'nBy3gXhHGZ9', 'm4ZCH1uGGh7', 'TAtUnu1BiUp',
-                            'J6N7R7hpShG', 'BX0Y5BS757I', 'oFNziXTsM56', 'PSNI8yP2bQ6','dthg8E3NqCS' , 'UvPeKLdARcu', 'H9vEFl0W1EL', 'yakmemTH1Vz',
-                            'koBfHoIgNcy', 'FdKZReGBvWN', 'LR4XATl5Wmd', 'RRWteHFKHCX', 'wpgZQxjAl5v', 'gaQRDpt9vHr', 'Z1uSMcd9ugj', 'e87QQTwrvYL',
-                            'yprnwvYFFoA', 'XwdAiW8b1Fe', 'a1E5SbsPOZf', 'b9xA0ZD9B4S', 'WkIkkhN88Jo', 'aYnlkPFbUNx', 'ulNe9l82LIQ'];
+        var hiddenValues = [];
+        if($scope.isBangladesh) {
+            //Hidden values for Bangladesh.
+            hiddenValues = ['OsaG5OsIJw9', 'Kb2LvjqXHfi', 'M4HEOoEFTAT', 'dyYdfamSY2Z', 'A4i1iD8Askw', 'ql1h1eXRbJ2', 'V454TVtRUVM', 'pHNanCbrioZ',
+            'achoX4owMl2', 'pthOcD3pgmH', 'YioY92h7fHk', 'sBk3iOdp5vS', 'mtQD6phlBwY', 'srTBtL6nbWM', 'DWGXGJ7dGZ7', 'x0hRYXnnmxP', 
+            'U5jDJTJUss0', 'J1oYUR8QvYo', 'DkK2EN7d526', 'oy6bZRZanZr', 'ciuVqP8Ag19', 'Cnq43Bere4w', 'ZLqKqxqjOaH', 'EiJ5aU0QWvK',
+            'l2YTYbF5d7v', 'A9GkQjPcFtd', 'oGDVvNyI7Ot', 'CaLpgtzBySB', 'lwleHI2dbvT', 'nBy3gXhHGZ9', 'm4ZCH1uGGh7', 'TAtUnu1BiUp',
+            'J6N7R7hpShG', 'BX0Y5BS757I', 'oFNziXTsM56', 'PSNI8yP2bQ6','dthg8E3NqCS' , 'UvPeKLdARcu', 'H9vEFl0W1EL', 'yakmemTH1Vz',
+            'koBfHoIgNcy', 'FdKZReGBvWN', 'LR4XATl5Wmd', 'RRWteHFKHCX', 'wpgZQxjAl5v', 'gaQRDpt9vHr', 'Z1uSMcd9ugj', 'e87QQTwrvYL',
+            'yprnwvYFFoA', 'XwdAiW8b1Fe', 'a1E5SbsPOZf', 'b9xA0ZD9B4S', 'WkIkkhN88Jo', 'aYnlkPFbUNx', 'ulNe9l82LIQ'];
+        } else {
+            hiddenValues = ['OsaG5OsIJw9'];
+        }
+
+        
 
         if(hiddenValues.indexOf(id) >= 0) {
             return false;
         }
 
+        return true;
+    };
+
+    $scope.showPreviousValueDateAndGestAge = function (sectionId) {
+        if($scope.isBangladesh && sectionId !== 'Of9gtm4Hr2Y') {
+            return false;
+        }
         return true;
     };
 
@@ -975,6 +991,19 @@ eRegistry.controller('DataEntryController',
                 return false;
             }
 
+            if(!stage.access.data.write) {
+                if($scope.headerCombineStages) {
+                    for(var key in $scope.headerCombineStages){
+                        if($scope.headerCombineStages[key] === stage.id){
+                            if($scope.stagesById[key].access.data.write) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+
             //In case the event is a table, we sould always allow adding more events(rows)
             if (stage.displayEventsInTable) {
                 return true;
@@ -995,15 +1024,6 @@ eRegistry.controller('DataEntryController',
                             return false;
                         }                            
                     }
-                    //folkehelsa, allowing more than one scheduled event
-                    /*
-                    else if (!$scope.eventsByStage[stage.id][j].eventDate && $scope.eventsByStage[stage.id][j].status !== 'SKIPPED') {
-                        if(angular.isDefined(errorResponseContainer)){
-                            errorResponseContainer.errorCode = $scope.stageNeedsEventErrors.scheduledFound;
-                        }
-                        return false;
-                    }
-                    */
                 }
                 return true;
             }
@@ -1161,7 +1181,7 @@ eRegistry.controller('DataEntryController',
                 }
                 var dialogOptions = {
                     headerText: $translate.instant('visit_cant_be_created'),
-                    bodyText: errorMessage
+                    bodyText: errorMessage ? errorMessage : $translate.instant('no_programstages_available_text'),
                 };
                     
                 DialogService.showDialog({}, dialogOptions);
@@ -1880,6 +1900,13 @@ eRegistry.controller('DataEntryController',
             
             $scope.currentElement = {id: "eventDate", event: eventToSave.event, saved: true};
             $scope.executeRules();
+            if($scope.currentStage.id === 'edqlbukwRfQ'){
+                $scope.setPreviousValuesTable('WZbXY0S00lP');          
+            } else if($scope.currentStage.id === 'dqF3sxJKBls' && $scope.isBangladesh) {
+                $scope.setPreviousValuesTable('w0pwmNYugKX');
+            } else if($scope.currentStage.id === 'fSE8JyGdsV6' && $scope.isBangladesh) {
+                $scope.setPreviousValuesTable('FRSZV43y35y');
+            }
             //$scope.getEventPageForEvent($scope.currentEvent);
         }, function(error){
             
@@ -3293,7 +3320,10 @@ eRegistry.controller('DataEntryController',
         
         var eventsForStages = [];
         angular.forEach(stages, function(stage){
-            eventsForStages = eventsForStages.concat($scope.eventsByStage[stage.id]);
+            if(stage && stage.id) {
+                eventsForStages = eventsForStages.concat($scope.eventsByStage[stage.id]);
+            }
+            
         });
         
         return $scope.getEventFromEventCollection(eventsForStages);
@@ -3721,16 +3751,16 @@ eRegistry.controller('DataEntryController',
 
 
     $scope.dataElementEditable = function(prStDe){
-        if($scope.eventEditable()){
+        if($scope.eventEditable(true)){
             if($scope.assignedFields[$scope.currentEvent.event] && $scope.assignedFields[$scope.currentEvent.event][prStDe.dataElement.id]) return false;
             return true;
         }
         return false;
     }
 
-    $scope.eventEditable = function(){
+    $scope.eventEditable = function(isDataElement){
         if(!$scope.currentStage || !$scope.currentStage.access.data.write) return false;
-        if($scope.selectedOrgUnit.closedStatus || $scope.selectedEnrollment.status !== 'ACTIVE' || $scope.currentEvent.editingNotAllowed) return false;
+        if($scope.selectedOrgUnit.closedStatus || $scope.selectedEnrollment.status !== 'ACTIVE' || $scope.currentEvent.editingNotAllowed && isDataElement) return false;
         if($scope.currentEvent.expired && !$scope.userAuthority.canEditExpiredStuff) return false;
         return true;
     }

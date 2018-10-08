@@ -121,7 +121,7 @@ eRegistry.controller('EventOverViewController',
         }
         
         for(var i = 0; i < $scope.eventsInProgramStage.length; i++){
-            var currentEvent = $scope.eventsInProgramStage[i];            
+            var currentEvent = $scope.eventsInProgramStage[i];
             $scope.addUserFormattedDataValuesForEvent(currentEvent);            
         }
         $rootScope.eventsInProgramStageById[$scope.programStageIdFilter] = $scope.eventsInProgramStage;
@@ -481,6 +481,10 @@ eRegistry.controller('EventOverViewController',
                 actions[key].actionFunc();
             }
         }
+    };
+
+    $scope.formatDate = function(date){
+        return DateUtils.formatFromApiToUser(date);
     };
 
     var containsActionForManagement = function(action, managementLC){

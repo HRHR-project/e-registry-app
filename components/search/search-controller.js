@@ -400,51 +400,77 @@ eRegistry.controller('SearchController',function(
 
         }
 
+        var sameUnion = function(teiOrgUnit) {
+            return OrgUnitFactory.getParents(teiOrgUnit).then(function(result){
+                var parent = result.ancestors.find(function(orgunit){
+                    return orgunit.level === 5;
+                });
+
+                if(parent){
+                    return OrgUnitFactory.getChildren(parent.id).then(function(result){
+                        var foundChild = result.children.find(function(child){
+                            return child.id === $scope.selectedOrgUnit.id;
+                        });
+                        return !!foundChild;
+                    });
+                }
+                return false;
+            });
+        }
+
         //AUDIT
-        var showFoundInOtherOrgUnitModal = function(tei){
+        var showFoundInOtherOrgUnitModal = function(tei){            
+            
+            return sameUnion(tei.orgUnit).then(function(isSameUnion) {
+                if(isSameUnion && $scope.isBangladesh) {
+                    var def = $q.defer();
+                    def.resolve();
+                    return def.promise;
+                }
 
-            return $modal.open({
-                templateUrl: 'components/search/audit-modal.html',
-                windowClass: '',
-                resolve: {
-                    tei: function(){ return tei; }
-                },
-                controller: function($scope,$modalInstance, $translate, tei){
-                    $scope.model = {};
-                    $scope.textAreaReasonID = 5;
-                    $scope.reasons = [
-                        { name: "change_place_of_residence", id: 1},
-                        { name: "visiting_family", id: 2},
-                        { name: "urgent_case", id: 3},
-                        { name: "desire_to_change_the_place_of_receiving_care", id: 4},
-                        { name: "specify_other", id: 5}
-                    ];
-                    angular.forEach($scope.reasons, function(r){ r.displayName = $translate.instant(r.name);});
-
-                    $scope.cancel = function(){
-
-                    }
-                    $scope.cancel = function(){
-                        $modalInstance.dismiss();
-                    }
-                    $scope.open = function(){
-                        $scope.openDisabled = true;
-                        $scope.form.$setSubmitted();
-                        if($scope.form.$valid){
-                            var reasonMessage = $scope.model.selectedReason.name;
-                            if($scope.model.selectedReason.id === $scope.textAreaReasonID){
-                                reasonMessage = $scope.model.specifiedReason;
+                return $modal.open({
+                    templateUrl: 'components/search/audit-modal.html',
+                    windowClass: '',
+                    resolve: {
+                        tei: function(){ return tei; }
+                    },
+                    controller: function($scope,$modalInstance, $translate, tei){
+                        $scope.model = {};
+                        $scope.textAreaReasonID = 5;
+                        $scope.reasons = [
+                            { name: "change_place_of_residence", id: 1},
+                            { name: "visiting_family", id: 2},
+                            { name: "urgent_case", id: 3},
+                            { name: "desire_to_change_the_place_of_receiving_care", id: 4},
+                            { name: "specify_other", id: 5}
+                        ];
+                        angular.forEach($scope.reasons, function(r){ r.displayName = $translate.instant(r.name);});
+    
+                        $scope.cancel = function(){
+    
+                        }
+                        $scope.cancel = function(){
+                            $modalInstance.dismiss();
+                        }
+                        $scope.open = function(){
+                            $scope.openDisabled = true;
+                            $scope.form.$setSubmitted();
+                            if($scope.form.$valid){
+                                var reasonMessage = $scope.model.selectedReason.name;
+                                if($scope.model.selectedReason.id === $scope.textAreaReasonID){
+                                    reasonMessage = $scope.model.specifiedReason;
+                                }
+                                TeiAuditService.add(tei.id, userProfile.id, reasonMessage).then(function(){
+                                    $modalInstance.close();
+                                }, function(){
+                                    $modalInstance.dismiss();
+                                });
+                            }else{
+                                $scope.openDisabled = false;
                             }
-                            TeiAuditService.add(tei.id, userProfile.id, reasonMessage).then(function(){
-                                $modalInstance.close();
-                            }, function(){
-                                $modalInstance.dismiss();
-                            });
-                        }else{
-                            $scope.openDisabled = false;
                         }
                     }
-                }
-            }).result;
+                }).result;
+            });
         };
 });
