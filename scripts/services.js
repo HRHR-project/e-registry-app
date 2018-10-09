@@ -981,6 +981,19 @@ eRegistryServices.factory('ERStorageService', function(){
                     val = val === true ? 'true' : '';
                 }                
             }
+            if(val && 
+                attsById[att.attribute] && 
+                attsById[att.attribute].optionSetValue && 
+                attsById[att.attribute].optionSet && 
+                attsById[att.attribute].optionSet.id && 
+                optionSets[attsById[att.attribute].optionSet.id]){
+                if(destination === 'USER'){
+                    val = OptionSetService.getName(optionSets[attsById[att.attribute].optionSet.id].options, String(val));                                
+                }
+                else{
+                    val = OptionSetService.getCode(optionSets[attsById[att.attribute].optionSet.id].options, val);                                
+                }
+            } 
             else{
                 if(val){  
                     if(type === 'NUMBER' ||
@@ -1005,19 +1018,7 @@ eRegistryServices.factory('ERStorageService', function(){
                         else{
                             val = DateUtils.formatFromUserToApi(val);
                         }                        
-                    }
-                    if(attsById[att.attribute] && 
-                            attsById[att.attribute].optionSetValue && 
-                            attsById[att.attribute].optionSet && 
-                            attsById[att.attribute].optionSet.id && 
-                            optionSets[attsById[att.attribute].optionSet.id]){
-                        if(destination === 'USER'){
-                            val = OptionSetService.getName(optionSets[attsById[att.attribute].optionSet.id].options, String(val));                                
-                        }
-                        else{
-                            val = OptionSetService.getCode(optionSets[attsById[att.attribute].optionSet.id].options, val);                                
-                        }                        
-                    }                    
+                    }                 
                 }
             }
             return val;
