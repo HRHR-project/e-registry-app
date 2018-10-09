@@ -180,6 +180,7 @@ eRegistry.controller('RegistrationController',
         if(destination === 'DASHBOARD') {
             $location.path('/dashboard').search({tei: teiId,                                            
                                     program: $scope.selectedProgram ? $scope.selectedProgram.id: null});
+            return;
         }
         else if (destination === 'SELF'){
             //notify user
@@ -191,6 +192,7 @@ eRegistry.controller('RegistrationController',
             $scope.selectedTei = {};
             $scope.tei = {};
         }
+        $scope.saving = false;
     };
     
     var reloadProfileWidget = function(){
@@ -204,6 +206,7 @@ eRegistry.controller('RegistrationController',
     var notifyRegistrationCompletion = function(destination, teiId, enrollment){
         if($scope.registrationMode === 'ENROLLMENT'){
             broadcastTeiEnrolled(enrollment);
+            $scope.saving = false;
         }else{
             goToDashboard( destination ? destination : 'DASHBOARD', teiId );  
         }
@@ -219,7 +222,6 @@ eRegistry.controller('RegistrationController',
                 $scope.tei.trackedEntityInstance = reg.reference;
                 
                 if( $scope.registrationMode === 'PROFILE' ){
-                    $scope.saving = false;
                     reloadProfileWidget();
                     $rootScope.$broadcast('teiupdated', {});
                     if(destination==='newOrgUnit'){
@@ -227,6 +229,8 @@ eRegistry.controller('RegistrationController',
                         EnrollmentService.update($scope.selectedEnrollment);
                         selection.load();
                         $location.path('/').search({program: $scope.selectedProgram.id});                 
+                    }else {
+                        $scope.saving = false;
                     }
                 }
                 else{
@@ -249,11 +253,9 @@ eRegistry.controller('RegistrationController',
                                 var dhis2Events = EventUtils.autoGenerateEvents($scope.tei.trackedEntityInstance, $scope.selectedProgram, $scope.selectedOrgUnit, enrollment);
                                 if(dhis2Events.events.length > 0){
                                     DHIS2EventFactory.create(dhis2Events).then(function(){
-                                        $scope.saving = false;
                                         notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
                                     });
-                                }else{
-                                    $scope.saving = false;
+                                }else {
                                     notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
                                 } 
                             }
@@ -269,12 +271,13 @@ eRegistry.controller('RegistrationController',
                             }
                         });
                     }
-                    else{
+                    else {
                        notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance); 
                     }
                 }                
             }
-            else{//update/registration has failed
+            else {//update/registration has failed
+                $scope.saving = false;
                 var dialogOptions = {
                         headerText: $scope.tei && $scope.tei.trackedEntityInstance ? 'update_error' : 'registration_error',
                         bodyText: regResponse.message
