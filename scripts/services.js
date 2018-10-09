@@ -1012,7 +1012,7 @@ eRegistryServices.factory('ERStorageService', function(){
                             attsById[att.attribute].optionSet.id && 
                             optionSets[attsById[att.attribute].optionSet.id]){
                         if(destination === 'USER'){
-                            val = OptionSetService.getName(optionSets[attsById[att.attribute].optionSet.id].options, val);                                
+                            val = OptionSetService.getName(optionSets[attsById[att.attribute].optionSet.id].options, String(val));                                
                         }
                         else{
                             val = OptionSetService.getCode(optionSets[attsById[att.attribute].optionSet.id].options, val);                                
