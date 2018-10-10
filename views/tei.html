@@ -7,7 +7,7 @@
     
 <div ng-if="teiFetched">
     <div class="alert alert-warning vertical-spacing" ng-if="trackedEntityList.length === 0 || !trackedEntityList.length">
-        {{'no'| translate}} {{selectedProgram.trackedEntityType.displayName|| 'records' | translate}} {{'found'| translate}}
+        {{translateWithTETName('no_tracked_entity_instance_found_header', true)}}
     </div>
     <div class="vertical-spacing" ng-if="trackedEntityList.length > 0">
         <table class="table table-striped dhis2-table-hover table-bordered">               

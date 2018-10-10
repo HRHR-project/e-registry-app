@@ -326,6 +326,15 @@ eRegistry.controller('SelectionController',
         return temp;
     };
 
+    $scope.translateWithTETName = function(text, nameToLower){
+        var trackedEntityTypeName = $scope.selectedProgram.trackedEntityType ? $scope.selectedProgram.trackedEntityType.displayName : "tracked entity instance";
+
+        if(nameToLower) trackedEntityTypeName = trackedEntityTypeName.toLowerCase();
+        var translated = $translate.instant(text);
+
+        return translated.replace("{trackedEntityTypeName}", trackedEntityTypeName);
+    };
+
     //$scope.searchParam = {bools: []};
     $scope.search = function(mode,goToPage){
         resetParams(goToPage);
