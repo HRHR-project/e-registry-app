@@ -214,7 +214,7 @@ eRegistry.controller('RegistrationController',
 
     };
 
-    var performRegistrationV2 = function(destination) {
+    var performRegistration = function(destination) {
         $scope.saving = true;
         var teiToSave = angular.copy($scope.tei);
         var hasEnrollment = false;
@@ -267,8 +267,11 @@ eRegistry.controller('RegistrationController',
             bodyText: 'failed_to_add_or_update_tei_see_response_from_server',
         };
         
-        DialogService.showDialog({}, dialogOptions, summaries);
-        $scope.saving = false;
+        DialogService.showDialog({}, dialogOptions, summaries).then(function(){
+            $scope.saving = false;
+        }, function(){
+            $scope.saving = false;
+        });
     }
 
     var handleEnrollError = function(destination, enrollmentResponse) {
@@ -279,8 +282,11 @@ eRegistry.controller('RegistrationController',
                 bodyText: 'failed_to_add_new_enrollment_see_response_from_server',
             };
             
-            DialogService.showDialog({}, dialogOptions, summaries);
-            $scope.saving = false;
+            DialogService.showDialog({}, dialogOptions, summaries).then(function(){
+                $scope.saving = false;
+            }, function(){
+                $scope.saving = false;
+            });
         }else{
             goToDashboard( destination ? destination : 'DASHBOARD', $scope.tei.trackedEntityInstance );  
         }
@@ -299,9 +305,8 @@ eRegistry.controller('RegistrationController',
         }
     }
     
-    var performRegistration = function(destination){
-        performRegistrationV2(destination);
-        /* $scope.saving = true;
+    /* var performRegistration_old = function(destination){
+        $scope.saving = true;
         RegistrationService.registerOrUpdate($scope.tei, $scope.optionSets, $scope.attributesById).then(function(regResponse){
             var reg = regResponse.response.responseType ==='ImportSummaries' ? regResponse.response.importSummaries[0] : regResponse.response.responseType === 'ImportSummary' ? regResponse.response : {};
             if(reg.reference && reg.status === 'SUCCESS'){                
@@ -371,9 +376,9 @@ eRegistry.controller('RegistrationController',
                 DialogService.showDialog({}, dialogOptions);
                 return;
             }
-        });*/
+        });
         
-    };
+    };*/
     
     function broadcastTeiEnrolled(enrollment){
         $rootScope.$broadcast('teienrolled', {enrollment: enrollment});
