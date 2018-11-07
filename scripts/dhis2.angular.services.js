@@ -798,14 +798,14 @@ var d2Services = angular.module('d2Services');
             bodyText: 'Perform this action?'
         };
 
-        this.showDialog = function (customDialogDefaults, customDialogOptions) {
+        this.showDialog = function (customDialogDefaults, customDialogOptions, summaries) {
             if (!customDialogDefaults)
                 customDialogDefaults = {};
             customDialogDefaults.backdropClick = false;
-            return this.show(customDialogDefaults, customDialogOptions);
+            return this.show(customDialogDefaults, customDialogOptions, summaries);
         };
 
-        this.show = function (customDialogDefaults, customDialogOptions) {
+        this.show = function (customDialogDefaults, customDialogOptions, summaries) {
             //Create temp objects to work with since we're in a singleton service
             var tempDialogDefaults = {};
             var tempDialogOptions = {};
@@ -822,6 +822,9 @@ var d2Services = angular.module('d2Services');
                     $scope.dialogOptions.ok = function (result) {
                         $modalInstance.close(result);
                     };
+                    if(summaries) {
+                        $scope.summaries = summaries;
+                    }
                 };
             }
 

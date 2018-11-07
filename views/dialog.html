@@ -8,6 +8,10 @@
             {{ item | translate }}
         </li>
     </ul>
+    <div ng-if="summaries">
+        <h5>{{'response_from_server' | translate}}</h5>
+        <pre>{{summaries}}</pre>
+    </div>
 </div>
 
 <div class="modal-footer">

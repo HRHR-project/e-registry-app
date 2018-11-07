@@ -213,9 +213,95 @@ eRegistry.controller('RegistrationController',
          
 
     };
+
+    var performRegistrationV2 = function(destination) {
+        $scope.saving = true;
+        var teiToSave = angular.copy($scope.tei);
+        var hasEnrollment = false;
+        if($scope.selectedProgram && $scope.registrationMode !== 'PROFILE') {
+            hasEnrollment = true;
+            if(!teiToSave.enrollments) teiToSave.enrollments = [];
+            var enrollment = {};
+            enrollment.program = $scope.selectedProgram.id;
+            enrollment.status = 'ACTIVE';
+            enrollment.orgUnit = $scope.selectedOrgUnit.id;
+            enrollment.enrollmentDate = $scope.selectedEnrollment.enrollmentDate;
+            enrollment.incidentDate = $scope.selectedEnrollment.incidentDate === '' ? $scope.selectedEnrollment.enrollmentDate : $scope.selectedEnrollment.incidentDate; 
+            teiToSave.enrollments.push(enrollment);
+        }
+        RegistrationService.registerOrUpdate(teiToSave, $scope.optionSets, $scope.attributesById).then(function(regResponse){
+            var reg = regResponse.response.responseType ==='ImportSummaries' ? regResponse.response.importSummaries[0] : regResponse.response.responseType === 'ImportSummary' ? regResponse.response : {};
+            if(reg.reference && reg.status === 'SUCCESS') {
+                $scope.tei.trackedEntityInstance = reg.reference;
+                if($scope.registrationMode ==='PROFILE'){
+                    profilePostRegistration(destination);
+                }else if(hasEnrollment){
+                    var enrollmentResponse = reg.enrollments.importSummaries[0];
+                    if(enrollmentResponse.status === 'ERROR'){
+                        handleEnrollError(destination, enrollmentResponse);
+                    }else{
+                        enrollment.enrollment = enrollmentResponse.reference;
+                        enrollment.trackedEntityInstance = $scope.tei.trackedEntityInstance;
+                        $scope.selectedEnrollment = enrollment;
+                        var dhis2Events = EventUtils.autoGenerateEvents($scope.tei.trackedEntityInstance, $scope.selectedProgram, $scope.selectedOrgUnit, enrollment);
+                        if(dhis2Events.events.length > 0){
+                            DHIS2EventFactory.create(dhis2Events).then(function(){
+                                notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
+                            });
+                        }else {
+                            notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
+                        }
+                    }
+                }
+            } else{
+                handleTeiRegistrationError(reg);
+            }
+
+        });
+    }
+
+    var handleTeiRegistrationError = function(teiResponse) {
+        var summaries = JSON.stringify(teiResponse);
+        var dialogOptions = {
+            headerText: 'tei_error',
+            bodyText: 'failed_to_add_or_update_tei_see_response_from_server',
+        };
+        
+        DialogService.showDialog({}, dialogOptions, summaries);
+        $scope.saving = false;
+    }
+
+    var handleEnrollError = function(destination, enrollmentResponse) {
+        if($scope.registrationMode === 'ENROLLMENT'){
+            var summaries = JSON.stringify(enrollmentResponse);
+            var dialogOptions = {
+                headerText: 'enrollment_error',
+                bodyText: 'failed_to_add_new_enrollment_see_response_from_server',
+            };
+            
+            DialogService.showDialog({}, dialogOptions, summaries);
+            $scope.saving = false;
+        }else{
+            goToDashboard( destination ? destination : 'DASHBOARD', $scope.tei.trackedEntityInstance );  
+        }
+    }
+
+    var profilePostRegistration = function(destination) {
+        reloadProfileWidget();
+        $rootScope.$broadcast('teiupdated', {});
+        if(destination==='newOrgUnit'){
+            $scope.selectedEnrollment.orgUnit = $scope.tei.orgUnit;
+            EnrollmentService.update($scope.selectedEnrollment);
+            selection.load();
+            $location.path('/').search({program: $scope.selectedProgram.id});                 
+        }else {
+            $scope.saving = false;
+        }
+    }
     
     var performRegistration = function(destination){
-        $scope.saving = true;
+        performRegistrationV2(destination);
+        /* $scope.saving = true;
         RegistrationService.registerOrUpdate($scope.tei, $scope.optionSets, $scope.attributesById).then(function(regResponse){
             var reg = regResponse.response.responseType ==='ImportSummaries' ? regResponse.response.importSummaries[0] : regResponse.response.responseType === 'ImportSummary' ? regResponse.response : {};
             if(reg.reference && reg.status === 'SUCCESS'){                
@@ -285,7 +371,7 @@ eRegistry.controller('RegistrationController',
                 DialogService.showDialog({}, dialogOptions);
                 return;
             }
-        });
+        });*/
         
     };
     
