@@ -152,6 +152,13 @@ eRegistry.controller('SearchController',function(
             var promise;
             if(currentSearchScope === searchScopes.PROGRAM){
                 var tetSearchGroup = SearchGroupService.findValidTetSearchGroup(searchGroup, $scope.tetSearchConfig, $scope.base.attributesById);
+
+                //FIX FOR TEI WITHOUT ENROLLMENT
+                if(!tetSearchGroup && searchGroup.uniqueGroup) {
+                    tetSearchGroup = angular.copy(searchGroup);
+                    tetSearchGroup.dropTetInQuery = true;
+                }
+
                 promise = SearchGroupService.programScopeSearch(searchGroup,tetSearchGroup, $scope.base.selectedProgram,$scope.trackedEntityTypes.selected, $scope.selectedOrgUnit)
             }else{
                 promise = SearchGroupService.tetScopeSearch(searchGroup, $scope.base.selectedProgram,$scope.trackedEntityTypes.selected, $scope.selectedOrgUnit);

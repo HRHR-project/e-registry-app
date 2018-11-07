@@ -30,7 +30,8 @@ eRegistry.controller('SelectionController',
                 SystemSettingsService,
                 ModalService,$q,
                 DHIS2BASEURL,
-                DialogService) 
+                DialogService,
+                orderByFilter) 
                  {
     $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.maxOptionSize = 30;
@@ -69,6 +70,24 @@ eRegistry.controller('SelectionController',
     $scope.treeLoaded = false;
     $scope.searchOuTree = {open: true};
     $scope.teiListMode = {onlyActive: false};
+
+    var mapOuLevelsToId = function(){
+        $scope.base.ouLevelsByLevel = {};
+        angular.forEach(ouLevels, function(ouLevel){
+            $scope.base.ouLevelsByLevel[ouLevel.level] = ouLevel;
+        })
+    }
+
+    var ouLevels = CurrentSelection.getOuLevels();
+    if(!ouLevels){
+        MetaDataFactory.getAll('ouLevels').then(function(response){
+            ouLevels = angular.isObject(response) ? orderByFilter(response, '-level').reverse() : [];
+            CurrentSelection.setOuLevels(orderByFilter(ouLevels, '-level').reverse());
+            mapOuLevelsToId();
+        });
+    }else{
+        mapOuLevelsToId();
+    }
 
     SystemSettingsService.getCountry().then(function(response){
         if(response === 'bangladesh') {

@@ -1645,17 +1645,15 @@ eRegistryServices.factory('ERStorageService', function(){
                         }
                     }
 
-                    if(!isEmpty){
-                        if(map){
-                            entityList[entity.id] = entity;
+                    if(map){
+                        entityList[entity.id] = entity;
+                    }
+                    else{
+                        if(entity.orgUnit === ou.id){
+                            entityList.own.push(entity);
                         }
                         else{
-                            if(entity.orgUnit === ou.id){
-                                entityList.own.push(entity);
-                            }
-                            else{
-                                entityList.other.push(entity);
-                            }
+                            entityList.other.push(entity);
                         }
                     }
                 }
@@ -2210,7 +2208,12 @@ eRegistryServices.factory('ERStorageService', function(){
             });
         }
         if(query.hasValue &&(uniqueSearch || numberOfSetAttributes >= searchGroup.minAttributesRequiredToSearch)){
-            var programOrTETUrl = searchScope === searchScopes.PROGRAM ? "program="+program.id :"trackedEntityType="+trackedEntityType.id;
+            var programOrTETUrl = searchScope === searchScopes.PROGRAM ? "program="+program.id : "trackedEntityType="+trackedEntityType.id;
+
+            //FIX FOR FINDING TEI WITHOUT ENTROLLMENTS
+            if(searchGroup.dropTetInQuery){
+                programOrTETUrl = null;
+            }
 
             var searchOrgUnit = searchGroup.orgUnit ? searchGroup.orgUnit : orgUnit;
             return { orgUnit: searchOrgUnit, ouMode: searchGroup.ouMode.name, programOrTETUrl: programOrTETUrl, queryUrl: query.url, pager: pager, uniqueSearch: uniqueSearch };
