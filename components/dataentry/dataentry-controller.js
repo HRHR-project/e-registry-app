@@ -1510,11 +1510,11 @@ eRegistry.controller('DataEntryController',
                         
                         //for folkehelsa                        
                         if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "z2OCjflFLxa") {
-                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occured during this particular pregnancy or delivery.";
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = $translate.instant('complications_that_occured_during_this_particular_pregnancy_or_delivery');
                         } else if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "XKV79R3LG5J") {
-                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Complications that occurred during this particular postpartum period.";
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = $translate.instant('complications_that_occurred_during_this_particular_postpartum_period');
                         } else if($scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.id === "ET2aesZVpHo") {
-                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = "Any congenital defect, single or multiple, present at birth and are severe enough to impact an infant`s health, development and/or survival.";
+                            $scope.currentStage.multiSelectGroups[dataElementGroup.id].dataElement.description = $translate.instant('complications_that_occurred_during_28_days_of_birth');
                         }
                         
                         $scope.currentStage.programStageDataElements.splice(i+1+groupsAdded,0,$scope.currentStage.multiSelectGroups[dataElementGroup.id]);
