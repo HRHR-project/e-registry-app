@@ -225,8 +225,8 @@ eRegistry.controller('RegistrationController',
             enrollment.program = $scope.selectedProgram.id;
             enrollment.status = 'ACTIVE';
             enrollment.orgUnit = $scope.selectedOrgUnit.id;
-            enrollment.enrollmentDate = $scope.selectedEnrollment.enrollmentDate;
-            enrollment.incidentDate = $scope.selectedEnrollment.incidentDate === '' ? $scope.selectedEnrollment.enrollmentDate : $scope.selectedEnrollment.incidentDate; 
+            enrollment.enrollmentDate = DateUtils.formatFromUserToApi($scope.selectedEnrollment.enrollmentDate);
+            enrollment.incidentDate = $scope.selectedEnrollment.incidentDate === '' ? DateUtils.formatFromUserToApi($scope.selectedEnrollment.enrollmentDate) : DateUtils.formatFromUserToApi($scope.selectedEnrollment.incidentDate); 
             teiToSave.enrollments.push(enrollment);
         }
         RegistrationService.registerOrUpdate(teiToSave, $scope.optionSets, $scope.attributesById).then(function(regResponse){
@@ -304,81 +304,6 @@ eRegistry.controller('RegistrationController',
             $scope.saving = false;
         }
     }
-    
-    /* var performRegistration_old = function(destination){
-        $scope.saving = true;
-        RegistrationService.registerOrUpdate($scope.tei, $scope.optionSets, $scope.attributesById).then(function(regResponse){
-            var reg = regResponse.response.responseType ==='ImportSummaries' ? regResponse.response.importSummaries[0] : regResponse.response.responseType === 'ImportSummary' ? regResponse.response : {};
-            if(reg.reference && reg.status === 'SUCCESS'){                
-                $scope.tei.trackedEntityInstance = reg.reference;
-                
-                if( $scope.registrationMode === 'PROFILE' ){
-                    reloadProfileWidget();
-                    $rootScope.$broadcast('teiupdated', {});
-                    if(destination==='newOrgUnit'){
-                        $scope.selectedEnrollment.orgUnit = $scope.tei.orgUnit;
-                        EnrollmentService.update($scope.selectedEnrollment);
-                        selection.load();
-                        $location.path('/').search({program: $scope.selectedProgram.id});                 
-                    }else {
-                        $scope.saving = false;
-                    }
-                }
-                else{
-                    if( $scope.selectedProgram ){
-                        
-                        //enroll TEI
-                        var enrollment = {};
-                        enrollment.trackedEntityInstance = $scope.tei.trackedEntityInstance;
-                        enrollment.program = $scope.selectedProgram.id;
-                        enrollment.status = 'ACTIVE';
-                        enrollment.orgUnit = $scope.selectedOrgUnit.id;
-                        enrollment.enrollmentDate = $scope.selectedEnrollment.enrollmentDate;
-                        enrollment.incidentDate = $scope.selectedEnrollment.incidentDate === '' ? $scope.selectedEnrollment.enrollmentDate : $scope.selectedEnrollment.incidentDate;
-
-                        EnrollmentService.enroll(enrollment).then(function(enrollmentResponse){
-                            var en = enrollmentResponse.response && enrollmentResponse.response.importSummaries && enrollmentResponse.response.importSummaries[0] ? enrollmentResponse.response.importSummaries[0] : {};
-                            if(en.reference && en.status === 'SUCCESS'){                                
-                                enrollment.enrollment = en.reference;
-                                $scope.selectedEnrollment = enrollment;
-                                var dhis2Events = EventUtils.autoGenerateEvents($scope.tei.trackedEntityInstance, $scope.selectedProgram, $scope.selectedOrgUnit, enrollment);
-                                if(dhis2Events.events.length > 0){
-                                    DHIS2EventFactory.create(dhis2Events).then(function(){
-                                        notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
-                                    });
-                                }else {
-                                    notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance, enrollment);
-                                } 
-                            }
-                            else{
-                                $scope.saving = false;
-                                //enrollment has failed
-                                var dialogOptions = {
-                                        headerText: 'enrollment_error',
-                                        bodyText: enrollmentResponse.message
-                                    };
-                                DialogService.showDialog({}, dialogOptions);
-                                return;                                                            
-                            }
-                        });
-                    }
-                    else {
-                       notifyRegistrationCompletion(destination, $scope.tei.trackedEntityInstance); 
-                    }
-                }                
-            }
-            else {//update/registration has failed
-                $scope.saving = false;
-                var dialogOptions = {
-                        headerText: $scope.tei && $scope.tei.trackedEntityInstance ? 'update_error' : 'registration_error',
-                        bodyText: regResponse.message
-                    };
-                DialogService.showDialog({}, dialogOptions);
-                return;
-            }
-        });
-        
-    };*/
     
     function broadcastTeiEnrolled(enrollment){
         $rootScope.$broadcast('teienrolled', {enrollment: enrollment});
