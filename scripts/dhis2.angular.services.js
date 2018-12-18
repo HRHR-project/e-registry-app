@@ -1562,8 +1562,9 @@ var d2Services = angular.module('d2Services');
                 //last parameter "valuefound" is always true for event date
                 variables = pushVariable(variables, 'current_date', DateUtils.getToday(), null, 'DATE', true, 'V', '', false );
 
-                variables = pushVariable(variables, 'event_date', executingEvent.eventDate, null, 'DATE', true, 'V', '', false );
-                variables = pushVariable(variables, 'due_date', executingEvent.dueDate, null, 'DATE', true, 'V', '' );
+                variables = pushVariable(variables, 'event_date', executingEvent ? executingEvent.eventDate : '', null, 'DATE', executingEvent ? true : false, 'V', '', false );
+                variables = pushVariable(variables, 'event_status', executingEvent ? executingEvent.status : '', null, 'DATE', executingEvent ? true : false, 'V', '', false );
+                variables = pushVariable(variables, 'due_date', executingEvent ? executingEvent.dueDate : '', null, 'DATE', executingEvent ? true : false, 'V', '' );
                 variables = pushVariable(variables, 'event_count', evs ? evs.all.length : 0, null, 'INTEGER', true, 'V', '', false );
 
                 variables = pushVariable(variables, 'enrollment_date', selectedEnrollment ? selectedEnrollment.enrollmentDate : '', null, 'DATE', selectedEnrollment ? true : false, 'V', '', false );
