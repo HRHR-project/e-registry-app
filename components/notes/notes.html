@@ -50,8 +50,8 @@
                             <td class="add-default-left-padding">
                                 <d2-pop-over content="note" template="popover.html" details="{{'details'| translate}}">
                                     <div class="horizonal-spacing">
-                                        <span>{{note.value}}</span>
-                                        <span class="pull-right">{{note.displayDate}}</span>                                
+                                        <p ng-style="{'word-break': 'break-all', 'white-space': 'normal', 'max-width': '70%', 'display': ' inline-block'}">{{note.value}}</p>
+                                        <p class="pull-right">{{note.displayDate}}</p>                                
                                     </div>
 
                                 </d2-pop-over>
