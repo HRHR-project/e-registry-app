@@ -156,7 +156,7 @@ function downloadMetaData()
         //Enable ou selection after meta-data has downloaded
         $( "#orgUnitTree" ).removeClass( "disable-clicks" );
         dhis2.er.metaDataCached = true;
-        dhis2.availability.startAvailabilityCheck();
+        //dhis2.availability.startAvailabilityCheck();
         console.log( 'Finished loading meta-data' );        
         selection.responseReceived(); 
     });
