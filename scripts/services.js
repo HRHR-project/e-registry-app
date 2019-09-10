@@ -1157,7 +1157,7 @@ eRegistryServices.factory('ERStorageService', function(){
                 var pg = pager ? pager.page : 1;
                 pgSize = pgSize > 1 ? pgSize  : 1;
                 pg = pg > 1 ? pg : 1;
-                url = url + '&pageSize=' + pgSize + '&page=' + pg + '&totalPages=true';
+                url = url + '&pageSize=' + pgSize + '&page=' + pg + '&paging=true&totalPages=false';
             } 
             
             var promise = $http.get( url ).then(function(response){
