@@ -1593,6 +1593,8 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                 variables = pushVariable(variables, 'orgunit_code', selectedOrgUnit.code, null, 'TEXT', selectedOrgUnit.code ? true : false, 'V', '', false);
             }
 
+            deferred.resolve(variables);
+
             return deferred.promise;
         }
     };
