@@ -2353,7 +2353,7 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
     };
 
     var internalFetchContextData = function(selectedEnrollment,executingEvent){
-        return OrgUnitFactory.getFromStoreOrServer( selectedEnrollment ? selectedEnrollment.orgUnit : executingEvent.orgUnit )
+        return OrgUnitFactory.getFromStoreOrServer( executingEvent && executingEvent.orgUnit ? executingEvent.orgUnit : selectedEnrollment.orgUnit )
             .then(function (orgUnit) {
                 var data = { selectedOrgUnit: orgUnit, selectedProgramStage: null};
                 
@@ -3338,6 +3338,12 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                     return response.data;
                 });
             }
+            return orgUnitPromise;
+        },
+        getParents: function(uid){
+            orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '/ancestors.json?fields=id,displayName,level,children[*]&paging=false' ).then(function(response){
+                return response.data;
+            });
             return orgUnitPromise;
         },
         get: function(uid){

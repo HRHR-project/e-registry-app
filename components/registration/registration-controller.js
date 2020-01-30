@@ -71,7 +71,7 @@ eRegistry.controller('RegistrationController',
     
     $scope.$on('orgunitSet', function() {
         $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU');
-        $scope.selectedEnrollment = {enrollmentDate: $scope.today, incidentDate: $scope.today, orgUnitName: $scope.selectedOrgUnit.displayName};
+        $scope.selectedEnrollment = {enrollmentDate: $scope.today, incidentDate: $scope.today, orgUnitName: $scope.selectedOrgUnit.displayName, orgUnit: $scope.selectedOrgUnit.id};
     });
             
     $scope.trackedEntityTypes = {available: []};
