@@ -3348,7 +3348,7 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
         },
         get: function(uid){
             if( orgUnit !== uid ){
-                orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '.json?fields=id,displayName,programs[id],level,path' ).then(function(response){
+                orgUnitPromise = $http.get( DHIS2URL + '/organisationUnits/'+ uid + '.json?fields=id,displayName,programs[id],level,path,children[id,name,displayName,level,children[id,name,displayName,level]]' ).then(function(response){
                     orgUnit = uid;
                     return response.data;
                 });
