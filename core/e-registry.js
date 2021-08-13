@@ -193,7 +193,7 @@ function getUserSetting()
        return; 
     }
     
-    return dhis2.tracker.getTrackerObject(null, 'USER_SETTING', BASEAPIURL + '/userSettings.json', 'key=keyDbLocale&key=keyUiLocale&key=keyCurrentStyle&key=keyStyle', 'sessionStorage', dhis2.er.store);
+    return dhis2.tracker.getTrackerObject(null, 'USER_SETTING', BASEAPIURL + '/userSettings.json', 'key=keyDbLocale&key=keyUiLocale&key=keyStyle', 'sessionStorage', dhis2.er.store);
 }
 
 function getUserProfile()
