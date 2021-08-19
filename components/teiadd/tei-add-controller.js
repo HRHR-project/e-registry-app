@@ -117,7 +117,7 @@ eRegistry.controller('TEIAddController',
         });
         
         if(existingAssociateUid){
-            TEIService.get(existingAssociateUid, $scope.optionSets, $scope.attributesById).then(function(data){
+            TEIService.get(existingAssociateUid, $scope.optionSets, $scope.attributesById, $scope.selectedProgram).then(function(data){
                 $scope.selectedTeiForDisplay = data;
             });
         }

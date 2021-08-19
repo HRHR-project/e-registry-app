@@ -220,14 +220,7 @@ eRegistry.controller('EventCreationController',
         }        
         
         $scope.orgUnitError =  false;
-        
-        if ($scope.model.selectedStage.periodType) {
-            $scope.dhis2Event.eventDate = $scope.dhis2Event.selectedPeriod.endDate;
-            $scope.dhis2Event.dueDate = $scope.dhis2Event.selectedPeriod.endDate;
-        }
-        
-        var eventDate = DateUtils.formatFromUserToApi($scope.dhis2Event.eventDate);
-        var dueDate = DateUtils.formatFromUserToApi($scope.dhis2Event.dueDate);
+
         var newEvents = {events: []};
         var newEvent = {
             trackedEntityInstance: dummyEvent.trackedEntityInstance,
@@ -235,12 +228,27 @@ eRegistry.controller('EventCreationController',
             programStage: dummyEvent.programStage,
             enrollment: dummyEvent.enrollment,
             orgUnit: dummyEvent.orgUnit,
-            dueDate: dueDate,
-            eventDate: eventDate,
             notes: [],
             dataValues: [],
             status: 'ACTIVE'
         };
+
+        if ($scope.model.selectedStage.periodType) {
+            if( $scope.isNewEvent ){
+                newEvent.eventDate = DateUtils.formatFromUserToApi( $scope.dhis2Event.selectedPeriod.endDate );
+            }
+            else{
+                newEvent.dueDate = DateUtils.formatFromUserToApi( $scope.dhis2Event.selectedPeriod.endDate );
+            }
+        }
+        else{
+            if( $scope.isNewEvent ){
+                newEvent.eventDate = DateUtils.formatFromUserToApi($scope.dhis2Event.eventDate);
+            }
+            else{
+                newEvent.dueDate = DateUtils.formatFromUserToApi($scope.dhis2Event.dueDate);
+            }
+        }
 
         newEvent.status = newEvent.eventDate ? 'ACTIVE' : 'SCHEDULE';
 

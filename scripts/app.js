@@ -1,13 +1,12 @@
 import './eRegistryModule';
 
 // Tracker core
-import 'd2-tracker/lib/dhis2.tracker-metadata.js';
-import 'd2-tracker/lib/dhis2.angular.controllers.js';
-import 'd2-tracker/lib/dhis2.angular.services.js';
-import 'd2-tracker/lib/dhis2.angular.directives.js';
-import 'd2-tracker/lib/dhis2.angular.validations.js';
-import 'd2-tracker/lib/dhis2.angular.filters.js';
-import 'd2-tracker/lib/dhis2.angular.templates.js';
+import '../d2-tracker/dhis2.tracker-metadata.js';
+import '../d2-tracker/dhis2.angular.controllers.js';
+import '../d2-tracker/dhis2.angular.services.js';
+import '../d2-tracker/dhis2.angular.directives.js';
+import '../d2-tracker/dhis2.angular.validations.js';
+import '../d2-tracker/dhis2.angular.filters.js';
 
 // App files
 import '../scripts/dhis2.angular.services.js';
@@ -51,7 +50,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 import 'leaflet-contextmenu';
-import 'd2-tracker/lib/Google.js';
+import '../d2-tracker/Google.js';
 
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.js';

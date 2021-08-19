@@ -250,7 +250,7 @@ function getTrackedEntityTypesWithAccess()
 }
 
 function getMetaPrograms()
-{    
+{
     return dhis2.tracker.getTrackerObjects('programs', 'programs', BASEAPIURL+'/programs.json', 'filter=programType:eq:WITH_REGISTRATION&paging=false&fields=id,version,programTrackedEntityAttributes[trackedEntityAttribute[id,optionSet[id,version]]],programStages[id,version,programStageDataElements[dataElement[optionSet[id,version]]]]', 'temp', dhis2.er.store);
 }
 
@@ -573,7 +573,7 @@ function getOptionSetsForAttributes( data )
 }
 
 function getObjectIds(data){
-    return data && Array.isArray(data.self) ? data.self.map(obj => obj.id) : [];
+    return data && Array.isArray(data) ? data.map(obj => obj.id) : [];
 }
 
 /*function getMetaProgramValidations( programs, programIds )
@@ -599,7 +599,7 @@ function getProgramIndicators( data )
 }
 
 function getMetaProgramRules( programs )
-{    
+{
     return dhis2.tracker.getTrackerMetaObjects(programs, 'programRules', BASEAPIURL+'/programRules.json', 'paging=false&fields=id&filter=program.id:in:');
 }
 
@@ -610,13 +610,13 @@ function getProgramRules( data )
 }
 
 function getMetaProgramRuleVariables( programs, programIds)
-{    
-    programs.programIds = programIds;
-    return dhis2.tracker.getTrackerMetaObjects(programs, 'programRuleVariables', BASEAPIURL+'/programRuleVariables.json', 'paging=false&fields=id&filter=program.id:in:');
+{
+    const data = { programs, programIds };
+    return dhis2.tracker.getTrackerMetaObjects(data, 'programRuleVariables', BASEAPIURL+'/programRuleVariables.json', 'paging=false&fields=id&filter=program.id:in:');
 }
 
 function getProgramRuleVariables( data )
 {
-    var ids = getObjectIds(data);
-    return dhis2.tracker.getBatches(ids, batchSize, data.programs, 'programRuleVariables','programRuleVariables',BASEAPIURL + '/programRuleVariables', 'fields=id,name,displayName,programRuleVariableSourceType,program[id],programStage[id],dataElement[id],trackedEntityAttribute[id],useCodeForOptionSet','idb',dhis2.er.store);
+    var ids = getObjectIds(data.programs);
+    return dhis2.tracker.getBatches(ids, batchSize, data, 'programRuleVariables','programRuleVariables',BASEAPIURL + '/programRuleVariables', 'fields=id,name,displayName,programRuleVariableSourceType,program[id],programStage[id],dataElement[id],trackedEntityAttribute[id],useCodeForOptionSet','idb',dhis2.er.store);
 }

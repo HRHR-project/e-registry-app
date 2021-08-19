@@ -11,7 +11,6 @@ export default angular.module('eRegistry', [
     'd2Directives',
     'd2Filters',
     'd2Services',
-    'd2Templates',
     'angularLocalStorage',
     'ui.select',
     'ui.select2',
