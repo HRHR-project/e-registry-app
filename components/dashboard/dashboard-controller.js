@@ -156,8 +156,8 @@ eRegistry.controller('DashboardController',
     if($scope.selectedTeiId){
         
         //get option sets
-        $scope.optionSets = [];     
-        MetaDataFactory.getAll('optionSets').then(function(optionSets){            
+        $scope.optionSets = [];
+        MetaDataFactory.getAll('optionSets').then(function(optionSets){
             angular.forEach(optionSets, function(optionSet){
                 $scope.optionSets[optionSet.id] = optionSet;
             });
@@ -172,33 +172,33 @@ eRegistry.controller('DashboardController',
                 CurrentSelection.setAttributesById($scope.attributesById);
             
                 //Fetch the selected entity
-                TEIService.get($scope.selectedTeiId, $scope.optionSets, $scope.attributesById).then(function(response){
+                TEIService.get($scope.selectedTeiId, $scope.optionSets, $scope.attributesById, $location.search().program).then(function(response){
                     if(response) {
                         $scope.selectedTei = response;
 
-                        setInactiveMessage();                   
+                        setInactiveMessage();
 
                         //get the entity type
-                        TEService.get($scope.selectedTei.trackedEntityType).then(function(tet){                    
+                        TEService.get($scope.selectedTei.trackedEntityType).then(function(tet){
                             $scope.trackedEntityType = tet;
 
                             //get enrollments for the selected tei
-                            EnrollmentService.getByEntity($scope.selectedTeiId).then(function(response){                    
+                            EnrollmentService.getByEntity($scope.selectedTeiId).then(function(response){
                                 var enrollments = angular.isObject(response) && response.enrollments ? response.enrollments : [];
                                 var selectedEnrollment = null;
                                 var backupSelectedEnrollment = null;
                                 
-                                ProgramFactory.getProgramsByOu($scope.selectedOrgUnit,false).then(function(res){
+                                ProgramFactory.getProgramsByOu($scope.selectedOrgUnit, false).then(function(res){
                                     $scope.programs = [];
-                                    $scope.programNames = [];  
-                                    $scope.programStageNames = [];        
+                                    $scope.programNames = [];
+                                    $scope.programStageNames = [];
 
                                     //get programs valid for the selected ou and tei
-                                    angular.forEach(res.programs, function(program){                                    
+                                    angular.forEach(res.programs, function(program){
                                         if( program.trackedEntityType.id === $scope.selectedTei.trackedEntityType ){
                                             $scope.programs.push(program);
                                             $scope.programNames[program.id] = {id: program.id, displayName: program.displayName};
-                                            angular.forEach(program.programStages, function(stage){                
+                                            angular.forEach(program.programStages, function(stage){
                                                     $scope.programStageNames[stage.id] = {id: stage.id, displayName: stage.displayName};
                                             });
 
@@ -216,7 +216,7 @@ eRegistry.controller('DashboardController',
                                                 });
                                                 selectedEnrollment = selectedEnrollment ? selectedEnrollment : backupSelectedEnrollment;
                                             }
-                                        }                                
+                                        }
                                     });
                                     
 
@@ -228,7 +228,7 @@ eRegistry.controller('DashboardController',
                                         }
                                     }
 
-                                    DHIS2EventFactory.getEventsByProgram($scope.selectedTeiId, null).then(function(events){
+                                    DHIS2EventFactory.getEventsByProgram($scope.selectedTeiId, $scope.selectedProgramId).then(function(events){
                                         var user = SessionStorageService.get('USER_PROFILE');
                                         var userName = user.username;
 

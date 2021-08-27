@@ -537,7 +537,7 @@ eRegistryServices.factory('ERStorageService', function(){
 })
 
 /* Service to deal with enrollment */
-.service('EnrollmentService', function($http, DateUtils, DialogService, $translate, DHIS2URL) {
+.service('EnrollmentService', function($http, DateUtils, DialogService, $translate, DHIS2URL, TeiAccessApiService) {
     
     var convertFromApiToUser = function(enrollment){
         if(enrollment.enrollments){
@@ -557,6 +557,7 @@ eRegistryServices.factory('ERStorageService', function(){
         enrollment.incidentDate = DateUtils.formatFromUserToApi(enrollment.incidentDate);
         enrollment.enrollmentDate = DateUtils.formatFromUserToApi(enrollment.enrollmentDate);
         delete enrollment.orgUnitName;
+        delete enrollment.events;
         return enrollment;
     };
     return {        
@@ -594,15 +595,24 @@ eRegistryServices.factory('ERStorageService', function(){
         },
         enroll: function( enrollment ){
             var en = convertFromUserToApi(angular.copy(enrollment));
-            var promise = $http.post(  DHIS2URL+'/enrollments', en ).then(function(response){
+            var promise = TeiAccessApiService.post(enrollment.trackedEntityInstance, enrollment.program,  DHIS2URL + '/enrollments', en ).then(function(response){
                 return response.data;
+            }, function(response){
+                var errorBody = $translate.instant('failed_to_save_enrollment');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                return null;
             });
             return promise;
         },
         update: function( enrollment ){
             var en = convertFromUserToApi(angular.copy(enrollment));
-            var promise = $http.put( DHIS2URL+'/enrollments/' + en.enrollment , en ).then(function(response){
+            delete en.notes;
+            var promise = TeiAccessApiService.put(enrollment.trackedEntityInstance, enrollment.program, DHIS2URL + '/enrollments/' + en.enrollment , en ).then(function(response){
                 return response.data;
+            }, function(response){
+                var errorBody = $translate.instant('failed_to_update_enrollment');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                return null;
             });
             return promise;
         },
@@ -614,17 +624,17 @@ eRegistryServices.factory('ERStorageService', function(){
         },
         cancel: function(enrollment){
             var promise = $http.put(DHIS2URL+'/enrollments/' + enrollment.enrollment + '/cancelled').then(function(response){
-                return response.data;               
+                return response.data;
             });
-            return promise;           
+            return promise;
         },
         completeIncomplete: function(enrollment, status){
             var promise = $http.put(DHIS2URL+'/enrollments/' + enrollment.enrollment + '/' + status).then(function(response){
-                return response.data;               
+                return response.data;
             });
-            return promise; 
+            return promise;
         }
-    };   
+    };
 })
 
 /* Service for getting tracked entity */
@@ -660,10 +670,15 @@ eRegistryServices.factory('ERStorageService', function(){
 
 /* Service for getting tracked entity instances */
 .factory('TEIService', function($http, $q, AttributesFactory, DialogService, DHIS2URL ) {
-    
+    var convertFromUserToApi = function(tei){
+        delete tei.enrollments;
+        delete tei.programOwnersById;
+        return tei;
+    }
     return {
-        get: function(entityUid, optionSets, attributesById){
-            var promise = $http.get( DHIS2URL+'/trackedEntityInstances/' +  entityUid + '.json').then(function(response){
+        get: function(entityUid, optionSets, attributesById, programUid){
+            const program = programUid ? 'program=' + programUid + "&" : "";
+            var promise = $http.get( DHIS2URL+'/trackedEntityInstances/' +  entityUid + '.json?' + program + 'fields=*').then(function(response){
                 var tei = response.data;
                 angular.forEach(tei.attributes, function(att){                    
                     if(attributesById[att.attribute]){
@@ -744,7 +759,7 @@ eRegistryServices.factory('ERStorageService', function(){
             return promise;
         },
         register: function(tei, optionSets, attributesById){
-            var formattedTei = angular.copy(tei);
+            var formattedTei = convertFromUserToApi(angular.copy(tei));
             var attributes = [];
             angular.forEach(formattedTei.attributes, function(att){ 
                 attributes.push({attribute: att.attribute, value: AttributesFactory.formatAttributeValue(att, attributesById, optionSets, 'API')});
@@ -761,30 +776,30 @@ eRegistryServices.factory('ERStorageService', function(){
             return promise;            
         },
         processAttributes: function(selectedTei, selectedProgram, selectedEnrollment){
-            var def = $q.defer();            
+            var def = $q.defer();
             if(selectedTei.attributes){
                 if(selectedProgram && selectedEnrollment){
                     //show attribute for selected program and enrollment
                     AttributesFactory.getByProgram(selectedProgram).then(function(atts){
-                        selectedTei.attributes = AttributesFactory.showRequiredAttributes(atts,selectedTei.attributes, true);
-                        def.resolve(selectedTei);
-                    }); 
-                }
-                if(selectedProgram && !selectedEnrollment){
-                    //show attributes for selected program            
-                    AttributesFactory.getByProgram(selectedProgram).then(function(atts){    
-                        selectedTei.attributes = AttributesFactory.showRequiredAttributes(atts,selectedTei.attributes, false);
-                        def.resolve(selectedTei);
-                    }); 
-                }
-                if(!selectedProgram && !selectedEnrollment){
-                    //show attributes in no program            
-                    AttributesFactory.getWithoutProgram().then(function(atts){                
-                        selectedTei.attributes = AttributesFactory.showRequiredAttributes(atts,selectedTei.attributes, false);     
+                        selectedTei.attributes = AttributesFactory.showRequiredAttributes(atts, selectedTei.attributes, true);
                         def.resolve(selectedTei);
                     });
                 }
-            }       
+                if(selectedProgram && !selectedEnrollment){
+                    //show attributes for selected program
+                    AttributesFactory.getByProgram(selectedProgram).then(function(atts){
+                        selectedTei.attributes = AttributesFactory.showRequiredAttributes(atts, selectedTei.attributes, false);
+                        def.resolve(selectedTei);
+                    });
+                }
+                if(!selectedProgram && !selectedEnrollment){
+                    //show attributes in no program
+                    AttributesFactory.getWithoutProgram().then(function(atts){
+                        selectedTei.attributes = AttributesFactory.showRequiredAttributes(atts, selectedTei.attributes, false);
+                        def.resolve(selectedTei);
+                    });
+                }
+            }
             return def.promise;
         },
         addAuditMessage: function(tei, message){
@@ -1034,102 +1049,294 @@ eRegistryServices.factory('ERStorageService', function(){
     };
 })
 
-/* factory for handling events */
-.factory('DHIS2EventFactory', function($http, DialogService, $translate, DHIS2URL) {   
-    
-    return {     
-        
-        getEventsByStatus: function(entity, orgUnit, program, programStatus){   
-            var promise = $http.get( DHIS2URL+'/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&orgUnit=' + orgUnit + '&program=' + program + '&programStatus=' + programStatus  + '&skipPaging=true').then(function(response){
-                return response.data.events;
-            });            
-            return promise;
-        },
-        getEventsByProgram: function(entity, program){   
-            
-            var url = DHIS2URL+'/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&skipPaging=true';            
-            if(program){
-                url = url + '&program=' + program;
+.factory('TeiAccessApiService', function($http, $q, $modal){
+    var auditCancelledSettings = {};
+    var needAuditError = {
+        code: 401,
+        message: "OWNERSHIP_ACCESS_DENIED"
+    }
+    var modalDefaultSettings = {
+        templateUrl: 'components/teiAudit/tei-audit.html',
+        controller: 'TeiAuditController'
+    }
+    var getModalSettings = function(tei, program){
+        return {
+            templateUrl: 'components/teiAudit/tei-audit.html',
+            controller: 'TeiAuditController',
+            resolve: {
+                tei: function(){
+                    return tei;
+                },
+                program: function(){
+                    return program;
+                },
+                auditCancelledSettings: function(){
+                    return auditCancelledSettings
+                }
             }
-            var promise = $http.get( url ).then(function(response){
+        }
+    }
+
+    var handleSuccess = function(response){
+        return response;
+    }
+    var handleError = function(error, tei, program, postAuditApiFn){
+        if(error && error.data && error.data.httpStatusCode === needAuditError.code && error.data.message === needAuditError.message){
+            return handleAudit(tei,program,postAuditApiFn);
+        }else{
+            var def = $q.defer();
+            def.reject(error);
+            return def.promise;
+        }
+    }
+
+    var saveAuditMessage = function(tei, program, auditMessage){
+        var obj = {}; /*{
+            tei: tei,
+            program: program,
+            reason: auditMessage
+        }*/
+        return $http.post(DHIS2URL+'/tracker/ownership/override?trackedEntityInstance='+tei+'&program='+program+'&reason='+auditMessage, obj);
+    }
+
+    var handleAudit = function(tei, program, postAuditApiFn){
+        return $modal.open(getModalSettings(tei,program)).result.then(function(result){
+            return saveAuditMessage(tei,program,result.auditMessage).then(function(result){
+                return callApi(postAuditApiFn, tei,program);
+            }, function(error){
+                var def = $q.defer();
+                def.reject(error);
+                return def.promise;
+            });
+        }, function(error){
+            var def = $q.defer();
+            def.reject(error);
+            return def.promise;
+        });
+    }
+
+    var service = {};
+
+    var callApi = function(apiFn, tei, program){
+        return apiFn().then(function(response){
+            return response;
+        },function(error){
+            return handleError(error, tei, program, apiFn);
+        });
+    }
+
+    service.setAuditCancelledSettings = function(settings){
+        auditCancelledSettings = settings;
+    }
+    service.get = function(tei, program, url){
+        return callApi(function() { return $http.get(url) }, tei, program);
+    }
+
+    service.post = function(tei,program,url, data){
+        return callApi(function() { return $http.post(url, data) }, tei, program);
+    }
+
+    service.put = function(tei,program,url, data){
+        return callApi(function() { return $http.put(url, data) }, tei, program);
+    }
+
+    service.delete = function(tei,program,url, data){
+        return callApi(function() { return $http.delete(url, data) }, tei, program);
+    }
+    return service;
+})
+
+.service('NotificationService', function (DialogService, $timeout) {
+    this.showNotifcationDialog = function(errorMsgheader, errorMsgBody, errorResponse){
+        var dialogOptions = {
+            headerText: errorMsgheader,
+            bodyText: errorMsgBody
+        };
+        var summaries = null;
+        if (errorResponse && errorResponse.data) {
+            if(errorResponse.data.message && (errorResponse.data.status === 'ERROR' || errorResponse.data.status === 'WARNING')) {
+                dialogOptions.bodyText += "<br/>"+errorResponse.data.message+"<br/>";
+            }
+            if( errorResponse.data.response && errorResponse.data.response.importSummaries && errorResponse.data.response.importSummaries.length > 0 ){
+                summaries = JSON.stringify(errorResponse.data.response.importSummaries);
+            }
+        }
+        DialogService.showDialog({}, dialogOptions, summaries);
+    };
+
+    this.showNotifcationWithOptions = function(dialogDefaults, dialogOptions){
+        DialogService.showDialog(dialogDefaults, dialogOptions);
+    };
+
+    this.displayDelayedHeaderMessage = function( message ){
+        setHeaderDelayMessage( message );
+    };
+
+    this.displayHeaderMessage = function( message ){
+        $timeout(function(){
+            setHeaderMessage( message );
+        }, 1000);
+    };
+
+    this.removeHeaderMessage = function(){
+        hideHeaderMessage();
+    };
+})
+
+/* factory for handling events */
+.factory('DHIS2EventFactory', function($http, NotificationService, $translate, DHIS2URL, TeiAccessApiService) {
+    var skipPaging = "&skipPaging=true";
+    var errorHeader = $translate.instant("error");
+
+    var getContextEvent = function(dhis2Event){
+        if(Array.isArray(dhis2Event)){
+            return dhis2Event[0];
+        }
+        return dhis2Event;
+    }
+
+    return {
+
+        getEventsByStatus: function(entity, orgUnit, program, programStatus){
+            var promise = TeiAccessApiService.get(entity,program, DHIS2URL + '/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&orgUnit=' + orgUnit + '&program=' + program + '&programStatus=' + programStatus  + skipPaging).then(function(response){
                 return response.data.events;
-            });            
+            }, function (response) {
+
+                var errorBody = $translate.instant('failed_to_fetch_events');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+            });
+
             return promise;
         },
-        getEventsByProgramStage: function(entity, programStage){
-          var url = DHIS2URL+'/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + '&skipPaging=true'; 
-          if(programStage){
-              url += '&programStage='+programStage;
-          }
-          var promise = $http.get(url).then(function(response){
-             return response.data.events;
-          });
-          return promise;
+        getEventsByProgram: function(entity, program, attributeCategory){
+            var url = DHIS2URL + '/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + skipPaging;
+
+            url = url + '&program=' + program;
+
+            if( attributeCategory && !attributeCategory.default){
+                url = url + '&attributeCc=' + attributeCategory.cc + '&attributeCos=' + attributeCategory.cp;
+            }
+
+            var promise = TeiAccessApiService.get(entity,program, url ).then(function(response){
+                return response.data.events;
+            }, function (response) {
+                var errorBody = $translate.instant('failed_to_fetch_events');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                return null;
+            });
+            return promise;
+        },
+        getEventsByProgramStage: function(entity, program, programStage){
+            var url = DHIS2URL + '/events.json?ouMode=ACCESSIBLE&' + 'trackedEntityInstance=' + entity + skipPaging;
+            if(programStage){
+                url += '&programStage='+programStage;
+            }
+            var promise = TeiAccessApiService.get(entity,program, url).then(function(response){
+                return response.data.events;
+            }, function (response) {
+                var errorBody = $translate.instant('failed_to_fetch_events');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                return null;
+            });
+            return promise;
         },
         getByOrgUnitAndProgram: function(orgUnit, ouMode, program, startDate, endDate){
             var url;
             if(startDate && endDate){
-                url = DHIS2URL+'/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + '&startDate=' + startDate + '&endDate=' + endDate + '&skipPaging=true';
+                url = DHIS2URL + '/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + '&startDate=' + startDate + '&endDate=' + endDate + skipPaging;
             }
             else{
-                url = DHIS2URL+'/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + '&skipPaging=true';
+                url = DHIS2URL + '/events.json?' + 'orgUnit=' + orgUnit + '&ouMode='+ ouMode + '&program=' + program + skipPaging;
             }
             var promise = $http.get( url ).then(function(response){
                 return response.data.events;
             }, function(response){
                 if( response && response.data && response.data.status === 'ERROR'){
-                    var dialogOptions = {
-                        headerText: response.data.status,
-                        bodyText: response.data.message ? response.data.message : $translate.instant('unable_to_fetch_data_from_server')
-                    };		
-                    DialogService.showDialog({}, dialogOptions);
+                    var errorBody = $translate.instant('unable_to_fetch_data_from_server');
+                    NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
                 }
-            });            
+            });
             return promise;
         },
-        get: function(eventUid){            
-            var promise = $http.get(DHIS2URL+'/events/' + eventUid + '.json').then(function(response){               
+        get: function(teiUid, programUid, eventUid){
+            var promise = TeiAccessApiService.get(teiUid, programUid, DHIS2URL + '/events/' + eventUid + '.json').then(function(response){
                 return response.data;
-            });            
-            return promise;
-        },        
-        create: function(dhis2Event){    
-            var promise = $http.post(DHIS2URL+'/events.json', dhis2Event).then(function(response){
-                return response.data;           
+            }, function (response) {
+                if (response && response.data && response.data.status === 'ERROR') {
+                    var errorBody = $translate.instant('failed_to_fetch_events');
+                    NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                }
             });
-            return promise;            
+            return promise;
+        },
+        create: function(dhis2Event){
+            var contextEvent = getContextEvent(dhis2Event);
+            var promise = TeiAccessApiService.post(contextEvent.trackedEntityInstance, contextEvent.program, DHIS2URL + '/events.json', dhis2Event).then(function(response){
+                return response.data;
+            }, function (response) {
+                if (response && response.data && (response.data.status === 'ERROR' || response.data.status === 'WARNING')) {
+                    var errorBody = $translate.instant('event_creation_error');
+                    NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                    return null;
+                }
+            });
+            return promise;
         },
         delete: function(dhis2Event){
-            var promise = $http.delete(DHIS2URL+'/events/' + dhis2Event.event).then(function(response){
-                return response.data;               
-            });
-            return promise;           
-        },
-        update: function(dhis2Event){   
-            var promise = $http.put(DHIS2URL+'/events/' + dhis2Event.event, dhis2Event).then(function(response){
-                return response.data;         
-            });
-            return promise;
-        },        
-        updateForSingleValue: function(singleValue){   
-            var promise = $http.put(DHIS2URL+'/events/' + singleValue.event + '/' + singleValue.dataValues[0].dataElement, singleValue ).then(function(response){
+            var contextEvent = getContextEvent(dhis2Event);
+            var promise = TeiAccessApiService.delete(contextEvent.trackedEntityInstance, contextEvent.program, DHIS2URL + '/events/' + dhis2Event.event).then(function(response){
                 return response.data;
+            }, function (response) {
+                if (response && response.data && response.data.status === 'ERROR') {
+                    var errorBody = $translate.instant('delete_error_audit');
+                    NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                }
             });
             return promise;
         },
-        updateForNote: function(dhis2Event){   
-            var promise = $http.post(DHIS2URL+'/events/' + dhis2Event.event + '/note', dhis2Event).then(function(response){
-                return response.data;         
+        update: function(dhis2Event){
+            var contextEvent = getContextEvent(dhis2Event);
+            var promise = TeiAccessApiService.put(contextEvent.trackedEntityInstance, contextEvent.program, DHIS2URL + '/events/' + dhis2Event.event, dhis2Event).then(function(response){
+                return response.data;
+            }, function (response) {
+                var errorBody = $translate.instant('failed_to_update_event');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+            });
+            return promise;
+        },
+        updateForSingleValue: function(singleValue){
+            var promise = TeiAccessApiService.put(singleValue.trackedEntityInstance, singleValue.program, DHIS2URL + '/events/' + singleValue.event + '/' + singleValue.dataValues[0].dataElement, singleValue ).then(function(response){
+                return response.data;
+            }, function (response) {
+                var errorBody = $translate.instant('failed_to_update_event');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                return null;
+            });
+            return promise;
+        },
+        updateForNote: function(dhis2Event){
+            var contextEvent = getContextEvent(dhis2Event);
+            var promise = TeiAccessApiService.post(contextEvent.trackedEntityInstance, contextEvent.program, DHIS2URL + '/events/' + dhis2Event.event + '/note', dhis2Event).then(function(response){
+                return response.data;
+            }, function (response) {
+                var errorBody = $translate.instant('failed_to_update_event');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                return null;
             });
             return promise;
         },
         updateForEventDate: function(dhis2Event){
-            var promise = $http.put(DHIS2URL+'/events/' + dhis2Event.event + '/eventDate', dhis2Event).then(function(response){
-                return response.data;         
+            var contextEvent = getContextEvent(dhis2Event);
+            var promise = TeiAccessApiService.put(contextEvent.trackedEntityInstance, contextEvent.program, DHIS2URL + '/events/' + dhis2Event.event + '/eventDate', dhis2Event).then(function(response){
+                return response.data;
+            }, function (response) {
+                var errorBody = $translate.instant('failed_to_update_event');
+                NotificationService.showNotifcationDialog(errorHeader, errorBody, response);
+                return null;
             });
             return promise;
         }
-    };    
+    };
 })
 
 /* factory for handling event reports */

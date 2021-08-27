@@ -2459,13 +2459,15 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                                     };
                                 }
 
+                                var ruleEffect = $rootScope.ruleeffects[ruleEffectKey][action.id];
+
                                 //In case the rule is effective and contains specific data,
                                 //the effect be refreshed from the variables list.
                                 //If the rule is not effective we can skip this step
                                 if(ruleEffective && action.data)
                                 {
                                     //Preserve old data for comparison:
-                                    var oldData = $rootScope.ruleeffects[ruleEffectKey][action.id].data;
+                                    var oldData = ruleEffect.data;
 
                                     //The key data might be containing a dollar sign denoting that the key data is a variable.
                                     //To make a lookup in variables hash, we must make a lookup without the dollar sign in the variable name
@@ -2475,7 +2477,7 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                                     if(angular.isDefined(variablesHash[nameWithoutBrackets]))
                                     {
                                         //The variable exists, and is replaced with its corresponding value
-                                        $rootScope.ruleeffects[ruleEffectKey][action.id].data =
+                                        ruleEffect.data =
                                             variablesHash[nameWithoutBrackets].variableValue;
                                     }
                                     else if(action.data.indexOf('{') !== -1 || action.data.indexOf('d2:') !== -1)
@@ -2483,30 +2485,30 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                                         //Since the value couldnt be looked up directly, and contains a curly brace or a dhis function call,
                                         //the expression was more complex than replacing a single variable value.
                                         //Now we will have to make a thorough replacement and separate evaluation to find the correct value:
-                                        $rootScope.ruleeffects[ruleEffectKey][action.id].data = replaceVariables(action.data, variablesHash);
+                                        ruleEffect.data = replaceVariables(action.data, variablesHash);
                                         //In a scenario where the data contains a complex expression, evaluate the expression to compile(calculate) the result:
-                                        $rootScope.ruleeffects[ruleEffectKey][action.id].data = runExpression($rootScope.ruleeffects[ruleEffectKey][action.id].data, action.data, "action:" + action.id, flag, variablesHash);
+                                        ruleEffect.data = runExpression(ruleEffect.data, action.data, "action:" + action.id, flag, variablesHash);
                                     }
 
-                                    if(oldData !== $rootScope.ruleeffects[ruleEffectKey][action.id].data) {
+                                    if(oldData !== ruleEffect.data) {
                                         updatedEffectsExits = true;
                                     }
                                 }
 
                                 //Update the rule effectiveness if it changed in this evaluation;
-                                if($rootScope.ruleeffects[ruleEffectKey][action.id].ineffect !== ruleEffective)
+                                if(ruleEffect.ineffect !== ruleEffective)
                                 {
                                     //There is a change in the rule outcome, we need to update the effect object.
                                     updatedEffectsExits = true;
-                                    $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect = ruleEffective;
+                                    ruleEffect.ineffect = ruleEffective;
                                 }
 
                                 //In case the rule is of type CREATEEVENT, run event creation:
-                                if($rootScope.ruleeffects[ruleEffectKey][action.id].action === "CREATEEVENT" && $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect){
+                                if(ruleEffect.action === "CREATEEVENT" && ruleEffect.ineffect){
                                     if(evs && evs.byStage){
-                                        if($rootScope.ruleeffects[ruleEffectKey][action.id].programStage) {
-                                            var stage = stagesById && stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id]? stagesById[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id] : null;
-                                            var createdNow = performCreateEventAction($rootScope.ruleeffects[ruleEffectKey][action.id], selectedEntity, selectedEnrollment, evs.byStage[$rootScope.ruleeffects[ruleEffectKey][action.id].programStage.id], executingEvent.event, stage);
+                                        if(ruleEffect.programStage) {
+                                            var stage = stagesById && stagesById[ruleEffect.programStage.id]? stagesById[ruleEffect.programStage.id] : null;
+                                            var createdNow = performCreateEventAction(ruleEffect, selectedEntity, selectedEnrollment, evs.byStage[ruleEffect.programStage.id], executingEvent.event, stage);
                                             if(createdNow > 0){
                                                 variablesHash['highRiskPregnancyBangladesh'].variableValue = VariableService.getHighRiskPregnancyBangladesh(evs);
                                                 variablesHash['highRiskPregnancy'].variableValue = VariableService.getHighRiskPregnancy(evs);
@@ -2522,11 +2524,11 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                                 }
                                 //In case the rule is of type "assign variable" and the rule is effective,
                                 //the variable data result needs to be applied to the correct variable:
-                                else if($rootScope.ruleeffects[ruleEffectKey][action.id].action === "ASSIGN" && $rootScope.ruleeffects[ruleEffectKey][action.id].ineffect){
+                                else if(ruleEffect.action === "ASSIGN" && ruleEffect.ineffect){
                                     //from earlier evaluation, the data portion of the ruleeffect now contains the value of the variable to be assigned.
                                     //the content portion of the ruleeffect defines the name for the variable, when the qualidisers are removed:
-                                    var variabletoassign = $rootScope.ruleeffects[ruleEffectKey][action.id].content ?
-                                        $rootScope.ruleeffects[ruleEffectKey][action.id].content.replace("#{","").replace("A{","").replace("}","") : null;
+                                    var variabletoassign = ruleEffect.content ?
+                                        ruleEffect.content.replace("#{","").replace("A{","").replace("}","") : null;
 
                                     if(variabletoassign && !angular.isDefined(variablesHash[variabletoassign])){
                                         //If a variable is mentioned in the content of the rule, but does not exist in the variables hash, show a warning:
@@ -2534,13 +2536,13 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                                     }
 
                                     if(variablesHash[variabletoassign]){
-                                        var updatedValue = $rootScope.ruleeffects[ruleEffectKey][action.id].data;
+                                        var updatedValue = ruleEffect.data;
 
                                         var valueType = determineValueType(updatedValue);
-                                        var dataElementId = $rootScope.ruleeffects[ruleEffectKey][action.id].dataElement
+                                        var dataElementId = ruleEffect.dataElement
                                         var dataElementExists = dataElementId && allDataElements[dataElementId];
                                         if(dataElementExists) {
-                                            updatedValue = VariableService.getDataElementValueOrCodeForValue(variablesHash[variabletoassign].useCodeForOptionSet, updatedValue, $rootScope.ruleeffects[ruleEffectKey][action.id].dataElement.id, allDataElements, optionSets);
+                                            updatedValue = VariableService.getDataElementValueOrCodeForValue(variablesHash[variabletoassign].useCodeForOptionSet, updatedValue, ruleEffect.dataElement.id, allDataElements, optionSets);
                                         }
                                         updatedValue = VariableService.processValue(updatedValue, valueType);
 
@@ -2556,6 +2558,19 @@ d2Services.service('NotificationService', function (DialogService, $timeout) {
                                         if(variablesHash[variabletoassign].variableValue !== updatedValue) {
                                             //If the variable was actually updated, we assume that there is an updated ruleeffect somewhere:
                                             updatedEffectsExits = true;
+                                        }
+                                    }
+                                    if (ruleEffect.dataElement && executingEvent.programStage) {
+                                        // When assigning to a data element, check that it is contained in the current program stage
+                                        if (!((dataElementId, dataElements) => {
+                                            for (var programStageDataElement of dataElements) {
+                                                if (programStageDataElement.dataElement.id === dataElementId) {
+                                                    return true;
+                                                }
+                                            }
+                                            return false;
+                                        })(ruleEffect.dataElement.id, stagesById[executingEvent.programStage].programStageDataElements)) {
+                                            ruleEffect.ineffect = false;
                                         }
                                     }
                                 }
