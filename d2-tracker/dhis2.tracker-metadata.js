@@ -49,7 +49,7 @@ dhis2.tracker.getTrackerMetaObjects = function( data, objNames, url, filter )
         return data;
     }
 
-    filter = filter + '[' + programs.programIds.toString() + ']';
+    filter = filter + '[' + data.programIds.toString() + ']';
 
 
     return $.ajax(
@@ -59,7 +59,7 @@ dhis2.tracker.getTrackerMetaObjects = function( data, objNames, url, filter )
             data:filter
         })
         .then( function(response) {
-            return {programs: programs, self: response[objNames], programIds: programs.programIds};
+            return {programs: data.programs, self: response[objNames], programIds: data.programIds};
         }, function(){
             return null;
         });
