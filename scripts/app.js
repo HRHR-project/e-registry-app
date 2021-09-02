@@ -63,6 +63,7 @@ angular.module('eRegistry')
 
 .value('DHIS2URL', BASEAPIURL)
 .value('DHIS2BASEURL', BASEURL)
+.value('DHIS2APPURL', APPURL)
 
 .value('DHIS2COORDINATESIZE', 6)
 

@@ -12,6 +12,7 @@
         
         <script>
         //Global variables
+        APPURL = '<%= htmlWebpackPlugin.options.APPURL  %>'
         BASEURL = '<%= htmlWebpackPlugin.options.BASEURL  %>'
         BASEAPIURL = '<%= htmlWebpackPlugin.options.BASEAPIURL  %>';
         </script>
@@ -25,9 +26,6 @@
                 Dhis2HeaderBar.initHeaderBar(document.querySelector('#header'), BASEAPIURL, { noLoadingIndicator: true });
             });
         </script>
-        
-        
-        <script src="<%= htmlWebpackPlugin.options.BASEAPIURL  %>/files/script"></script>
 
     </head>
     <body>

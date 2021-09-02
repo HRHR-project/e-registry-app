@@ -38,7 +38,8 @@ dhis2['util'] = dhis2['util'] || {};
  *
  * @returns {object} Namespace object
  */
-dhis2.util.BASEURL = "..";
+
+dhis2.util.BASEURL = BASEURL;
 
 dhis2.util.namespace = function( path ) {
   var parts = path.split('.');
