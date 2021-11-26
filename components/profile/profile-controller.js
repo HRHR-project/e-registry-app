@@ -36,7 +36,7 @@ eRegistry.controller('ProfileController',
         $scope.selectedEnrollment = selections.selectedEnrollment;
         $scope.optionSets = selections.optionSets;
         $scope.trackedEntityForm = null;
-        $scope.customForm = null;
+        $scope.customRegistrationForm = null;
         $scope.attributes = [];
         $scope.attributesById = CurrentSelection.getAttributesById();
         

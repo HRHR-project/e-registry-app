@@ -514,6 +514,7 @@ eRegistry.controller('TEIAddController',
                 DateUtils,
                 RegistrationService,
                 SessionStorageService) {
+    $scope.DHIS2BASEURL = DHIS2BASEURL;
     $scope.selectedOrgUnit = SessionStorageService.get('SELECTED_OU');
     $scope.enrollment = {enrollmentDate: '', incidentDate: ''};    
     $scope.attributesById = CurrentSelection.getAttributesById();
@@ -588,19 +589,19 @@ eRegistry.controller('TEIAddController',
     //watch for selection of program
     $scope.$watch('selectedProgramForRelative', function() {        
         $scope.trackedEntityForm = null;
-        $scope.customForm = null;
-        $scope.customFormExists = false;
+        $scope.customRegistrationForm = null;
+        $scope.customRegistrationFormExists = false;
         
         AttributesFactory.getByProgram($scope.selectedProgramForRelative).then(function(atts){
             $scope.attributes = atts;                        
             if($scope.selectedProgramForRelative && $scope.selectedProgramForRelative.id && $scope.selectedProgramForRelative.dataEntryForm && $scope.selectedProgramForRelative.dataEntryForm.htmlCode){
-                $scope.customFormExists = true;
+                $scope.customRegistrationFormExists = true;
                 $scope.trackedEntityForm = $scope.selectedProgramForRelative.dataEntryForm;  
                 $scope.trackedEntityForm.attributes = $scope.attributes;
                 $scope.trackedEntityForm.selectIncidentDatesInFuture = $scope.selectedProgramForRelative.selectIncidentDatesInFuture;
                 $scope.trackedEntityForm.selectEnrollmentDatesInFuture = $scope.selectedProgramForRelative.selectEnrollmentDatesInFuture;
                 $scope.trackedEntityForm.displayIncidentDate = $scope.selectedProgramForRelative.displayIncidentDate;
-                $scope.customForm = CustomFormService.getForTrackedEntity($scope.trackedEntityForm, 'RELATIONSHIP');
+                $scope.customRegistrationForm = CustomFormService.getForTrackedEntity($scope.trackedEntityForm, 'RELATIONSHIP');
             }
 
             assignInheritance();

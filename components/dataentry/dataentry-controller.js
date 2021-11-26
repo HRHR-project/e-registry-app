@@ -1582,9 +1582,9 @@ eRegistry.controller('DataEntryController',
             
         $scope.setDisplayTypeForStage($scope.currentStage);
         
-        $scope.customForm = CustomFormService.getForProgramStage($scope.currentStage, $scope.prStDes);        
+        $scope.customRegistrationForm = CustomFormService.getForProgramStage($scope.currentStage, $scope.prStDes);
         
-        if ($scope.customForm) {
+        if ($scope.customRegistrationForm) {
             $scope.displayCustomForm = "CUSTOM";
         }
         else if($scope.currentStage.id === 'uUHQw5KrZAL' || $scope.currentStage.id === 'BjNpOxjvEj5' || $scope.currentStage.id === 'FRSZV43y35y' && !$scope.isBangladesh){ //custom code for folkehelsa            

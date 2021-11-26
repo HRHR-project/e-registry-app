@@ -24,7 +24,7 @@
         <!-- Entity type ends -->        
 
         <!--custom registration form begins -->
-        <div class="vertical-spacing" ng-if="customFormExists">
+        <div class="vertical-spacing" ng-if="customRegistrationFormExists">
 
             <!-- enrollment and incidence dates begin -->
             <div ng-if="selectedProgramForRelative && !customForm.hasProgramDate">
@@ -32,13 +32,14 @@
             </div>
             <!-- enrollment and incidence dates end -->
 
-            <div ng-include="'{{DHIS2BASEURL}}/dhis-web-commons/angular-forms/custom-form.html'"></div>
+            <div ng-if="DHIS2BASEURL === '..'" ng-include="'../dhis-web-commons/angular-forms/custom-registration-form.html'"></div>
+            <div ng-if="DHIS2BASEURL === '../../..'" ng-include="'../../../dhis-web-commons/angular-forms/custom-registration-form.html'"></div>
 
         </div>
         <!-- custom registration form ends-->
 
         <!-- default registration form begins -->
-        <div class="vertical-spacing" ng-if="!customFormExists">            
+        <div class="vertical-spacing" ng-if="!customRegistrationFormExists">
             <div ng-if="selectedProgramForRelative" ng-include="'components/registration/enrollment-dates-form.html'"></div>
             <div ng-include="'components/registration/default-registration-form.html'"></div>
         </div>
